@@ -403,6 +403,13 @@ export interface DbInfo {
   goal: string;
 }
 
+/** A bundled example the server can install as a database (GET /api/examples). */
+export interface BundledExample {
+  name: string;
+  description?: string;
+  kind?: 'seed' | 'import' | string;
+}
+
 export type ImportStatus = 'created' | 'updated' | 'skipped' | 'error';
 
 export interface ImportFileReport {

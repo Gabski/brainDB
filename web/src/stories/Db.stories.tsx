@@ -27,7 +27,14 @@ const base: ImportWizardProps = {
   run: (f, c, n) => mc.importFiles(f, { db: n, config: c }),
   onDone: (n) => log('done', n),
   onCancel: () => log('cancel'),
-  examples: ['import-demo', 'sales-company', 'research-lab'],
+  examples: [
+    { name: 'sales-company', description: 'Tessaline sales memory' },
+    { name: 'research-lab', description: 'Electrolyte lab memory' },
+    { name: 'import-demo', description: 'A raw pile turned into a database' },
+  ],
+  onInstallExample: async (example, db) => {
+    log('install', example, db);
+  },
 };
 const W = ({ children }: { children: React.ReactNode }) => <Frame width={980}>{children}</Frame>;
 

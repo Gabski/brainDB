@@ -1,25 +1,66 @@
-# Federation override for the root docker-compose.yml (brainDB Addendum C5).
-# The sales brain (examples/sales-company/seed.json) declares the source
-#   {"name": "lab", "uri": "http://lab:7791", "tokenEnv": "LAB_TOKEN", "weight": 0.7, "ttl": 300, "mode": "live", "federateDepth": 1}
-# and 6 external links into the lab brain. This override gives both services the shared LAB_TOKEN (the lab maps it
-# to its user `tessaline`, role partner, see examples/research-lab/braindb.yaml), and
-# makes sales wait for the lab, and mounts the federation queries.
-#
+# Federation: two clean data directories, each with one example installed before serve.
+# Run this file on its own (it does not override the root compose file):
 #   export LAB_TOKEN=$(openssl rand -hex 16)          # optional; empty = lab API without auth (local only)
-#   docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml down -v   # reseed from scratch
-#   docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml up -d --build
+#   docker compose -f examples/federation/docker-compose.federation.yml down -v
+#   docker compose -f examples/federation/docker-compose.federation.yml up -d --build
+#
+# sales UI: http://127.0.0.1:7791    lab UI: http://127.0.0.1:7792
+# The sales seed calls the lab at http://lab:7791. Install happens before the process listens,
+# so the lab user `tessaline` (tokenEnv LAB_TOKEN) is loaded at startup.
+
+name: braindb-federation
+
+x-braindb: &braindb
+  build:
+    context: ../..
+    dockerfile: Dockerfile
+    target: runtime
+    args:
+      VERSION: ${BRAINDB_VERSION:-dev}
+  image: braindb:${BRAINDB_VERSION:-dev}
+  restart: unless-stopped
+  environment: &env
+    BRAINDB_ADDR: 0.0.0.0:7791
+    BRAINDB_DATA_DIR: /data
+    BRAINDB_EXAMPLES: /opt/braindb/examples
+    BRAINDB_TOKEN: ${BRAINDB_TOKEN:-}
+    BRAINDB_ALLOW_NO_TOKEN: ${BRAINDB_ALLOW_NO_TOKEN:-1}
+    LAB_TOKEN: ${LAB_TOKEN:-}
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7791/api/health"]
+    interval: 15s
+    timeout: 3s
+    start_period: 60s
+    retries: 3
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: ["no-new-privileges:true"]
 
 services:
   lab:
+    <<: *braindb
+    container_name: braindb-lab
     environment:
-      BRAINDB_EXAMPLE: research-lab
-      LAB_TOKEN: ${LAB_TOKEN:-}                          # lab user `tessaline` (role partner) authenticates with this token
+      <<: *env
+      BRAINDB_INSTALL: research-lab
+      BRAINDB_DB: research-lab
+    ports: ["127.0.0.1:7792:7791"]
+    volumes: [lab-data:/data]
 
   sales:
+    <<: *braindb
+    container_name: braindb-sales
     environment:
-      BRAINDB_EXAMPLE: sales-company
-      LAB_TOKEN: ${LAB_TOKEN:-${BRAINDB_TOKEN:-}}       # read via tokenEnv; never written to brain.xml
+      <<: *env
+      BRAINDB_INSTALL: sales-company
+      BRAINDB_DB: sales-company
+    ports: ["127.0.0.1:7791:7791"]
     depends_on:
       lab: {condition: service_healthy}
     volumes:
-      - ./examples/federation:/opt/braindb/federation:ro
+      - sales-data:/data
+      - .:/opt/braindb/federation:ro
+
+volumes:
+  sales-data:
+  lab-data:

@@ -49,8 +49,8 @@ RUN chmod 0755 /usr/local/bin/braindb-entrypoint && mkdir -p /data && chown brai
 USER braindb
 WORKDIR /data
 ENV BRAINDB_ADDR=0.0.0.0:7791 \
-    BRAINDB_BRAIN=/data/brain.xml \
-    BRAINDB_EXAMPLE=""
+    BRAINDB_DATA_DIR=/data \
+    BRAINDB_EXAMPLES=/opt/braindb/examples
 EXPOSE 7791
 VOLUME ["/data"]
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \

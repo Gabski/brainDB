@@ -37,21 +37,21 @@ The lab mirrors the topic: `f114` (partner needs), `q144` (which claim can Tessa
 
 ## Run
 
-Use the root `docker-compose.yml` together with the override in this folder:
+This file is its own compose project. Each service starts from a clean data directory and installs one example before it listens, so the lab user `tessaline` is loaded with `LAB_TOKEN`:
 
 ```bash
 export LAB_TOKEN=$(openssl rand -hex 16)      # optional; the lab then requires this token, and sales sends it
-docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml down -v    # reseed from scratch
-docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml up -d --build
+docker compose -f examples/federation/docker-compose.federation.yml down -v
+docker compose -f examples/federation/docker-compose.federation.yml up -d --build
 # sales UI: http://127.0.0.1:7791   lab UI: http://127.0.0.1:7792
-docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml exec -T sales \
-  braindb run --brain /data/brain.xml /opt/braindb/federation/queries.bdql
+docker compose -f examples/federation/docker-compose.federation.yml exec -T sales \
+  braindb run --data-dir /data --db sales-company /opt/braindb/federation/queries.bdql
 ```
 
-The override does three things:
+The compose file does three things:
 
-- gives `sales` the `LAB_TOKEN` env var (the token is never written to `brain.xml`; only `token-env="LAB_TOKEN"` is);
-- sets the lab's `BRAINDB_TOKEN` to the same value;
+- installs `research-lab` and `sales-company` into separate data directories (`BRAINDB_INSTALL`);
+- gives both services `LAB_TOKEN` (the token is never written to the brain; only `token-env="LAB_TOKEN"` is);
 - makes `sales` wait for a healthy `lab`, and mounts this folder read-only at `/opt/braindb/federation`.
 
 Without Docker, start the lab on 7792 and point the source at it:

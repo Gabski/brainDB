@@ -417,6 +417,52 @@ func TestDryRunAgainstUnknownDB(t *testing.T) {
 }
 
 // A nil slice marshals to JSON null; the UI reads these as lists and crashed on null.
+func TestInstallExampleAPI(t *testing.T) {
+	root := t.TempDir()
+	src := filepath.Join(root, "examples", "mini")
+	if err := os.MkdirAll(filepath.Join(src, "docs"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write := func(p, s string) {
+		t.Helper()
+		if err := os.WriteFile(p, []byte(s), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(filepath.Join(src, "seed.json"), `{"name":"Mini","memories":[{"id":"f1","kind":"fact","text":"sodium packs ship in Q4"}]}`)
+	write(filepath.Join(src, "braindb.yaml"), "name: mini\ndescription: a tiny example\n")
+	write(filepath.Join(src, "docs", "note.md"), "# Note\n\nPacks are late.\n")
+
+	s := server.New("test")
+	s.DataDir = filepath.Join(root, "data")
+	s.ExamplesDir = filepath.Join(root, "examples")
+	ts := httptest.NewServer(s.Handler())
+	t.Cleanup(func() { s.Close(); ts.Close() })
+
+	c, body, _ := do(t, "GET", ts.URL+"/api/examples", "")
+	if c != 200 || !strings.Contains(body, `"name":"mini"`) || !strings.Contains(body, "a tiny example") {
+		t.Fatalf("examples: %d %s", c, body)
+	}
+	c, body, _ = do(t, "POST", ts.URL+"/api/dbs", `{"example":"mini","name":"packs"}`)
+	if c != 200 || !strings.Contains(body, `"name":"packs"`) {
+		t.Fatalf("install: %d %s", c, body)
+	}
+	c, body, _ = do(t, "GET", ts.URL+"/api/state?db=packs", "")
+	if c != 200 || !strings.Contains(body, "sodium packs ship in Q4") {
+		t.Fatalf("installed state: %d %s", c, body)
+	}
+	if c, body, _ = do(t, "POST", ts.URL+"/api/dbs", `{"example":"mini","config":"name: x\n"}`); c != 400 || !strings.Contains(body, "not both") {
+		t.Fatalf("config+example: %d %s", c, body)
+	}
+	lone := server.New("test")
+	lone.ExamplesDir = s.ExamplesDir
+	ts2 := httptest.NewServer(lone.Handler())
+	t.Cleanup(func() { lone.Close(); ts2.Close() })
+	if c, body, _ = do(t, "POST", ts2.URL+"/api/dbs", `{"example":"mini"}`); c != 400 || !strings.Contains(body, "--data-dir") {
+		t.Fatalf("single brain install: %d %s", c, body)
+	}
+}
+
 func TestWhoamiListsAreNeverNull(t *testing.T) {
 	_, ts, _ := newServer(t)
 	defer ts.Close()

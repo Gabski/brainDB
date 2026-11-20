@@ -148,22 +148,35 @@ make build                       # web UI (npm) + Go binary → bin/braindb
 <pre data-lang="bash"><code class="lang-bash">sudo install -m 0755 bin/braindb /usr/local/bin/braindb</code></pre>
 
 <h3>Docker</h3>
-<pre data-lang="bash"><code class="lang-bash">docker compose up -d --build     # sales-company → http://127.0.0.1:7791
-                                 # research-lab  → http://127.0.0.1:7792
-docker compose --profile test run --rm smoke     # end-to-end API checks against both services
-docker compose logs -f sales</code></pre>
+<pre data-lang="bash"><code class="lang-bash">docker compose up -d --build     # empty database "default" → http://127.0.0.1:7791
+docker compose --profile test run --rm smoke     # installs sales-company, then checks the API
+docker compose logs -f braindb</code></pre>
+<p>The container starts with a clean data directory. Install a bundled example into the running server
+(New database in the UI, or):</p>
+<pre data-lang="bash"><code class="lang-bash">curl -s -X POST http://127.0.0.1:7791/api/dbs \
+  -H 'Content-Type: application/json' \
+  -d '{"example":"sales-company"}'
+# sales-company, research-lab, braindb-self (seed + docs + templates), import-demo (raw pile)</code></pre>
+<p>Or prepare the directory before serve:</p>
+<pre data-lang="bash"><code class="lang-bash">braindb example ls
+braindb example install research-lab --data-dir data
+braindb serve --data-dir data</code></pre>
+<p><code>braindb example install</code> writes the database on disk. A server that is already running does not see
+that directory until it restarts. The UI and <code>POST /api/dbs</code> install into the live server.</p>
 <p>A single container:</p>
 <pre data-lang="bash"><code class="lang-bash">docker build -t braindb .
 docker run -d --name braindb -p 127.0.0.1:7791:7791 \
-  -v braindb-data:/data -e BRAINDB_EXAMPLE=research-lab braindb</code></pre>
+  -v braindb-data:/data braindb</code></pre>
 
 <h4>Environment variables</h4>
 <div class="tablewrap"><table>
 <tr><th>Variable</th><th>Default</th><th>Meaning</th></tr>
-<tr><td><code>BRAINDB_DATA_DIR</code></td><td><code>/data</code></td><td>databases directory (one subdirectory per database)</td></tr>
-<tr><td><code>BRAINDB_BRAIN</code></td><td><code>/data/brain.xml</code></td><td>single-brain mode (backward compatible)</td></tr>
+<tr><td><code>BRAINDB_DATA_DIR</code></td><td><code>/data</code></td><td>databases directory (one subdirectory per database). This is how the image starts</td></tr>
+<tr><td><code>BRAINDB_EXAMPLES</code></td><td><code>/opt/braindb/examples</code> in the image</td><td>bundled examples the server can install</td></tr>
+<tr><td><code>BRAINDB_INSTALL</code></td><td>empty</td><td>comma-separated examples to install before serve (<code>research-lab</code> or <code>sales-company:sales</code>). The federation compose file sets this</td></tr>
+<tr><td><code>BRAINDB_DB</code></td><td><code>default</code></td><td>database the container CLI and MCP attach to</td></tr>
+<tr><td><code>BRAINDB_BRAIN</code></td><td>unset</td><td>single-file mode, and only when <code>BRAINDB_DATA_DIR</code> is unset</td></tr>
 <tr><td><code>BRAINDB_ADDR</code></td><td><code>0.0.0.0:7791</code> in the image, <code>127.0.0.1:7791</code> otherwise</td><td>listen address</td></tr>
-<tr><td><code>BRAINDB_EXAMPLE</code></td><td>empty</td><td>on first start, seed from a bundled example (<code>sales-company</code>, <code>research-lab</code>, <code>braindb-self</code>), with docs and templates</td></tr>
 <tr><td><code>BRAINDB_BRAIN</code> extension</td><td><code>.xml</code></td><td>picks the backend: <code>brain.xml</code> is the file backend, <code>brain.db</code> / <code>brain.sqlite</code> the SQLite one</td></tr>
 <tr><td><code>BRAINDB_FORMAT</code></td><td><code>xml</code></td><td>file format: <code>xml</code>, <code>bin</code> or <code>both</code></td></tr>
 <tr><td><code>BRAINDB_EMBED_PROVIDER</code></td><td><code>hash</code></td><td><code>openai</code> to use a remote embedding endpoint</td></tr>
@@ -1008,7 +1021,7 @@ claude mcp add braindb -- /opt/braindb/bin/braindb mcp --data-dir /srv/data --db
 # a published brain binary (read-only knowledge base)
 claude mcp add acme-sales -- /opt/braindb/dist/acme-sales-brain
 # the Docker service
-claude mcp add braindb -- docker compose -f /opt/braindb/docker-compose.yml exec -T sales braindb-entrypoint mcp
+claude mcp add braindb -- docker compose -f /opt/braindb/docker-compose.yml exec -T braindb braindb-entrypoint mcp
 # remote
 claude mcp add --transport http braindb https://brain.example.org/mcp \
   --header "Authorization: Bearer $BRAINDB_TOKEN"</code></pre>
@@ -1410,7 +1423,7 @@ measured &mdash; <a href="BENCHMARKS.md">docs/BENCHMARKS.md</a> keeps the two ap
   <li><b>Command palette</b> and full keyboard navigation.</li>
   <li><b>Six 3D views:</b> brain, layers, depth sphere, decay timeline, vector map (PCA) and spanning tree.</li>
   <li><b>Live feed</b> of what the agent does, over SSE.</li>
-  <li><b>New database wizard:</b> drop folders, read the dry-run report, edit the proposed config, create.</li>
+  <li><b>New database wizard:</b> install a bundled example, or drop folders, read the dry-run report, edit the proposed config, create.</li>
   <li>Every component has a Storybook story (<code>make storybook</code> → <code>:6006</code>).</li>
 </ul>
 
@@ -1421,7 +1434,8 @@ make storybook      # Storybook on :6006 (fixtures, mock API)</code></pre>
 <section id="examples">
 <h2>Examples<a class="anchor" href="#examples">#</a></h2>
 <p class="lead">Four worked scenarios ship with the repository. Each has a <code>seed.json</code>, documents to ingest,
-templates and a README with queries to try.</p>
+templates and a README with queries to try. On a server started with <code>--data-dir</code> (including Docker),
+install one from the New database dialog or with <code>braindb example install sales-company</code>.</p>
 
 <div class="tablewrap"><table>
 <tr><th>Example</th><th>Scenario</th></tr>
@@ -1683,6 +1697,7 @@ That rule is part of the <a href="#agent-rules">rules block</a> for a reason.</p
 tools that make AI work reliably in real organisations. Most are ready to be built and tested, but research funding is
 missing. If brainDB is useful to you:</p>
 <ul>
+  <li><b>Donate</b> — <a href="https://www.paypal.com/donate?hosted_button_id=55VK9FJQ2N75G">https://www.paypal.com/donate?hosted_button_id=55VK9FJQ2N75G</a>. The link can be shared anywhere a donor might see it.</li>
   <li><b>Sponsor or fund research</b> — grants, research partnerships, or sponsorship of specific features or experiments.</li>
   <li><b>Run a pilot</b> on your team's knowledge and share the results, data permitting.</li>
   <li><b>Collaborate</b> — universities, labs and companies working on agent memory, knowledge graphs or context engineering are welcome.</li>

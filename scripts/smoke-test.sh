@@ -1,6 +1,7 @@
 #!/bin/sh
 # brainDB end-to-end smoke test against running services (HTTP API).
-#   TARGETS="http://127.0.0.1:7791 http://127.0.0.1:7792" sh scripts/smoke-test.sh
+#   TARGETS="http://127.0.0.1:7791" sh scripts/smoke-test.sh
+#   SMOKE_INSTALL=sales-company SMOKE_DB=sales   # install a bundled example first (data-dir server)
 # Needs: curl. Honors BRAINDB_TOKEN. Exit code = number of failed checks.
 set -u
 TARGETS="${TARGETS:-http://127.0.0.1:7791}"
@@ -27,25 +28,40 @@ check() { # name expected-status expected-substring method url [body]
 
 for T in $TARGETS; do
   echo "== $T"
+  DBQ=""
+  if [ -n "${SMOKE_INSTALL:-}" ]; then
+    name="${SMOKE_DB:-$SMOKE_INSTALL}"
+    check "manage databases"       200 '"manageDbs":true' GET  "$T/api/health"
+    check "examples"               200 "$SMOKE_INSTALL"  GET  "$T/api/examples"
+    check "install $SMOKE_INSTALL" 200 "\"name\":\"$name\"" POST "$T/api/dbs" "{\"example\":\"$SMOKE_INSTALL\",\"name\":\"$name\"}"
+    DBQ="?db=$name"
+  fi
+  if [ -n "$DBQ" ]; then
+    INSPECT="$T/api/inspect${DBQ}&what=discover"
+    LAYOUT="$T/api/layout${DBQ}&view=tree"
+  else
+    INSPECT="$T/api/inspect?what=discover"
+    LAYOUT="$T/api/layout?view=tree"
+  fi
   check "health"                  200 '"status":"ok"'   GET  "$T/api/health"
   check "ui index"                200 '<'               GET  "$T/"
-  check "state has nodes"         200 '"nodes":\['      GET  "$T/api/state"
-  check "context markdown"        200 '# '              GET  "$T/api/context.md"
-  check "context xml"             200 '<context'        GET  "$T/api/context.xml"
-  check "brain xml"               200 '<brain'          GET  "$T/api/brain.xml"
-  check "search hybrid"           200 '"rows":\['       POST "$T/api/search" '{"query":"status and next steps","mode":"hybrid","k":5}'
-  check "search vector"           200 '"rows":\['       POST "$T/api/search" '{"query":"status and next steps","mode":"vector","k":5}'
-  check "search tree"             200 '"rows":\['       POST "$T/api/search" '{"query":"status and next steps","mode":"tree"}'
-  check "search graph"            200 '"rows":\['       POST "$T/api/search" '{"query":"status and next steps","mode":"graph"}'
-  check "raw query (compact)"     200 '"rows":\['       POST "$T/api/query" '{"query":"sort:-weight limit:5","format":"md"}'
-  check "context query"           200 '"'               POST "$T/api/context/query" '{"query":"risks","depth":2,"format":"json"}'
-  check "templates list"          200 '\['              GET  "$T/api/templates"
-  check "template fill"           200 '"output"'        POST "$T/api/fill" '{"template":"summary: \"current status:text\"\nowner: \"responsible person:name\"\n","templateFormat":"yaml","output":"json"}'
-  check "inspect discover"        200 '"discover"'      GET  "$T/api/inspect?what=discover"
-  check "layout tree"             200 '"positions"'     GET  "$T/api/layout?view=tree"
-  check "exec remember"           200 '"changes"'       POST "$T/api/exec" '{"ops":[{"op":"remember","kind":"note","text":"smoke test note","concepts":["smoke test"]}]}'
-  check "exec atomic failure"     400 'error'           POST "$T/api/exec" '{"ops":[{"op":"boost","id":"does-not-exist"}]}'
-  check "journal"                 200 '\['              GET  "$T/api/journal"
+  check "state has nodes"         200 '"nodes":\['      GET  "$T/api/state$DBQ"
+  check "context markdown"        200 '# '              GET  "$T/api/context.md$DBQ"
+  check "context xml"             200 '<context'        GET  "$T/api/context.xml$DBQ"
+  check "brain xml"               200 '<brain'          GET  "$T/api/brain.xml$DBQ"
+  check "search hybrid"           200 '"rows":\['       POST "$T/api/search$DBQ" '{"query":"status and next steps","mode":"hybrid","k":5}'
+  check "search vector"           200 '"rows":\['       POST "$T/api/search$DBQ" '{"query":"status and next steps","mode":"vector","k":5}'
+  check "search tree"             200 '"rows":\['       POST "$T/api/search$DBQ" '{"query":"status and next steps","mode":"tree"}'
+  check "search graph"            200 '"rows":\['       POST "$T/api/search$DBQ" '{"query":"status and next steps","mode":"graph"}'
+  check "raw query (compact)"     200 '"rows":\['       POST "$T/api/query$DBQ" '{"query":"sort:-weight limit:5","format":"md"}'
+  check "context query"           200 '"'               POST "$T/api/context/query$DBQ" '{"query":"risks","depth":2,"format":"json"}'
+  check "templates list"          200 '\['              GET  "$T/api/templates$DBQ"
+  check "template fill"           200 '"output"'        POST "$T/api/fill$DBQ" '{"template":"summary: \"current status:text\"\nowner: \"responsible person:name\"\n","templateFormat":"yaml","output":"json"}'
+  check "inspect discover"        200 '"discover"'      GET  "$INSPECT"
+  check "layout tree"             200 '"positions"'     GET  "$LAYOUT"
+  check "exec remember"           200 '"changes"'       POST "$T/api/exec$DBQ" '{"ops":[{"op":"remember","kind":"note","text":"smoke test note","concepts":["smoke test"]}]}'
+  check "exec atomic failure"     400 'error'           POST "$T/api/exec$DBQ" '{"ops":[{"op":"boost","id":"does-not-exist"}]}'
+  check "journal"                 200 '\['              GET  "$T/api/journal$DBQ"
 done
 
 echo "== $passes passed, $fails failed"

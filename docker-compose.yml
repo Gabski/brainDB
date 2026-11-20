@@ -1,7 +1,9 @@
-# brainDB as a service.
-#   docker compose up -d --build            # sales-company on :7791, research-lab on :7792
+# brainDB as a service: one clean data directory. The server creates an empty
+# database named "default". Install a bundled example from the UI (New database)
+# or with: curl -X POST localhost:7791/api/dbs -H 'Content-Type: application/json' -d '{"example":"sales-company"}'
+#   docker compose up -d --build
 #   docker compose --profile test run --rm smoke
-#   docker compose exec -T sales braindb-entrypoint mcp   # MCP over stdio inside the running container
+#   docker compose exec -T braindb braindb-entrypoint mcp
 #
 # Ports are published on 127.0.0.1 only. Set BRAINDB_TOKEN (e.g. in .env) before exposing them further.
 
@@ -17,7 +19,9 @@ x-braindb: &braindb
   restart: unless-stopped
   environment: &env
     BRAINDB_ADDR: 0.0.0.0:7791
-    BRAINDB_BRAIN: /data/brain.xml
+    BRAINDB_DATA_DIR: /data
+    BRAINDB_EXAMPLES: /opt/braindb/examples
+    BRAINDB_DB: ${BRAINDB_DB:-default}
     BRAINDB_TOKEN: ${BRAINDB_TOKEN:-}
     BRAINDB_TOKEN_READ: ${BRAINDB_TOKEN_READ:-}
     # The container listens on 0.0.0.0 but compose publishes the port on 127.0.0.1 only, so running without
@@ -41,37 +45,25 @@ x-braindb: &braindb
   security_opt: ["no-new-privileges:true"]
 
 services:
-  sales:
+  braindb:
     <<: *braindb
-    container_name: braindb-sales
-    environment:
-      <<: *env
-      BRAINDB_EXAMPLE: sales-company
+    container_name: braindb
     ports: ["127.0.0.1:7791:7791"]
-    volumes: [sales-data:/data]
+    volumes: [data:/data]
 
-  lab:
-    <<: *braindb
-    container_name: braindb-lab
-    environment:
-      <<: *env
-      BRAINDB_EXAMPLE: research-lab
-    ports: ["127.0.0.1:7792:7791"]
-    volumes: [lab-data:/data]
-
-  # End-to-end smoke tests against both running services.
+  # End-to-end smoke test: install a bundled example into the clean server, then probe it.
   smoke:
     image: alpine:3.20
     profiles: [test]
     depends_on:
-      sales: {condition: service_healthy}
-      lab: {condition: service_healthy}
+      braindb: {condition: service_healthy}
     environment:
       BRAINDB_TOKEN: ${BRAINDB_TOKEN:-}
-      TARGETS: "http://sales:7791 http://lab:7791"
+      TARGETS: "http://braindb:7791"
+      SMOKE_INSTALL: sales-company
+      SMOKE_DB: sales
     volumes: ["./scripts:/scripts:ro"]
     entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl >/dev/null && sh /scripts/smoke-test.sh"]
 
 volumes:
-  sales-data:
-  lab-data:
+  data:

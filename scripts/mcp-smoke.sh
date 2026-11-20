@@ -1,7 +1,7 @@
 #!/bin/sh
 # brainDB MCP smoke test over stdio.
 #   sh scripts/mcp-smoke.sh ./bin/braindb mcp --brain /tmp/brain.xml --no-http
-#   sh scripts/mcp-smoke.sh docker compose exec -T sales braindb-entrypoint mcp
+#   sh scripts/mcp-smoke.sh docker compose exec -T braindb braindb-entrypoint mcp
 #   sh scripts/mcp-smoke.sh ./dist/acme-sales-brain          # a published brain binary
 # Sends initialize → tools/list → brain_view → brain_run (SEARCH, SELECT + SHOW, FILL) and checks every reply.
 # Works with the default tool set (brain_view + brain_run); published read-only brains included.

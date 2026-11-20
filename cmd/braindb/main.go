@@ -268,6 +268,7 @@ commands:
   query    --brain brain.xml --context [--query "renewal risk"] [--focus ids] [--depth N] [--format xml|md|json|yaml]
   fill     --brain brain.xml TEMPLATE [--output same|json|yaml|xml|md] [--sources] [--scope memory|context] [--min 0.2]
   db       ls|create NAME|rm NAME --data-dir DIR
+  example  ls | install NAME [--as DB] [--data-dir DIR] [--examples DIR]
   version  (also --version [--notice])
 
 environment: BRAINDB_BRAIN, BRAINDB_ADDR, BRAINDB_DATA_DIR, BRAINDB_TOKEN, BRAINDB_TOKEN_READ, BRAINDB_ALLOW_NO_TOKEN
@@ -343,6 +344,7 @@ func newServer() *server.Server {
 	s.Tokens = tokensFromEnv()
 	s.Hooks = serverHooks
 	s.AllowedOrigins = splitList(env("BRAINDB_ALLOWED_ORIGINS", ""))
+	s.ExamplesDir = brain.DefaultExamplesDir()
 	return s
 }
 

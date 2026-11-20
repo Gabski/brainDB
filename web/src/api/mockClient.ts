@@ -224,6 +224,17 @@ export function createMockClient(opts: MockOptions = {}): ApiClient {
         dbs = [...dbs, { name, nodes: 0, edges: 0, step: 0, sizeBytes: 0, updated: new Date().toISOString(), goal: '' }];
         return dbs;
       }),
+    examples: () =>
+      call('examples', [], () => [
+        { name: 'sales-company', description: 'Tessaline sales memory', kind: 'seed' },
+        { name: 'research-lab', description: 'Electrolyte lab memory', kind: 'seed' },
+        { name: 'import-demo', description: 'A raw pile turned into a database', kind: 'import' },
+      ]),
+    installExample: (name, example) =>
+      call('installExample', [name, example], () => {
+        dbs = [...dbs, { name, nodes: 12, edges: 4, step: 1, sizeBytes: 4096, updated: new Date().toISOString(), goal: example }];
+        return { name, example };
+      }),
     deleteDb: (name) =>
       call('deleteDb', [name], () => {
         dbs = dbs.filter((d) => d.name !== name);

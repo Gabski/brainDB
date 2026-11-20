@@ -63,19 +63,20 @@ type Hooks struct {
 
 // Server serves one or more brain databases.
 type Server struct {
-	Version   string
-	Author    string
-	License   string
-	DataDir   string // multi-db root ("" = single db)
-	Default   string
-	Tokens    []Token
-	MCPName   string
-	MCPTitle  string
-	MCPTools  []string
-	ReadOnly  bool
-	Log       func(format string, a ...any)
-	Hooks     Hooks
-	AllowNone bool
+	Version     string
+	Author      string
+	License     string
+	DataDir     string // multi-db root ("" = single db)
+	ExamplesDir string // bundled examples (BRAINDB_EXAMPLES or ./examples); empty = none
+	Default     string
+	Tokens      []Token
+	MCPName     string
+	MCPTitle    string
+	MCPTools    []string
+	ReadOnly    bool
+	Log         func(format string, a ...any)
+	Hooks       Hooks
+	AllowNone   bool
 	// AllowedOrigins are browser origins allowed to call the API cross-origin ("*" allows any).
 	// Empty means same-origin only, which is what a local UI needs.
 	AllowedOrigins []string
@@ -635,6 +636,7 @@ func (s *Server) Handler() http.Handler {
 	api("/api/storage/convert", s.convert)
 	mux.HandleFunc("/api/dbs", s.dbsHandler)
 	mux.HandleFunc("/api/dbs/", s.dbsHandler)
+	mux.HandleFunc("/api/examples", s.examplesHandler)
 	mux.HandleFunc("/mcp", s.mcpHTTP)
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusNotFound, fmt.Errorf("no such endpoint %s", r.URL.Path))
@@ -1329,6 +1331,50 @@ func (s *Server) CreateDB(name, configYAML string) (*brain.Store, error) {
 	return st, nil
 }
 
+func (s *Server) examplesHandler(w http.ResponseWriter, r *http.Request) {
+	if !method(w, r, http.MethodGet) {
+		return
+	}
+	list, err := brain.ListExamples(s.ExamplesDir)
+	if err != nil {
+		writeErr(w, 500, err)
+		return
+	}
+	writeJSON(w, 200, list)
+}
+
+// installExample builds a database from a bundled example and registers it on the live server.
+func (s *Server) installExample(w http.ResponseWriter, name, example, config string) {
+	if config != "" {
+		writeErr(w, 400, errors.New("pass config or example, not both"))
+		return
+	}
+	if s.DataDir == "" {
+		writeErr(w, 400, errors.New("this server was started with --brain; use --data-dir to manage databases"))
+		return
+	}
+	if name == "" {
+		name = example
+	}
+	if !validDBName(name) {
+		writeErr(w, 400, fmt.Errorf("invalid database name %q (letters, digits, - and _)", name))
+		return
+	}
+	if s.Store(name) != nil {
+		writeErr(w, 400, fmt.Errorf("database %s already exists", name))
+		return
+	}
+	st, err := brain.InstallExample(s.DataDir, s.ExamplesDir, example, name)
+	if err != nil {
+		writeErr(w, 400, err)
+		return
+	}
+	st.Log = s.Log
+	s.AddDB(name, st)
+	nodes, edges := st.B.Counts()
+	writeJSON(w, 200, map[string]any{"name": name, "path": st.Path, "example": example, "nodes": nodes, "edges": edges})
+}
+
 func (s *Server) dbsHandler(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/api/dbs"), "/")
 	switch {
@@ -1346,11 +1392,16 @@ func (s *Server) dbsHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 200, out)
 	case r.Method == http.MethodPost && name == "":
 		var req struct {
-			Name   string `json:"name"`
-			Config string `json:"config"`
+			Name    string `json:"name"`
+			Config  string `json:"config"`
+			Example string `json:"example"`
 		}
 		if err := readJSON(r, &req); err != nil {
 			writeErr(w, 400, err)
+			return
+		}
+		if req.Example != "" {
+			s.installExample(w, req.Name, req.Example, req.Config)
 			return
 		}
 		st, err := s.CreateDB(req.Name, req.Config)

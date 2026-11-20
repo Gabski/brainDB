@@ -179,24 +179,45 @@ Requirements: Go ≥ 1.23. Node ≥ 20 is needed only to build the UI. `pdftotex
 ### Docker
 
 ```bash
-docker compose up -d --build     # sales-company → http://127.0.0.1:7791, research-lab → http://127.0.0.1:7792
-docker compose --profile test run --rm smoke     # end-to-end API checks against both services
-docker compose logs -f sales
+docker compose up -d --build     # empty database "default" → http://127.0.0.1:7791
+docker compose --profile test run --rm smoke     # installs sales-company, then checks the API
+docker compose logs -f braindb
 ```
+
+The container starts with a clean data directory. Install a bundled example into the running server (New database in the UI, or):
+
+```bash
+curl -s -X POST http://127.0.0.1:7791/api/dbs \
+  -H 'Content-Type: application/json' \
+  -d '{"example":"sales-company"}'
+# sales-company, research-lab, braindb-self (seed + docs + templates), import-demo (raw pile)
+```
+
+Or prepare the directory before serve:
+
+```bash
+braindb example ls
+braindb example install research-lab --data-dir data
+braindb serve --data-dir data
+```
+
+`braindb example install` writes the database on disk. A server that is already running does not see that directory until it restarts. The UI and `POST /api/dbs` install into the live server.
 
 Single container:
 
 ```bash
 docker build -t braindb .
-docker run -d --name braindb -p 127.0.0.1:7791:7791 -v braindb-data:/data -e BRAINDB_EXAMPLE=research-lab braindb
+docker run -d --name braindb -p 127.0.0.1:7791:7791 -v braindb-data:/data braindb
 ```
 
 | variable | default | meaning |
 |---|---|---|
-| `BRAINDB_DATA_DIR` | `/data` | databases directory (one subdirectory per database) |
-| `BRAINDB_BRAIN` | `/data/brain.xml` | single-brain mode (backward compatible) |
+| `BRAINDB_DATA_DIR` | `/data` | databases directory (one subdirectory per database). This is how the image starts |
+| `BRAINDB_EXAMPLES` | `/opt/braindb/examples` in the image | bundled examples the server can install |
+| `BRAINDB_INSTALL` | empty | comma-separated examples to install before serve (`research-lab` or `sales-company:sales`). The federation compose file sets this |
+| `BRAINDB_DB` | `default` | database the container CLI and MCP attach to |
+| `BRAINDB_BRAIN` | unset | single-file mode, and only when `BRAINDB_DATA_DIR` is unset |
 | `BRAINDB_ADDR` | `0.0.0.0:7791` in the image, `127.0.0.1:7791` otherwise | listen address |
-| `BRAINDB_EXAMPLE` | empty | on first start, seed from a bundled example (`sales-company`, `research-lab`, `braindb-self`), including docs and templates |
 | `BRAINDB_BRAIN` extension | `.xml` | picks the backend: `brain.xml` is the file backend, `brain.db` / `brain.sqlite` the SQLite one |
 | `BRAINDB_FORMAT` | `xml` | file format: `xml`, `bin` or `both` |
 | `BRAINDB_EMBED_PROVIDER` | `hash` | `openai` to use a remote embedding endpoint (see [Embeddings](#embeddings-hash-or-a-real-model)) |
@@ -221,7 +242,7 @@ The compose file publishes ports on `127.0.0.1` only. Set `BRAINDB_TOKEN` before
 claude mcp add braindb -- /abs/path/bin/braindb mcp --brain /abs/path/brain.xml --actor claude
 
 # Docker (stdio into the running service)
-claude mcp add braindb -- docker compose -f /abs/path/docker-compose.yml exec -T sales braindb-entrypoint mcp
+claude mcp add braindb -- docker compose -f /abs/path/docker-compose.yml exec -T braindb braindb-entrypoint mcp
 ```
 
 Cursor / generic `mcp.json`:
@@ -805,6 +826,7 @@ base weight that age can never take away. Only `SUPERSEDE` and `FORGET` remove k
 | [`examples/braindb-self`](examples/braindb-self) | brainDB's own project brain: decisions and the ones they reversed, spec addenda, the measured retrieval table, the CLI surface, the roadmap, and an agent playbook; templates for release notes, a feature-status sheet and an agent onboarding brief |
 
 Each example has a `seed.json`, `docs/` to ingest, `templates/`, and a README with queries to try.
+On a server started with `--data-dir` (including Docker), install one from the New database dialog or with `braindb example install sales-company`.
 [`examples/federation`](examples/federation) runs both and mounts the lab into the sales brain.
 [`examples/import-demo`](examples/import-demo) is a raw pile (Markdown notes, a PostgreSQL dump, a MySQL dump, JSONL tickets, nested JSON, CSV) plus a `braindb.yaml`, turned into a database with one `braindb create`.
 [`examples/braindb-self`](examples/braindb-self) documents this repository inside brainDB, and measures retrieval on itself: a
@@ -876,6 +898,9 @@ agents, multi-agent protocols, and tools that make AI usable inside real organis
 If you want to help it go further: run it on a real pile of your own knowledge and open an issue describing what broke.
 That is more useful than anything else right now. Research partnerships, pilots and sponsorship are welcome too —
 open an issue titled "Research / sponsorship".
+
+Donations are welcome, and this link can be shared anywhere a donor might see it:
+[https://www.paypal.com/donate?hosted_button_id=55VK9FJQ2N75G](https://www.paypal.com/donate?hosted_button_id=55VK9FJQ2N75G).
 
 ## License
 

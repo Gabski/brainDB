@@ -169,17 +169,25 @@ function ConfigSettings() {
 export function NewDbWizardConnected() {
   const store = useStoreApi();
   const progress = useStore((s) => s.importProgress);
+  const [examples, setExamples] = useState<{ name: string; description?: string }[]>([]);
+  useEffect(() => {
+    store.api.examples().then(setExamples).catch(() => setExamples([]));
+  }, [store]);
   const close = () => store.set({ wizardOpen: false });
   return (
     <Modal title="New database" onClose={close} width={980}>
       <ImportWizard
         mode="create"
         progress={progress}
+        examples={examples}
         dryRun={(files, config, name) => store.api.importFiles(files, { db: name, config: config || undefined, dryRun: true })}
         validate={(y, name) => store.api.putConfig(y, { db: name, dryRun: true })}
         run={async (files, config, name) => {
           await store.api.createDb(name, config || undefined);
           return store.api.importFiles(files, { db: name, config: config || undefined });
+        }}
+        onInstallExample={async (example, name) => {
+          await store.api.installExample(name, example);
         }}
         onDone={(name) => {
           close();

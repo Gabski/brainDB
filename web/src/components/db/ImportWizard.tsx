@@ -20,7 +20,10 @@ export interface ImportWizardProps {
   progress?: BrainEvent | null;
   onDone?: (name: string) => void;
   onCancel?: () => void;
-  examples?: string[];
+  /** Bundled examples the server can install as a database. Strings are names only. */
+  examples?: Array<string | { name: string; description?: string }>;
+  /** Installs the example as a database and skips the file import. */
+  onInstallExample?: (example: string, dbName: string) => Promise<void>;
   // story/initial state
   initialStep?: WizardStep;
   initialName?: string;
@@ -44,7 +47,9 @@ export function ImportWizard(p: ImportWizardProps) {
   const [config, setConfig] = useState(p.initialConfig ?? '');
   const [result, setResult] = useState<ImportReport | null>(p.initialResult ?? null);
   const [busy, setBusy] = useState(false);
+  const [installing, setInstalling] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const catalog = (p.examples ?? []).map((e) => (typeof e === 'string' ? { name: e } : e)).filter((e) => e.name);
   const idx = steps.indexOf(step);
   const nameOk = /^[a-z0-9][a-z0-9_-]{0,40}$/.test(name);
   const LABEL: Record<WizardStep, string> = { name: '1 · Name', files: 'Files', preview: 'Preview', config: 'Config', run: p.mode === 'create' ? 'Create' : 'Import' };
@@ -73,6 +78,20 @@ export function ImportWizard(p: ImportWizardProps) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
+    }
+  };
+  const install = async (example: string) => {
+    if (!p.onInstallExample) return;
+    const db = nameOk ? name : example;
+    setInstalling(example);
+    setErr(null);
+    try {
+      await p.onInstallExample(example, db);
+      p.onDone?.(db);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setInstalling(null);
     }
   };
   const pr = p.progress && (!p.progress.db || p.progress.db === name) ? p.progress : null;
@@ -113,16 +132,33 @@ export function ImportWizard(p: ImportWizardProps) {
                 Cancel
               </button>
             )}
-            <button className="btn primary" type="submit" disabled={!nameOk}>
+            <button className="btn primary" type="submit" disabled={!nameOk || !!installing}>
               Next →
             </button>
           </div>
         </form>
       )}
+      {step === 'name' && p.mode === 'create' && catalog.length > 0 && p.onInstallExample && (
+        <div className="col" style={{ marginTop: 8 }}>
+          <div className="lbl-row">or install a bundled example</div>
+          <div className="xs muted">Seed, documents and templates become a database. Use Next to import your own files instead.</div>
+          {catalog.map((ex) => (
+            <div key={ex.name} className="row" style={{ justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+              <div>
+                <div className="mono">{ex.name}</div>
+                {ex.description && <div className="xs muted">{ex.description}</div>}
+              </div>
+              <button type="button" className="btn" aria-label={'Install ' + ex.name} disabled={!!installing} onClick={() => install(ex.name)}>
+                {installing === ex.name ? 'Installing…' : 'Install'}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {step === 'files' && (
         <>
-          <FilePicker files={files} onFiles={setFiles} examples={p.examples} />
+          <FilePicker files={files} onFiles={setFiles} />
           <div className="row" style={{ justifyContent: 'flex-end' }}>
             {idx > 0 && (
               <button className="btn" onClick={() => setStep(steps[idx - 1])}>

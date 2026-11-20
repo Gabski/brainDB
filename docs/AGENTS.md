@@ -31,7 +31,7 @@ claude mcp add braindb -- /abs/path/bin/braindb mcp --data-dir /abs/path/data --
 # or a published brain binary (read-only knowledge base)
 claude mcp add acme-sales -- /abs/path/dist/acme-sales-brain
 # or the Docker service
-claude mcp add braindb -- docker compose -f /abs/path/docker-compose.yml exec -T sales braindb-entrypoint mcp
+claude mcp add braindb -- docker compose -f /abs/path/docker-compose.yml exec -T braindb braindb-entrypoint mcp
 ```
 
 Install the skill (project-level or user-level):

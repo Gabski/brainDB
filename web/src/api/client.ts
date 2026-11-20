@@ -25,6 +25,7 @@ import type {
   Source,
   SourceInput,
   DbInfo,
+  BundledExample,
   ImportReport,
   ImportFile,
   ConfigResult,
@@ -86,6 +87,9 @@ export interface ApiClient {
   /** Addendum E: databases, bulk import, braindb.yaml. */
   dbs(): Promise<DbInfo[]>;
   createDb(name: string, config?: string): Promise<DbInfo[] | unknown>;
+  examples(): Promise<BundledExample[]>;
+  /** Install a bundled example as a database on a --data-dir server. */
+  installExample(name: string, example: string): Promise<unknown>;
   deleteDb(name: string): Promise<void>;
   importFiles(files: ImportFile[], opts: { db?: string; config?: string; dryRun?: boolean }): Promise<ImportReport>;
   getConfig(db?: string): Promise<{ yaml: string; result: ConfigResult }>;
@@ -393,6 +397,12 @@ export class HttpApiClient implements ApiClient {
   }
   createDb(name: string, config?: string) {
     return this.req<unknown>('POST', '/api/dbs', config ? { name, config } : { name });
+  }
+  examples() {
+    return this.req<BundledExample[]>('GET', '/api/examples');
+  }
+  installExample(name: string, example: string) {
+    return this.req<unknown>('POST', '/api/dbs', { name, example });
   }
   async deleteDb(name: string) {
     await this.call('/api/dbs/' + encodeURIComponent(name) + '?confirm=' + encodeURIComponent(name), { method: 'DELETE' });
