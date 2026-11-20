@@ -1,0 +1,1 @@
+{"ok":false,"status":"[error] nothing applied","results":[],"error":{"statement":2,"line":3,"col":8,"message":"unknown keyword SELEKT (did you mean SELECT?)"}}

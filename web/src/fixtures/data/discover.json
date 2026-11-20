@@ -1,0 +1,141 @@
+{
+ "discover": {
+  "inner": [
+   {
+    "u": "d121",
+    "v": "c181",
+    "score": 1.3,
+    "via": [
+     "A:auth",
+     "A:api",
+     "x180",
+     "t134"
+    ],
+    "commonStems": 2,
+    "cos": 0.44
+   },
+   {
+    "u": "f103",
+    "v": "x180",
+    "score": 1.26,
+    "via": [
+     "A:idp",
+     "A:api",
+     "d121"
+    ],
+    "commonStems": 2,
+    "cos": 0.46
+   },
+   {
+    "u": "f103",
+    "v": "t131",
+    "score": 0.99,
+    "via": [
+     "A:idp",
+     "A:api",
+     "d121"
+    ],
+    "commonStems": 1,
+    "cos": 0.35
+   },
+   {
+    "u": "f103",
+    "v": "t134",
+    "score": 0.92,
+    "via": [
+     "A:auth",
+     "A:api",
+     "d121"
+    ],
+    "commonStems": 1,
+    "cos": 0.38
+   },
+   {
+    "u": "t131",
+    "v": "f102",
+    "score": 0.9,
+    "via": [
+     "A:idp",
+     "d121"
+    ],
+    "commonStems": 2,
+    "cos": 0.36
+   },
+   {
+    "u": "r193",
+    "v": "n154",
+    "score": 0.89,
+    "via": [
+     "A:client",
+     "A:time"
+    ],
+    "commonStems": 2,
+    "cos": 0.37
+   }
+  ],
+  "bridge": [
+   {
+    "u": "f101",
+    "v": "f201",
+    "score": 0.69,
+    "via": [
+     "A:auth"
+    ],
+    "commonStems": 2,
+    "cos": 0.4
+   },
+   {
+    "u": "k175",
+    "v": "n153",
+    "score": 0.56,
+    "via": [
+     "A:idp",
+     "A:sec",
+     "d125"
+    ],
+    "commonStems": 0,
+    "cos": 0.27
+   },
+   {
+    "u": "c182",
+    "v": "f105",
+    "score": 0.56,
+    "via": [
+     "A:data"
+    ],
+    "commonStems": 2,
+    "cos": 0.31
+   },
+   {
+    "u": "x180",
+    "v": "spec:c1",
+    "score": 0.54,
+    "via": [
+     "c181"
+    ],
+    "commonStems": 2,
+    "cos": 0.23
+   },
+   {
+    "u": "t134",
+    "v": "spec:c1",
+    "score": 0.52,
+    "via": [
+     "c181"
+    ],
+    "commonStems": 3,
+    "cos": 0.24
+   },
+   {
+    "u": "q141",
+    "v": "lab:f310",
+    "score": 0.51,
+    "via": [
+     "k175"
+    ],
+    "commonStems": 2,
+    "cos": 0.17
+   }
+  ]
+ }
+}

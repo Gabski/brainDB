@@ -1,0 +1,193 @@
+<brain version="1" step="4">
+<goal>Prepare the SSO login rollout plan for the app</goal>
+<embedding model="hash-256" dim="256" alpha="0.5" hops="2" use="enriched" lambda="0.5"/>
+<kinds><kind name="risk" label="risk" color="#ff8787" half-life="21" base="0.6" prefix="k" section="risks"/></kinds>
+<context focus="d121,d123,n150" goal-focus="d121,d123,n150" depth="2" threshold="0.16" hop="0.85" show-superseded="0"/>
+<concepts>
+  <concept id="A:auth" base="0.8">Authentication</concept>
+  <concept id="A:idp" base="0.8">Identity / IdP</concept>
+  <concept id="A:sec" base="0.8">Security</concept>
+  <concept id="A:mfa" base="0.8">MFA</concept>
+  <concept id="A:time" base="0.8">Deadlines</concept>
+  <concept id="A:client" base="0.8">Client</concept>
+  <concept id="A:api" base="0.8">API integrations</concept>
+  <concept id="A:data" base="0.8">Sensitive data</concept>
+  <concept id="A:ctx" base="0.8">Context management</concept>
+</concepts>
+<memory>
+<section name="facts">
+  <item id="f101" kind="fact" base="0.6" age="30" pinned="1">The app currently has e-mail + password login</item>
+  <item id="f102" kind="fact" base="0.6" age="28">The company uses Microsoft Entra ID</item>
+  <item id="f103" kind="fact" base="0.6" age="20">Entra ID supports OIDC and SAML 2.0</item>
+  <item id="f104" kind="fact" base="0.6" age="15">The app has about 5000 active users</item>
+  <item id="f105" kind="fact" base="0.6" age="12">The client requires GDPR compliance for login logs</item>
+  <item id="f107" kind="fact" base="0.6" age="3">Graph API limit: 10k requests / 10 min per app</item>
+  <item id="f110" kind="fact" base="0.6" age="6">Audit: no rate limit on /login</item>
+  <item id="f201" kind="fact" base="0.6" age="140">Password reset via e-mail</item>
+  <item id="f204" kind="fact" base="0.6" age="260" superseded-by="c183">JWT signing keys rotate every 90 days</item>
+</section>
+<section name="decisions">
+  <item id="d120" kind="decision" base="0.7" age="35" superseded-by="d121">We plan SSO via SAML</item>
+  <item id="d121" kind="decision" base="0.85" age="10">We roll out SSO via OIDC with Entra ID</item>
+  <item id="d122" kind="decision" base="0.7" age="40" superseded-by="d123">Deadline: end of October</item>
+  <item id="d123" kind="decision" base="0.8" age="5">SSO rollout deadline: 30 November</item>
+  <item id="d124" kind="decision" base="0.7" age="30" superseded-by="d125">MFA optional for everyone</item>
+  <item id="d125" kind="decision" base="0.7" age="4">MFA mandatory for admins and external access</item>
+  <item id="d127" kind="decision" base="0.7" age="4" pinned="1">No secrets or client data in external AI services</item>
+</section>
+<section name="tasks">
+  <item id="t131" kind="task" base="0.55" age="2">Register the app in Entra (redirect URI, scopes)</item>
+  <item id="t132" kind="task" base="0.55" age="5">Add a rate limit on /login</item>
+  <item id="t134" kind="task" base="0.55" age="1">E2E tests of the OIDC flow (happy path + consent denied)</item>
+  <item id="t136" kind="task" base="0.55" age="2">Account mapping: e-mail → Entra oid</item>
+</section>
+<section name="questions">
+  <item id="q140" kind="question" base="0.5" age="25">Do we require MFA for all users?</item>
+  <item id="q141" kind="question" base="0.5" age="3">What about users outside the tenant (B2B guests)?</item>
+  <item id="q203" kind="question" base="0.5" age="95">Mask PII in logs?</item>
+</section>
+<section name="notes">
+  <item id="n150" kind="note" base="0.4" age="1">PM: client asks whether SSO will be ready by month end</item>
+  <item id="n153" kind="note" base="0.4" age="9">Entra: refresh token 90 days, shortened by policies</item>
+  <item id="n154" kind="note" base="0.4" age="3">Call Kim Aalto (+47 22 33 44 55, kim.aalto@halvorsen.example) before 15 Dec 2026 about the €48,000 renewal of Halvorsen Freight AS: 12% discount, see https://halvorsen.example/pricing, ticket #4821, IBAN NO93 8601 1117 947</item>
+  <item id="n202" kind="note" base="0.4" age="190">Sprint 12 closed</item>
+</section>
+<section name="procedures">
+  <item id="s161" kind="summary" base="0.6" age="4">AI procedure: intake → spec → plan → execute → verify → close</item>
+</section>
+<section name="ideas">
+  <item id="i172" kind="idea" base="0.5" age="8">Passkeys (WebAuthn) as a second stage</item>
+</section>
+<section name="files">
+  <item id="x180" kind="file" base="0.5" age="10">oidc-flow.md — OIDC sequence and token handling</item>
+  <item id="c181" kind="chunk" base="0.45" age="10" parent="x180" idx="0">The browser is redirected to the Entra authorize endpoint with PKCE, state and nonce.</item>
+  <item id="c182" kind="chunk" base="0.45" age="10" parent="x180" idx="1">The callback exchanges the code for tokens; the id_token oid claim maps to the local account.</item>
+  <item id="c183" kind="chunk" base="0.45" age="10" parent="x180" idx="2">Refresh tokens are kept server-side only; sessions stay in Redis with an 8h TTL.</item>
+  <item id="x190" kind="file" base="0.5" age="2">rollout.csv — 3 rows (wave, users, owner, start_date)</item>
+</section>
+<section name="rollout">
+  <item id="r191" kind="record" base="0.5" age="2" parent="x190" idx="0" data="{&quot;wave&quot;:&quot;pilot&quot;,&quot;users&quot;:&quot;120&quot;,&quot;owner&quot;:&quot;Kim Lee&quot;,&quot;start_date&quot;:&quot;2026-11-24&quot;}">wave: pilot · users: 120 · owner: Kim Lee · start_date: 2026-11-24</item>
+  <item id="r192" kind="record" base="0.5" age="2" parent="x190" idx="1" data="{&quot;wave&quot;:&quot;staff&quot;,&quot;users&quot;:&quot;1400&quot;,&quot;owner&quot;:&quot;Ana Ruiz&quot;,&quot;start_date&quot;:&quot;2026-11-27&quot;}">wave: staff · users: 1400 · owner: Ana Ruiz · start_date: 2026-11-27</item>
+  <item id="r193" kind="record" base="0.5" age="2" parent="x190" idx="2" data="{&quot;wave&quot;:&quot;everyone&quot;,&quot;users&quot;:&quot;5000&quot;,&quot;owner&quot;:&quot;Kim Lee&quot;,&quot;start_date&quot;:&quot;2026-11-30&quot;}">wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30</item>
+</section>
+<section name="risks">
+  <item id="k175" kind="risk" base="0.6" age="6">Guest accounts may bypass conditional access</item>
+</section>
+</memory>
+<synapses>
+  <link a="A:auth" b="A:idp" w="0.9" type="concept"/>
+  <link a="A:auth" b="A:mfa" w="0.8" type="concept"/>
+  <link a="A:mfa" b="A:sec" w="0.85" type="concept"/>
+  <link a="A:sec" b="A:data" w="0.8" type="concept"/>
+  <link a="A:idp" b="A:api" w="0.65" type="concept"/>
+  <link a="A:client" b="A:time" w="0.75" type="concept"/>
+  <link a="A:auth" b="A:sec" w="0.7" type="concept"/>
+  <link a="A:data" b="A:ctx" w="0.5" type="concept"/>
+  <link a="f101" b="A:auth" w="0.7" type="concept"/>
+  <link a="f102" b="A:idp" w="0.71" type="concept"/>
+  <link a="f103" b="A:idp" w="0.9" type="concept"/>
+  <link a="f103" b="A:api" w="0.64" type="concept"/>
+  <link a="f103" b="A:auth" w="0.6" type="concept"/>
+  <link a="f104" b="A:client" w="0.78" type="concept"/>
+  <link a="f105" b="A:data" w="0.79" type="concept"/>
+  <link a="f107" b="A:api" w="0.75" type="concept"/>
+  <link a="f110" b="A:sec" w="0.81" type="concept"/>
+  <link a="f110" b="A:auth" w="0.65" type="concept"/>
+  <link a="d120" b="A:idp" w="0.75" type="concept"/>
+  <link a="d120" b="A:auth" w="0.53" type="concept"/>
+  <link a="d121" b="A:idp" w="0.85" type="concept"/>
+  <link a="d121" b="A:auth" w="0.6" type="concept"/>
+  <link a="d121" b="A:api" w="0.54" type="concept"/>
+  <link a="d122" b="A:time" w="0.77" type="concept"/>
+  <link a="d122" b="A:client" w="0.56" type="concept"/>
+  <link a="d123" b="A:time" w="0.81" type="concept"/>
+  <link a="d123" b="A:client" w="0.56" type="concept"/>
+  <link a="d124" b="A:mfa" w="0.9" type="concept"/>
+  <link a="d124" b="A:sec" w="0.55" type="concept"/>
+  <link a="d125" b="A:mfa" w="0.88" type="concept"/>
+  <link a="d125" b="A:sec" w="0.54" type="concept"/>
+  <link a="d125" b="A:auth" w="0.53" type="concept"/>
+  <link a="d127" b="A:data" w="0.73" type="concept"/>
+  <link a="d127" b="A:sec" w="0.56" type="concept"/>
+  <link a="d127" b="A:ctx" w="0.61" type="concept"/>
+  <link a="t131" b="A:idp" w="0.85" type="concept"/>
+  <link a="t131" b="A:api" w="0.51" type="concept"/>
+  <link a="t132" b="A:sec" w="0.88" type="concept"/>
+  <link a="t132" b="A:auth" w="0.61" type="concept"/>
+  <link a="t134" b="A:auth" w="0.82" type="concept"/>
+  <link a="t134" b="A:api" w="0.64" type="concept"/>
+  <link a="t136" b="A:idp" w="0.89" type="concept"/>
+  <link a="t136" b="A:data" w="0.62" type="concept"/>
+  <link a="q140" b="A:mfa" w="0.88" type="concept"/>
+  <link a="q140" b="A:client" w="0.67" type="concept"/>
+  <link a="q141" b="A:idp" w="0.71" type="concept"/>
+  <link a="q141" b="A:client" w="0.53" type="concept"/>
+  <link a="n150" b="A:client" w="0.77" type="concept"/>
+  <link a="n150" b="A:time" w="0.59" type="concept"/>
+  <link a="n153" b="A:idp" w="0.7" type="concept"/>
+  <link a="n153" b="A:sec" w="0.52" type="concept"/>
+  <link a="s161" b="A:ctx" w="0.85" type="concept"/>
+  <link a="i172" b="A:auth" w="0.77" type="concept"/>
+  <link a="i172" b="A:mfa" w="0.59" type="concept"/>
+  <link a="k175" b="A:idp" w="0.79" type="concept"/>
+  <link a="k175" b="A:sec" w="0.69" type="concept"/>
+  <link a="x180" b="A:idp" w="0.84" type="concept"/>
+  <link a="x180" b="A:api" w="0.64" type="concept"/>
+  <link a="c181" b="A:auth" w="0.77" type="concept"/>
+  <link a="c181" b="A:api" w="0.57" type="concept"/>
+  <link a="c182" b="A:idp" w="0.73" type="concept"/>
+  <link a="c182" b="A:data" w="0.53" type="concept"/>
+  <link a="c183" b="A:sec" w="0.88" type="concept"/>
+  <link a="x190" b="A:client" w="0.76" type="concept"/>
+  <link a="x190" b="A:time" w="0.54" type="concept"/>
+  <link a="r191" b="A:client" w="0.83" type="concept"/>
+  <link a="r191" b="A:time" w="0.57" type="concept"/>
+  <link a="r192" b="A:client" w="0.71" type="concept"/>
+  <link a="r193" b="A:client" w="0.84" type="concept"/>
+  <link a="r193" b="A:time" w="0.68" type="concept"/>
+  <link a="n154" b="A:client" w="0.81" type="concept"/>
+  <link a="n154" b="A:time" w="0.67" type="concept"/>
+  <link a="f201" b="A:auth" w="0.83" type="concept"/>
+  <link a="n202" b="A:time" w="0.88" type="concept"/>
+  <link a="q203" b="A:data" w="0.72" type="concept"/>
+  <link a="f204" b="A:sec" w="0.81" type="concept"/>
+  <link a="d121" b="f103" w="0.85" type="assoc"/>
+  <link a="t131" b="d121" w="0.8" type="assoc"/>
+  <link a="t134" b="d121" w="0.7" type="assoc"/>
+  <link a="t132" b="f110" w="0.9" type="assoc"/>
+  <link a="d125" b="q140" w="0.7" type="assoc"/>
+  <link a="t136" b="d121" w="0.7" type="assoc"/>
+  <link a="n150" b="d123" w="0.8" type="assoc"/>
+  <link a="f104" b="f107" w="0.6" type="assoc"/>
+  <link a="q141" b="f103" w="0.5" type="assoc"/>
+  <link a="n153" b="d125" w="0.55" type="assoc"/>
+  <link a="i172" b="d125" w="0.5" type="assoc"/>
+  <link a="d121" b="f102" w="0.8" type="assoc"/>
+  <link a="x180" b="d121" w="0.75" type="assoc"/>
+  <link a="k175" b="q141" w="0.7" type="assoc"/>
+  <link a="x190" b="d123" w="0.7" type="assoc"/>
+  <link a="f105" b="q203" w="0.4" type="assoc"/>
+  <link a="n202" b="d122" w="0.3" type="assoc"/>
+  <link a="d121" b="lab:x204" w="0.7" type="external"/>
+  <link a="k175" b="lab:f310" w="0.75" type="external"/>
+  <link a="lab:f310" b="lab:t322" w="0.6" type="external"/>
+  <link a="c181" b="spec:c1" w="0.6" type="external"/>
+  <link a="x180" b="c181" w="0.9" type="part"/>
+  <link a="x180" b="c182" w="0.9" type="part"/>
+  <link a="x180" b="c183" w="0.9" type="part"/>
+  <link a="c181" b="c182" w="0.5" type="seq"/>
+  <link a="c182" b="c183" w="0.5" type="seq"/>
+  <link a="x190" b="r191" w="0.9" type="part"/>
+  <link a="x190" b="r192" w="0.9" type="part"/>
+  <link a="x190" b="r193" w="0.9" type="part"/>
+  <link a="r191" b="r192" w="0.5" type="seq"/>
+  <link a="r192" b="r193" w="0.5" type="seq"/>
+  <link a="c182" b="t136" w="0.46" type="similar"/>
+  <link a="c181" b="t134" w="0.38" type="similar"/>
+  <link a="k175" b="d125" w="0.55" type="new"/>
+  <link a="d120" b="d121" w="0.5" type="supersede"/>
+  <link a="d122" b="d123" w="0.5" type="supersede"/>
+  <link a="d124" b="d125" w="0.5" type="supersede"/>
+  <link a="f204" b="c183" w="0.5" type="supersede"/>
+</synapses>
+</brain>

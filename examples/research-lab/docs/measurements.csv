@@ -1,0 +1,37 @@
+cell_id,sample_id,run_id,electrolyte,condition,temperature_c,conductivity_mS_cm,capacity_retention_pct,cycles,coulombic_eff_pct,run_date,operator,note
+C-0611,S-0457,RUN-2611,EL-7,25C cycling C/2,25,8.6,91.9,200,86.4,2026-11-16,Ravi Menon,
+C-0612,S-0457,RUN-2611,EL-7,25C cycling C/2,25,8.6,90.8,200,86.0,2026-11-16,Ravi Menon,
+C-0613,S-0457,RUN-2611,EL-7,25C cycling C/2,25,8.6,91.6,200,86.3,2026-11-16,Ravi Menon,
+C-0614,S-0457,RUN-2611,EL-7,25C cycling C/2,25,8.6,91.2,200,86.1,2026-11-16,Ravi Menon,
+C-0615,S-0457,RUN-2611,EL-7,25C cycling C/2,25,8.6,92.0,200,86.5,2026-11-16,Ravi Menon,
+C-0616,S-0457,RUN-2611,EL-7,25C cycling C/2,25,8.6,90.9,200,85.9,2026-11-16,Ravi Menon,
+C-0621,S-0449,RUN-2611,EL-0,25C cycling C/2,25,8.9,82.5,200,83.6,2026-11-16,Ravi Menon,
+C-0622,S-0449,RUN-2611,EL-0,25C cycling C/2,25,8.9,81.4,200,83.2,2026-11-16,Ravi Menon,
+C-0623,S-0449,RUN-2611,EL-0,25C cycling C/2,25,8.9,82.9,200,83.8,2026-11-16,Ravi Menon,
+C-0624,S-0449,RUN-2611,EL-0,25C cycling C/2,25,8.9,81.8,200,83.4,2026-11-16,Ravi Menon,
+C-0625,S-0449,RUN-2611,EL-0,25C cycling C/2,25,8.9,82.3,200,83.5,2026-11-16,Ravi Menon,
+C-0626,S-0449,RUN-2611,EL-0,25C cycling C/2,25,8.9,81.7,200,83.5,2026-11-16,Ravi Menon,
+C-0641,S-0457,RUN-2614,EL-7,45C cycling C/2,45,12.1,84.6,150,,2026-11-17,Ana Petrescu,running
+C-0642,S-0457,RUN-2614,EL-7,45C cycling C/2,45,12.1,83.1,150,,2026-11-17,Ana Petrescu,running
+C-0643,S-0457,RUN-2614,EL-7,45C cycling C/2,45,12.1,84.5,150,,2026-11-17,Ana Petrescu,running
+C-0644,S-0457,RUN-2614,EL-7,45C cycling C/2,45,12.1,83.8,150,,2026-11-17,Ana Petrescu,running
+C-0651,S-0449,RUN-2614,EL-0,45C cycling C/2,45,12.6,86.9,150,,2026-11-17,Ana Petrescu,running
+C-0652,S-0449,RUN-2614,EL-0,45C cycling C/2,45,12.6,86.0,150,,2026-11-17,Ana Petrescu,running
+C-0653,S-0449,RUN-2614,EL-0,45C cycling C/2,45,12.6,86.8,150,,2026-11-17,Ana Petrescu,running
+C-0654,S-0449,RUN-2614,EL-0,45C cycling C/2,45,12.6,86.3,150,,2026-11-17,Ana Petrescu,running
+C-0601,S-0457,RUN-2608,EL-7,-20C capacity C/5,-20,2.9,78.4,5,,2026-11-08,Ravi Menon,capacity vs 25C
+C-0602,S-0457,RUN-2608,EL-7,-20C capacity C/5,-20,2.9,77.6,5,,2026-11-08,Ravi Menon,capacity vs 25C
+C-0603,S-0457,RUN-2608,EL-7,-20C capacity C/5,-20,2.9,78.3,5,,2026-11-08,Ravi Menon,capacity vs 25C
+C-0604,S-0457,RUN-2608,EL-7,-20C capacity C/5,-20,2.9,77.7,5,,2026-11-08,Ravi Menon,capacity vs 25C
+P-0017,S-0457,RUN-2617,EL-7,pouch formation gas,25,8.6,,3,,2026-11-14,Ana Petrescu,gas 0.38 mL
+P-0018,S-0457,RUN-2617,EL-7,pouch formation gas,25,8.6,,3,,2026-11-14,Ana Petrescu,gas 0.47 mL
+P-0019,S-0457,RUN-2617,EL-7,pouch formation gas,25,8.6,,3,,2026-11-14,Ana Petrescu,gas 0.36 mL
+P-0020,S-0457,RUN-2617,EL-7,pouch formation gas,25,8.6,,3,,2026-11-14,Ana Petrescu,gas 0.47 mL
+C-0661,S-0459,RUN-2620,EL-0+FEC,additive ablation,25,8.7,,12,,2026-11-18,Ravi Menon,running
+C-0662,S-0459,RUN-2620,EL-0+FEC,additive ablation,25,8.7,,12,,2026-11-18,Ravi Menon,running
+C-0663,S-0459,RUN-2620,EL-0+FEC,additive ablation,25,8.7,,12,,2026-11-18,Ravi Menon,running
+C-0664,S-0459,RUN-2620,EL-0+FEC,additive ablation,25,8.7,,12,,2026-11-18,Ravi Menon,running
+C-0671,S-0458,RUN-2620,EL-0+TMSB,additive ablation,25,8.8,,12,,2026-11-18,Ravi Menon,running
+C-0672,S-0458,RUN-2620,EL-0+TMSB,additive ablation,25,8.8,,12,,2026-11-18,Ravi Menon,running
+C-0673,S-0458,RUN-2620,EL-0+TMSB,additive ablation,25,8.8,,12,,2026-11-18,Ravi Menon,running
+C-0674,S-0458,RUN-2620,EL-0+TMSB,additive ablation,25,8.8,,12,,2026-11-18,Ravi Menon,running

@@ -1,0 +1,54 @@
+<context now="2026-11-20 09:30" step="4" tokens="~797" depth="2" threshold="0.16" hop="0.85" order="items sorted by activation">
+<purpose name="SSO rollout brain">Knowledge the team needs to plan and run the SSO login rollout.</purpose>
+<goal>Prepare the SSO login rollout plan for the app</goal>
+<focus refs="d121,d123,n150"/>
+<concepts note="concepts lit by the context">
+  <concept id="A:idp" act="0.63" depth="1">Identity / IdP</concept>
+  <concept id="A:time" act="0.60" depth="1">Deadlines</concept>
+  <concept id="A:client" act="0.57" depth="1">Client</concept>
+  <concept id="A:auth" act="0.44" depth="1">Authentication</concept>
+  <concept id="A:api" act="0.40" depth="1">API integrations</concept>
+  <concept id="A:mfa" act="0.26" depth="2">MFA</concept>
+  <concept id="A:sec" act="0.23" depth="2">Security</concept>
+  <concept id="A:data" act="0.18" depth="2">Sensitive data</concept>
+</concepts>
+<section name="facts">
+  <item id="f103" kind="fact" w="0.38" act="0.43" depth="1" via="d121" age="20d" concepts="idp api auth">Entra ID supports OIDC and SAML 2.0</item>
+  <item id="f102" kind="fact" w="0.31" act="0.38" depth="1" via="d121" age="28d" concepts="idp">The company uses Microsoft Entra ID</item>
+  <item id="f104" kind="fact" w="0.42" act="0.24" depth="2" via="A:client" age="15d" concepts="client">The app has about 5000 active users</item>
+  <item id="f101" kind="fact" w="0.60" act="0.20" depth="2" via="A:auth" age="30d" concepts="auth">The app currently has e-mail + password login</item>
+  <item id="f107" kind="fact" w="0.56" act="0.18" depth="2" via="A:api" age="3d" concepts="api">Graph API limit: 10k requests / 10 min per app</item>
+  <item id="f110" kind="fact" w="0.52" act="0.17" depth="2" via="A:auth" age="6d" concepts="sec auth">Audit: no rate limit on /login</item>
+</section>
+<section name="decisions">
+  <item id="d121" kind="decision" w="0.76" act="1.00" depth="0" age="10d" concepts="idp auth api">We roll out SSO via OIDC with Entra ID</item>
+  <item id="d123" kind="decision" w="0.76" act="1.00" depth="0" age="5d" concepts="time client">SSO rollout deadline: 30 November</item>
+</section>
+<section name="tasks">
+  <item id="t131" kind="task" w="0.50" act="0.46" depth="1" via="d121" age="2d" concepts="idp api">Register the app in Entra (redirect URI, scopes)</item>
+  <item id="t134" kind="task" w="0.52" act="0.41" depth="1" via="d121" age="1d" concepts="auth api">E2E tests of the OIDC flow (happy path + consent denied)</item>
+  <item id="t136" kind="task" w="0.50" act="0.40" depth="1" via="d121" age="2d" concepts="idp data">Account mapping: e-mail → Entra oid</item>
+</section>
+<section name="questions">
+  <item id="q141" kind="question" w="0.37" act="0.22" depth="2" via="A:idp" age="3d" concepts="idp client">What about users outside the tenant (B2B guests)?</item>
+</section>
+<section name="notes">
+  <item id="n150" kind="note" w="0.28" act="1.00" depth="0" age="1d" concepts="client time">PM: client asks whether SSO will be ready by month end</item>
+  <item id="n154" kind="note" w="0.14" act="0.17" depth="2" via="A:client" age="3d" concepts="client time">Call Kim Aalto (+47 22 33 44 55, kim.aalto@halvorsen.example) before 15 Dec 2026 about the €48,000 renewal of Halvorsen Freight AS: 12% discount, see https://halvorsen.example/pricing, ticket #4821, IBAN NO93 8601 1117 947</item>
+</section>
+<section name="files">
+  <item id="x190" kind="file" w="0.45" act="0.38" depth="1" via="d123" age="2d" concepts="client time">rollout.csv — 3 rows (wave, users, owner, start_date)</item>
+  <item id="x180" kind="file" w="0.30" act="0.35" depth="1" via="d121" age="10d" concepts="idp api">oidc-flow.md — OIDC sequence and token handling</item>
+  <item id="c182" kind="chunk" w="0.32" act="0.22" depth="2" via="A:idp" age="10d" concepts="idp data">The callback exchanges the code for tokens; the id_token oid claim maps to the local account.</item>
+  <item id="c181" kind="chunk" w="0.32" act="0.16" depth="2" via="A:auth" age="10d" concepts="auth api">The browser is redirected to the Entra authorize endpoint with PKCE, state and nonce.</item>
+</section>
+<section name="rollout">
+  <item id="r193" kind="record" w="0.48" act="0.27" depth="2" via="A:client" age="2d" concepts="client time">wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30</item>
+  <item id="r191" kind="record" w="0.48" act="0.27" depth="2" via="A:client" age="2d" concepts="client time">wave: pilot · users: 120 · owner: Kim Lee · start_date: 2026-11-24</item>
+  <item id="r192" kind="record" w="0.48" act="0.23" depth="2" via="A:client" age="2d" concepts="client">wave: staff · users: 1400 · owner: Ana Ruiz · start_date: 2026-11-27</item>
+</section>
+<section name="risks">
+  <item id="k175" kind="risk" w="0.49" act="0.28" depth="2" via="A:idp" age="6d" concepts="idp sec">Guest accounts may bypass conditional access</item>
+</section>
+<memory note="not in context: faded or out of depth" total="51" lit="31" superseded-faded="4"/>
+</context>

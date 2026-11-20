@@ -1,0 +1,14 @@
+{
+ "name": "SSO rollout brain",
+ "description": "Knowledge the team needs to plan and run the SSO login rollout: identity provider setup, security and MFA policy, deadlines and client commitments, rollout waves, tests and risks.",
+ "inScope": {
+  "topics": ["identity provider and OIDC setup", "security, MFA and access policy", "deadlines and client commitments", "rollout waves and owners", "tests and verification", "risks and open questions"],
+  "concepts": ["A:auth", "A:idp", "A:sec", "A:mfa", "A:time"],
+  "kinds": ["fact", "decision", "task", "question", "note", "file", "chunk", "record", "risk"],
+  "sections": ["facts", "decisions", "tasks", "questions", "rollout", "risks"]
+ },
+ "outOfScope": { "topics": ["private matters unrelated to work", "food, sports, entertainment", "office logistics"], "entities": ["card"] },
+ "examples": { "accept": ["Entra conditional access blocks guest sign-in", "Pilot wave starts 24 November with 120 users"], "reject": ["Lunch menu for Friday", "Photo of the office cat"] },
+ "admission": { "mode": "enforce", "accept": 0.35, "review": 0.2, "apply": ["remember", "insert", "ingest", "import"], "exempt": ["admin"], "chunks": "file" },
+ "counters": { "admitted": 214, "quarantined": 3, "rejected": 5 }
+}

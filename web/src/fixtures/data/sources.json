@@ -1,0 +1,54 @@
+[
+ {
+  "name": "lab",
+  "uri": "http://lab:7791",
+  "weight": 0.7,
+  "mode": "live",
+  "ttl": 300,
+  "federateDepth": 1,
+  "enabled": true,
+  "status": "ok",
+  "latencyMs": 38,
+  "nodes": 142,
+  "lastSync": "2026-11-20T09:28:11Z"
+ },
+ {
+  "name": "spec",
+  "uri": "url+https://openid.net/specs/openid-connect-core-1_0.html",
+  "weight": 0.5,
+  "mode": "cached",
+  "ttl": 86400,
+  "federateDepth": 0,
+  "enabled": true,
+  "status": "ok",
+  "latencyMs": 0,
+  "nodes": 41,
+  "lastSync": "2026-11-19T22:00:00Z"
+ },
+ {
+  "name": "legacy",
+  "uri": "file:///data/old/brain.xml",
+  "weight": 0.4,
+  "mode": "live",
+  "ttl": 300,
+  "federateDepth": 1,
+  "enabled": true,
+  "status": "error",
+  "latencyMs": 2000,
+  "nodes": 0,
+  "lastError": "open /data/old/brain.xml: no such file or directory",
+  "lastSync": ""
+ },
+ {
+  "name": "sales",
+  "uri": "exec:///opt/brains/acme-sales-brain",
+  "weight": 0.6,
+  "mode": "live",
+  "ttl": 300,
+  "federateDepth": 1,
+  "enabled": false,
+  "status": "disabled",
+  "latencyMs": 0,
+  "nodes": 0
+ }
+]

@@ -1,0 +1,32 @@
+# What is built and what is specified. Schema template (brainDB Addendum A4):
+# every string leaf is a slot "description[:type][|option...]".
+release:
+  version: "current version of brainDB:version|kind=fact|section=facts"
+  status: "project status concept not a stable contract:text|kind=fact|section=facts|min=0.3"
+  goal: "the goal of this brain:text|min=0.25"
+storage:
+  today: "a brain is stored as one brain.xml file written atomically:text|kind=fact|section=facts|min=0.3"
+  planned: "the storage backend that replaces the hand-rolled engine:text|kind=decision|section=decisions|min=0.3"
+retrieval:
+  modes: "hybrid vector tree and graph search modes:text|kind=fact|section=facts|min=0.3"
+  default_engine: "what the built-in engine indexes stems bigrams trigrams:text|kind=fact|section=facts|min=0.3"
+  enrichment: "how embeddings are enriched over the graph:text|kind=fact|section=facts|min=0.3"
+  best_mode_overall: "which search mode ranks best overall:text|kind=benchmark|section=measurements|min=0.3"
+  measured_engine: "offline engine of the recorded measurement:text|kind=benchmark|field=engine"
+  measured_on: "date of the recorded measurement:date|kind=benchmark|field=date"
+  paraphrase_failure: "paraphrase queries that return nothing relevant in the top ten:text|kind=fact|section=facts|min=0.3"
+decay:
+  formula: "what decay must never do to knowledge:text|kind=decision|section=decisions|min=0.3"
+  durable_kinds: "floors for decision fact record file and chunk:text|kind=fact|section=facts|min=0.3"
+  attention_kinds: "kinds that keep floor zero and really go away:text|kind=fact|section=facts|min=0.3"
+agent_surface:
+  mcp_tools: "MCP tools exposed by default and the status line:text|kind=fact|section=facts|min=0.3"
+  loop: "what an agent does at the end of a turn:text|kind=summary|section=procedures|min=0.3"
+  cheap_queries: "how to keep a BDQL query cheap:text|kind=summary|section=procedures|min=0.3"
+planned[]: "commands with status planned|kind=command|section=cli|limit=4|min=0.3"
+planned[].command: ".fields.command"
+planned[].status: ".fields.status"
+planned[].summary: ".fields.summary"
+open_questions[]: "open questions blocking the next release|kind=question|section=questions|limit=5|min=0.3"
+open_questions[].id: ".id"
+open_questions[].question: ".text"

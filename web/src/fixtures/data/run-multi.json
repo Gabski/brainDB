@@ -1,0 +1,18 @@
+{
+ "ok": true,
+ "status": "[ok] step 5 · lit 22/37 memories + 8 concepts · ~717 tok · depth 2/2 thr 0.16 · focus d121,d123,n150",
+ "results": [
+  {"index":0,"statement":"SELECT id, kind, text, fields.users FROM memory WHERE kind = record ORDER BY fields.users DESC LIMIT 10;","kind":"rows",
+   "columns":["id","kind","text","fields.users"],
+   "rows":[{"id":"r193","kind":"record","text":"wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30","fields.users":"5000"},
+           {"id":"r192","kind":"record","text":"wave: staff · users: 1400 · owner: Ana Ruiz · start_date: 2026-11-27","fields.users":"1400"},
+           {"id":"r191","kind":"record","text":"wave: pilot · users: 120 · owner: Kim Lee · start_date: 2026-11-24","fields.users":"120"}],
+   "elapsed_ms":1.4},
+  {"index":1,"statement":"CONTEXT FOR \"guest access\" DEPTH 1 FORMAT md;","kind":"text",
+   "text":"# Context: guest access\n\n## Focus\n\n- **q141** · question · w 0.37: What about users outside the tenant (B2B guests)?\n- **k175** · risk · w 0.49: Guest accounts may bypass conditional access\n\n## Facts\n\n- **f103** · fact · act 0.36 · d1 ← q141 · w 0.38  \n  Entra ID supports OIDC and SAML 2.0\n",
+   "elapsed_ms":3.2},
+  {"index":2,"statement":"REMEMBER task \"Block guest sign-in until CA policy is verified\" CONCEPTS \"Security\" LINK TO k175 WEIGHT 0.8 AS T;","kind":"changes",
+   "changes":["+t401 task \"Block guest sign-in until CA policy is verified\"","◆ t401 → A:sec 0.80","~ t401 ↔ k175 0.80"],"ids":["t401","k175","A:sec"],"elapsed_ms":2.1},
+  {"index":3,"statement":"BOOST d125, k175;","kind":"changes","changes":["▲d125","▲k175"],"ids":["d125","k175"],"elapsed_ms":0.3}
+ ]
+}

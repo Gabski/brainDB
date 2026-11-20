@@ -1,0 +1,20 @@
+command,status,surface,summary,key_flags
+serve,working,http,HTTP API with SSE and the embedded web UI,--brain --data-dir --seed --addr --port --allow-no-token
+mcp,working,mcp,MCP server over stdio and Streamable HTTP,--brain --actor --addr --no-http --tools --read-only
+seed,working,cli,build a brain from a seed file and optionally ingest a directory,-o --ingest
+migrate,planned,cli,move a brain between storage backends,--brain --to
+state,working,cli,print the brain state as JSON,--brain
+context,working,cli,render the lit slice as XML or Markdown,--brain --format -o
+ingest,working,cli,add files to a brain with chunking auto-linking and embedding,--brain --no-focus
+query,working,cli,raw data query over memories and records,--brain --context --query --focus --depth --format
+fill,working,cli,fill a document template from the brain with evidence,--brain --output --sources --scope --min
+db,working,cli,list create or remove databases under a data directory,ls create rm --data-dir
+version,working,cli,version banner and attribution,--notice
+bench,working,cli,synthetic load over a storage backend,--nodes --backend --keep
+eval,working,cli,retrieval quality against a judged gold set,--brain --gold --k --modes --format --detail
+create,working,cli,create a database from a pile of files and a config,--from --config --dry-run --data-dir
+import,working,cli,incremental import of files or globs into a database,--db --brain --dry-run --update
+config,working,cli,show or validate a braindb.yaml,show validate --db --brain
+run,working,cli,run a BDQL script or a single statement,--brain -e --format --json --dry-run --read-only
+shell,working,cli,BDQL REPL with history and backslash commands,--brain --db
+publish,planned,cli,compile a brain into a standalone MCP binary,--brain --mode

@@ -1,0 +1,15 @@
+brainDB
+Copyright 2026 Gabriel Koziestański
+
+This product includes software developed by Gabriel Koziestański
+as part of the brainDB project.
+
+Original author: Gabriel Koziestański
+
+Any redistribution of this software or of a Derivative Work, in Source or Object form, must include this
+NOTICE file (or its attribution notices) as required by Section 4(d) of the Apache License, Version 2.0.
+A product built on brainDB must keep this attribution in its documentation and, where the product shows
+third-party notices (an "About", "Credits", "Licenses" or "Acknowledgements" screen, or `--version` output), there.
+
+Suggested attribution line:
+  "Built on brainDB by Gabriel Koziestański (Apache License 2.0)."

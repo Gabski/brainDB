@@ -1,0 +1,25 @@
+# Federation override for the root docker-compose.yml (brainDB Addendum C5).
+# The sales brain (examples/sales-company/seed.json) declares the source
+#   {"name": "lab", "uri": "http://lab:7791", "tokenEnv": "LAB_TOKEN", "weight": 0.7, "ttl": 300, "mode": "live", "federateDepth": 1}
+# and 6 external links into the lab brain. This override gives both services the shared LAB_TOKEN (the lab maps it
+# to its user `tessaline`, role partner, see examples/research-lab/braindb.yaml), and
+# makes sales wait for the lab, and mounts the federation queries.
+#
+#   export LAB_TOKEN=$(openssl rand -hex 16)          # optional; empty = lab API without auth (local only)
+#   docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml down -v   # reseed from scratch
+#   docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml up -d --build
+
+services:
+  lab:
+    environment:
+      BRAINDB_EXAMPLE: research-lab
+      LAB_TOKEN: ${LAB_TOKEN:-}                          # lab user `tessaline` (role partner) authenticates with this token
+
+  sales:
+    environment:
+      BRAINDB_EXAMPLE: sales-company
+      LAB_TOKEN: ${LAB_TOKEN:-${BRAINDB_TOKEN:-}}       # read via tokenEnv; never written to brain.xml
+    depends_on:
+      lab: {condition: service_healthy}
+    volumes:
+      - ./examples/federation:/opt/braindb/federation:ro

@@ -1,0 +1,86 @@
+{
+ "item": {
+  "node": {
+   "id": "r193",
+   "kind": "record",
+   "section": "rollout",
+   "text": "wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30",
+   "base": 0.5,
+   "weight": 0.48,
+   "age": 2,
+   "pinned": false,
+   "parent": "x190",
+   "index": 2,
+   "fields": {
+    "wave": "everyone",
+    "users": "5000",
+    "owner": "Kim Lee",
+    "start_date": "2026-11-30"
+   },
+   "activation": 0.27,
+   "depth": 2,
+   "via": "A:client"
+  },
+  "decay": 0.955,
+  "chain": [
+   "n150",
+   "A:client",
+   "r193"
+  ],
+  "xml": "<item id=\"r193\" kind=\"record\" w=\"0.48\" act=\"0.27\" depth=\"2\" via=\"A:client\" age=\"2d\">wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30\n  <link to=\"A:client\" w=\"0.84\" type=\"concept\"/>\n  <link to=\"A:time\" w=\"0.68\" type=\"concept\"/>\n  <link to=\"x190\" w=\"0.90\" type=\"part\"/>\n  <link to=\"r192\" w=\"0.50\" type=\"seq\"/>\n</item>"
+ },
+ "links": [
+  {
+   "to": "A:client",
+   "w": 0.84,
+   "type": "concept"
+  },
+  {
+   "to": "A:time",
+   "w": 0.68,
+   "type": "concept"
+  },
+  {
+   "to": "x190",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "to": "r192",
+   "w": 0.5,
+   "type": "seq"
+  }
+ ],
+ "near": [
+  {
+   "id": "r191",
+   "cos": 0.72,
+   "linked": false
+  },
+  {
+   "id": "x190",
+   "cos": 0.58,
+   "linked": true
+  },
+  {
+   "id": "r192",
+   "cos": 0.53,
+   "linked": true
+  },
+  {
+   "id": "n154",
+   "cos": 0.37,
+   "linked": false
+  },
+  {
+   "id": "d122",
+   "cos": 0.3,
+   "linked": false
+  },
+  {
+   "id": "n150",
+   "cos": 0.3,
+   "linked": false
+  }
+ ]
+}

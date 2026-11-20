@@ -1,0 +1,43 @@
+{
+ "columns": [
+  "id",
+  "kind",
+  "text",
+  "weight",
+  "fields.wave",
+  "fields.users",
+  "fields.owner"
+ ],
+ "rows": [
+  {
+   "id": "r193",
+   "kind": "record",
+   "text": "wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30",
+   "weight": 0.48,
+   "fields.wave": "everyone",
+   "fields.users": "5000",
+   "fields.owner": "Kim Lee"
+  },
+  {
+   "id": "r192",
+   "kind": "record",
+   "text": "wave: staff · users: 1400 · owner: Ana Ruiz · start_date: 2026-11-27",
+   "weight": 0.48,
+   "fields.wave": "staff",
+   "fields.users": "1400",
+   "fields.owner": "Ana Ruiz"
+  },
+  {
+   "id": "r191",
+   "kind": "record",
+   "text": "wave: pilot · users: 120 · owner: Kim Lee · start_date: 2026-11-24",
+   "weight": 0.48,
+   "fields.wave": "pilot",
+   "fields.users": "120",
+   "fields.owner": "Kim Lee"
+  }
+ ],
+ "count": 3,
+ "total": 3,
+ "rendered": "| id | kind | text | weight | fields.wave | fields.users | fields.owner |\n|---|---|---|---|---|---|---|\n| r193 | record | wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30 | 0.48 | everyone | 5000 | Kim Lee |\n| r192 | record | wave: staff · users: 1400 · owner: Ana Ruiz · start_date: 2026-11-27 | 0.48 | staff | 1400 | Ana Ruiz |\n| r191 | record | wave: pilot · users: 120 · owner: Kim Lee · start_date: 2026-11-24 | 0.48 | pilot | 120 | Kim Lee |\n"
+}

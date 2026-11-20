@@ -1,0 +1,44 @@
+{
+ "report": [
+  "oidc-flow.md: 3 chunks · 3.8 KB",
+  "rollout.csv: 3 records · 0.2 KB",
+  "warning: scan.png: image, file node only"
+ ],
+ "fresh": [
+  "x180",
+  "c181",
+  "c182",
+  "c183",
+  "x190",
+  "r191",
+  "r192",
+  "r193"
+ ],
+ "links": [
+  {
+   "a": "c182",
+   "b": "t136",
+   "cos": 0.46,
+   "type": "similar"
+  },
+  {
+   "a": "c181",
+   "b": "t134",
+   "cos": 0.38,
+   "type": "similar"
+  },
+  {
+   "a": "x190",
+   "b": "A:client",
+   "cos": 0.31,
+   "type": "concept"
+  },
+  {
+   "a": "c183",
+   "b": "A:sec",
+   "cos": 0.22,
+   "type": "concept"
+  }
+ ],
+ "status": "[ok] step 4 · lit 23/38 memories + 8 concepts · ~797 tok · depth 2/2 thr 0.16 · focus d121,d123,n150"
+}

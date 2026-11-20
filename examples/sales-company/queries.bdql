@@ -1,0 +1,138 @@
+-- brainDB BDQL tour on the sales-company example (Tessaline Systems, NaCore battery packs).
+-- Run: braindb run examples/sales-company/queries.bdql --db sales-company
+-- The script contains writes, so it runs as one transaction (Addendum G3).
+
+SHOW stats;
+
+-- 1. Ad-hoc context slice for a question; does not change the shared focus.
+CONTEXT FOR "Marrow Creek renewal discount approval" DEPTH 2 FORMAT md;
+
+-- 2. Persist focus and parameters (what the UI and brain_view use afterwards).
+CONTEXT FOCUS d121, d123, g191 DEPTH 2 THRESHOLD 0.2 HOP 0.85 SET;
+
+-- 3. Open deals above €50k, biggest first (seed deals + pipeline.csv rows imported as kind deal).
+SELECT id, fields.deal, fields.account, fields.stage, fields.value, fields.owner, fields.close_date
+  FROM memory
+  WHERE kind = deal AND NOT superseded AND fields.value > 50000 AND fields.stage != 'closed won'
+  ORDER BY fields.value DESC
+  LIMIT 10
+  FORMAT md;
+
+-- 4. Ranked by relevance to a phrase, restricted to one concept.
+SELECT id, kind, text, weight
+  FROM memory
+  WHERE concept = 'renewal' AND weight >= 0.2
+  NEAR "renewal risk procurement 3-year term" MODE hybrid
+  ORDER BY score DESC
+  LIMIT 8
+  FORMAT yaml;
+
+-- 5. Pipeline by stage (aggregates over fields).
+SELECT fields.stage, COUNT(*), SUM(fields.value), AVG(fields.probability)
+  FROM memory WHERE kind = deal GROUP BY fields.stage;
+
+-- 6. Pipeline by owner.
+SELECT fields.owner, COUNT(*), SUM(fields.value), MAX(fields.close_date)
+  FROM memory WHERE kind = deal AND NOT superseded GROUP BY fields.owner;
+
+-- 7. Search in each mode.
+SEARCH "renewal 3-year offer discount" MODE hybrid LIMIT 5;
+SEARCH "Grayfield Power competitor price" MODE vector LIMIT 5;
+SEARCH "forecast commit Haldane" MODE tree LIMIT 6;
+SEARCH "Plant 7 swelling SLA credit" MODE graph LIMIT 5;
+
+-- 8. Why is the Grayfield question connected to the renewal offer?
+PATHS FROM q141 TO d121 LIMIT 3;
+
+-- 9. Which links carry the renewal offer? (propagation + ablation)
+TEST d121;
+
+-- 10. Missing links around the NaCore 2 guarantee question.
+SUGGEST q144;
+
+-- 11. Write transaction: record the CFO outcome, link it, retire the old rule, strengthen the offer.
+REMEMBER decision "CFO Ilse Varga approved the 6% multi-year discount for Marrow Creek on 21 Nov 2026"
+  IN pricing CONCEPTS "Discounts and approvals", "Account renewal" LABELS (finance)
+  LINK TO d121 WEIGHT 0.85, t131 WEIGHT 0.8
+  AS F;
+LINK $F TO d125 WEIGHT 0.6;
+REMEMBER fact "Grayfield Power revised its LFP offer to €149 per pack per month on 20 Nov 2026"
+  IN facts CONCEPTS "Competition", "Pricing and price list" LINK TO q141 WEIGHT 0.7 SUPERSEDES f105 AS G;
+BOOST d121, g191;
+
+-- 12. New deals straight into the custom kind (extra columns become fields).
+INSERT INTO deal (text, deal, account, stage, value, owner, close_date)
+  VALUES ('Marrow Creek NaCore 2 pilot, Plant 9 bakery, 12 packs', 'Marrow Creek NaCore 2 pilot', 'Marrow Creek Foods', 'qualification', 27216, 'Jonas Brandt', '2027-03-31'),
+         ('Ostler Dairy SAP PM connector', 'Ostler SAP connector', 'Ostler Dairy', 'evaluation', 9500, 'Kim Achterberg', '2026-12-12');
+
+-- 13. Bulk update: Haldane deals now belong to the Q1 forecast.
+UPDATE memory SET fields.forecast_category = 'q1-2027' WHERE kind = deal AND fields.account = 'Haldane Beverages';
+
+-- 14. Preview a clean-up of stale notes (nothing is deleted).
+FORGET WHERE kind = note AND age > 14 AND NOT pinned DRY RUN;
+
+-- 15. Fill templates from memory.
+FILL TEMPLATE 'account-brief.yaml' OUTPUT json WITH SOURCES;
+FILL TEMPLATE 'deal-review.md' OUTPUT md SCOPE memory MIN 0.2;
+FILL TEMPLATE 'quote.xml' OUTPUT xml;
+
+-- 16. Connectors (seed: anchors for Marrow Creek and Haldane, hub "Q4 2026 close", alias ARR, bridge to the lab).
+SHOW connectors;
+SELECT id, type, label, key, degree FROM connectors ORDER BY degree DESC;
+SELECT id, kind, text FROM memory WHERE route = 'H:customer-marrow-creek' AND lit FORMAT md;
+SELECT id, kind, text, fields.value FROM memory WHERE route = 'H:q4-close' ORDER BY fields.value DESC;
+SEARCH "ACV of the key account" MODE hybrid LIMIT 5;                                  -- alias ARR expands the query
+CONNECTOR anchor "Ostler Dairy" KEY 'account:Ostler Dairy' CONNECT k198, g193 AS O;
+CONNECT q141 TO H:bridge-lab;
+RESOLVE account BY fields.account MIN 2 DRY RUN;                                       -- seed deals + pipeline.csv rows by account
+
+-- 17. Entities (Addendum I): the pattern library finds dates, money, phones, emails, orgs, VAT/IBAN and SKUs in every text.
+SHOW patterns;
+SELECT type, COUNT(*) FROM entities GROUP BY type;
+SELECT value, COUNT(*) FROM entities WHERE type = org GROUP BY value ORDER BY COUNT(*) DESC LIMIT 10;   -- Marrow Creek Foods (GmbH), Haldane Beverages (sp. z o.o.), Ostler Dairy (AS), Grayfield Power (Ltd)
+SELECT id, text FROM memory WHERE HAS email AND entities.domain = 'marrowcreek.example' LIMIT 10;      -- t130, k196 + call-notes chunk
+SELECT id, text, entities.money FROM memory WHERE entities.money > 'EUR 100000' AND entities.date BETWEEN '2026-12-01' AND '2026-12-31';
+SELECT id, text, entities.money FROM memory WHERE entities.money > 'EUR 10000' AND HAS id_code;          -- PLN / NOK / USD compared through patterns.fx
+SELECT id, text FROM memory WHERE entities.person = 'Jonas Brandt' ORDER BY weight DESC LIMIT 10;
+EXTRACT FROM "Call Elin Dahl (+49 40 3070 5521) before 15.12.2026 about the €465,000 offer, OPP-4471, Q1 2027 fallback";
+EXTRACT f117;                                                                                           -- org, vat, iban (fictional, checksums valid), url
+PATTERN ADD deal_desk '\bDD-\d{3}\b' TYPE id_code NORMALIZE upper PII false;
+PATTERN TEST deal_desk 'Deal desk ticket DD-042 and dd-7';
+PATTERN REMOVE deal_desk;
+RESOLVE email MIN 2 DRY RUN;      -- jonas.brandt@tessaline.example appears as written in k196 and as Jonas.Brandt@… in the call notes
+RESOLVE phone MIN 2 DRY RUN;      -- +47 22 48 91 30 (k196) = 22 48 91 30 (call notes, default region NO)
+
+-- 18. Access control (Addendum M). Run as admin; AS USER previews another principal's view.
+WHOAMI;
+SHOW labels;
+SHOW grants FOR kim;
+EXPLAIN ACCESS d121 FOR kim;          -- visible: finance is granted to sales-rep in section pricing
+EXPLAIN ACCESS f109 FOR kim;          -- hidden: finance outside pricing is denied
+EXPLAIN ACCESS n155 FOR kim;          -- hidden: hr is denied to sales-rep
+AS USER grokbot; SEARCH "discount for Marrow Creek" MODE hybrid LIMIT 5;   -- public only: i170, q140, t130 … never d121 / d125 / x180
+AS USER kim;     SEARCH "discount for Marrow Creek" MODE hybrid LIMIT 5;   -- d121 (6% multi-year), d125, x180, g191
+AS USER ilse;    SELECT id, text FROM memory WHERE labels ~ 'finance' ORDER BY weight DESC LIMIT 10;
+AS USER grokbot; FILL TEMPLATE 'account-brief.yaml' OUTPUT json;          -- arr, annual_price, discount, owner … come back in `missing`
+AS USER kim;     FILL TEMPLATE 'account-brief.yaml' OUTPUT json;          -- filled: €480,000, €465,000, 6%, Jonas Brandt
+AS USER admin;                        -- AS USER switches the principal until the next AS USER
+LABEL WHERE kind = deal AND fields.account = 'Ostler Dairy' ADD customer:ostler DRY RUN;
+LABEL f105 ADD internal DRY RUN;
+REMEMBER note "Kim: Ostler Dairy asked for a reference call with Marrow Creek" IN notes LABELS (internal, customer:ostler) AS N;
+
+-- 19. Purpose and admission (Addendum O). Scores measured with the real scorer (hash-256); they can differ slightly with another embedding.
+SHOW PURPOSE;
+CHECK "Marrow Creek asked for a 24-month warranty on NaCore 2 packs in the Plant 9 bakery" AS fact IN facts;   -- 0.49 admitted
+CHECK "Lunch menu for Friday: fish soup and bread, cake at 14:00";                                         -- 0.04 rejected (conflicts with the reject example "Lunch menu for Friday …")
+AS USER kim;                                                     -- kim is not exempt, so his writes are filtered
+REMEMBER note "Trade fair in Hamburg next spring: booth size still open" IN notes AS Q1;                    -- 0.23 quarantine
+REMEMBER note "Company car policy for account executives changes in January" IN notes AS Q2;               -- 0.27 quarantine
+REMEMBER note "Lunch menu for Friday: fish soup and bread" IN notes;                                        -- rejected, reported, not stored
+AS USER admin;
+SELECT id, text, purpose.score, purpose.reasons FROM quarantine ORDER BY purpose.score DESC LIMIT 20;
+ADMIT $Q1 IN notes;
+REJECT $Q2 REASON 'HR policy, not sales knowledge';
+REMEMBER fact "Grayfield Power's CFO is a former Tessaline employee (public LinkedIn profile)" IN facts
+  OVERRIDE PURPOSE REASON 'competitive intelligence requested by the sales director';
+
+-- 20. Compact query shorthand (Addendum A2).
+QUERY 'kind:deal stage=negotiation sort:-value limit:5 select:id,fields.account,fields.value' FORMAT md;

@@ -1,0 +1,44 @@
+{
+ "connectors": [
+  {
+   "type": "anchor",
+   "label": "Kim Lee",
+   "key": "owner:kim-lee",
+   "members": [
+    "r191",
+    "r193",
+    "n150"
+   ],
+   "score": 0.82,
+   "evidence": "fields.owner = \"Kim Lee\" in 2 records + proper name in n150"
+  },
+  {
+   "type": "hub",
+   "label": "MFA policy",
+   "members": [
+    "d124",
+    "d125",
+    "q140",
+    "i172",
+    "n153"
+   ],
+   "score": 0.64,
+   "evidence": "5 nodes, 7 of 10 pairwise links present"
+  },
+  {
+   "type": "alias",
+   "label": "IdP",
+   "terms": [
+    "identity provider",
+    "Entra",
+    "Azure AD"
+   ],
+   "members": [
+    "A:idp",
+    "f102"
+   ],
+   "score": 0.51,
+   "evidence": "\"Entra\" co-occurs with \"IdP\" in 4 memories"
+  }
+ ]
+}

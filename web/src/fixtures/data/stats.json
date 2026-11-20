@@ -1,0 +1,61 @@
+{
+ "storage": "xml",
+ "nodes": 50,
+ "edges": 112,
+ "indexes": [
+  {
+   "name": "vectors (hash-256)",
+   "size": 50
+  },
+  {
+   "name": "stems",
+   "size": 412
+  },
+  {
+   "name": "fields",
+   "size": 12
+  },
+  {
+   "name": "hnsw",
+   "size": 0
+  }
+ ],
+ "cacheHitRate": 0.83,
+ "latency": [
+  {
+   "op": "search",
+   "p50": 1.8,
+   "p95": 4.9
+  },
+  {
+   "op": "activation",
+   "p50": 0.4,
+   "p95": 1.1
+  },
+  {
+   "op": "query",
+   "p50": 0.9,
+   "p95": 2.7
+  },
+  {
+   "op": "fill",
+   "p50": 6.2,
+   "p95": 14.8
+  }
+ ],
+ "format": "xml",
+ "files": [
+  {
+   "name": "brain.xml",
+   "bytes": 48213
+  },
+  {
+   "name": "brain.wal.jsonl",
+   "bytes": 3120
+  },
+  {
+   "name": "brain.journal.jsonl",
+   "bytes": 18044
+  }
+ ]
+}

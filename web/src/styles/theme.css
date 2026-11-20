@@ -1,0 +1,72 @@
+/* Copyright 2026 Gabriel Koziestański
+ * SPDX-License-Identifier: Apache-2.0 */
+
+/* brainDB theme tokens. Neutral palette; colour is reserved for kind badges and status. */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #111317;
+  --bg-sunken: #0b0d10;
+  --panel: #16191e;
+  --panel-2: #1c2026;
+  --hover: #232831;
+  --active: #2a303a;
+  --line: #2a2f37;
+  --line-strong: #3a414c;
+  --fg: #d8dde5;
+  --fg-strong: #f1f3f6;
+  --mut: #8a93a1;
+  --mut-2: #646d7a;
+  --accent: #5b9cf5;
+  --accent-bg: rgba(91, 156, 245, 0.14);
+  --focus: #5b9cf5;
+  --ok: #4cc38a;
+  --warn: #e0b341;
+  --bad: #f06a6a;
+  --code-tag: #7fb4f0;
+  --code-attr: #d9b27c;
+  --code-val: #93c995;
+  --code-com: #6b7480;
+  --code-num: #c89bf0;
+  --code-kw: #e88f8f;
+  --scroll: #3a414c;
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --canvas-overlay: rgba(10, 12, 16, 0.72);
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --bg-sunken: #eceef2;
+  --panel: #ffffff;
+  --panel-2: #f3f4f7;
+  --hover: #eaecf0;
+  --active: #dfe3ea;
+  --line: #dcdfe5;
+  --line-strong: #c4c9d2;
+  --fg: #23272e;
+  --fg-strong: #0f1115;
+  --mut: #66707d;
+  --mut-2: #8c95a1;
+  --accent: #2f6fd6;
+  --accent-bg: rgba(47, 111, 214, 0.1);
+  --focus: #2f6fd6;
+  --ok: #23955e;
+  --warn: #a97a00;
+  --bad: #cf3b3b;
+  --code-tag: #1f5fb8;
+  --code-attr: #9a5b00;
+  --code-val: #2c7a33;
+  --code-com: #8c95a1;
+  --code-num: #7a3fb8;
+  --code-kw: #b83232;
+  --scroll: #c4c9d2;
+  --shadow: 0 8px 28px rgba(20, 24, 32, 0.16);
+  --canvas-overlay: rgba(255, 255, 255, 0.82);
+}
+
+:root {
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --row: 28px;
+  --radius: 4px;
+}

@@ -1,0 +1,14 @@
+{
+  "goal": "Get the Marrow Creek Foods renewal signed by 19 Dec 2026 and keep the Q4 commit at €1.62M",
+  "items": [
+    {"id": "t901", "kind": "task", "section": "tasks", "text": "Draft proposal v3 cover email to Elin Dahl (elin.dahl@marrowcreek.example) with the 3-year price table", "tags": ["renewal", "procurement"], "refs": ["d121", "t130"], "pinned": false, "weight": 0.7, "updated_at": "2026-11-19T15:30:00Z"},
+    {"id": "f902", "kind": "fact", "section": "facts", "text": "Proposal v3 total: 3 × €465,000 = €1,395,000 TCV; annual saving for Marrow Creek €15,000 versus current ARR", "tags": ["pricing", "renewal"], "refs": ["d121", "g191"], "pinned": false, "weight": 0.75, "updated_at": "2026-11-19T16:10:00Z"},
+    {"id": "q903", "kind": "question", "section": "questions", "text": "Is Pieter Claes a real champion, or only a day-to-day contact without budget influence?", "tags": ["stakeholders"], "refs": ["q142"], "pinned": false, "weight": 0.6, "updated_at": "2026-11-19T16:20:00Z"},
+    {"id": "n904", "kind": "note", "section": "notes", "text": "Deal desk slot booked for 21 Nov 2026 at 14:00 to approve the 6% multi-year discount", "tags": ["discount", "margin"], "refs": ["t131", "d125"], "pinned": false, "weight": 0.55, "updated_at": "2026-11-20T08:45:00Z"},
+    {"id": "d905", "kind": "decision", "section": "decisions", "text": "Telemetry add-on for Plants 3 and 9 goes into proposal v3 as an optional line (40 packs × €14 × 36 months = €20,160)", "tags": ["expansion", "pricing"], "refs": ["t136"], "pinned": false, "weight": 0.7, "updated_at": "2026-11-20T09:15:00Z"},
+    {"id": "n906", "kind": "note", "section": "notes", "text": "Forecast prep: Oakhurst Dairy needs a 12% discount, so deal desk review applies before it can stay in commit", "tags": ["forecast", "discount"], "refs": ["d123", "d125"], "pinned": false, "weight": 0.5, "updated_at": "2026-11-20T09:40:00Z"},
+    {"id": "t907", "kind": "task", "section": "tasks", "text": "Ask legal (Sofia Lindqvist) for the MSA redline turnaround before 27 Nov 2026", "tags": ["contract", "renewal"], "refs": ["t135"], "pinned": false, "weight": 0.6, "updated_at": "2026-11-20T10:00:00Z"},
+    {"id": "q909", "kind": "question", "section": "questions", "text": "What usable capacity can we promise for NaCore 2 packs in the Plant 3 cold store at −20 °C?", "tags": ["product", "expansion"], "refs": ["q145"], "pinned": false, "weight": 0.6, "updated_at": "2026-11-20T10:20:00Z"},
+    {"id": "d908", "kind": "decision", "section": "decisions", "text": "Agent rule for this deal: drafts only, Jonas Brandt sends every customer email", "tags": ["AI assistant", "CRM"], "refs": ["d160"], "pinned": true, "weight": 0.8, "updated_at": "2026-11-18T10:00:00Z"}
+  ]
+}

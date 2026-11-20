@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Quote draft. Schema template (brainDB Addendum A4): attribute values and text content are slots;
+     "repeat" marks a list element. -->
+<quote>
+  <customer name="client name:name|kind=account" contact="customer procurement contact email:email">client account summary</customer>
+  <seller owner="account owner:name|field=owner" email="account owner email:email"/>
+  <term years="contract term in years:number" start="contract start date:date" locked-until="price locked until:date">renewal offer term and price</term>
+  <pricing>
+    <pack-price-per-month>NaCore pack price per month in the 2026 price list:money</pack-price-per-month>
+    <telemetry-price-per-month>Telemetry add-on price per pack per month:money</telemetry-price-per-month>
+    <quantity>number of leased packs:number</quantity>
+    <discount>multi-year discount:percent</discount>
+    <annual-total>renewal price per year:money</annual-total>
+    <sla-credit>SLA credit bundled into the renewal:money</sla-credit>
+  </pricing>
+  <product-claims>
+    <claim repeat="product claims for NaCore 2|concept=product|limit=3" source=".id">.text</claim>
+    <restriction>cycle-life guarantee restriction at high temperature:text|kind=decision</restriction>
+  </product-claims>
+  <approvals>
+    <approval repeat="discount approval rules|concept=discount|kind=decision|limit=2" id=".id">.text</approval>
+  </approvals>
+  <valid-until>proposal deadline date:date|kind=task</valid-until>
+</quote>

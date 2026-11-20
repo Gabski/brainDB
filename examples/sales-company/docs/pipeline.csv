@@ -1,0 +1,26 @@
+opportunity,deal,account,stage,value,owner,close_date,probability,forecast_category,product,next_step
+OPP-4471,Marrow Creek renewal,Marrow Creek Foods,negotiation,1395000,Jonas Brandt,2026-12-19,80,commit,NaCore pack,Send proposal v3 by 25 Nov
+OPP-4488,Pellworth Telemetry upsell,Pellworth Snacks,verbal,62000,Kim Achterberg,2026-11-28,90,commit,Telemetry add-on,Order form to procurement
+OPP-4502,Ostler Dairy new logo,Ostler Dairy,evaluation,135000,Kim Achterberg,2026-12-12,40,best case,NaCore pack,SAP PM connector demo
+OPP-4390,Haldane expansion,Haldane Beverages,proposal,210000,Priya Raman,2027-02-14,50,pipeline,NaCore pack,New DPA review
+OPP-4475,Marrow Creek Telemetry Plants 3 and 9,Marrow Creek Foods,proposal,20160,Jonas Brandt,2026-12-19,50,best case,Telemetry add-on,Optional line in proposal v3
+OPP-4410,Brannock Bakeries renewal,Brannock Bakeries,closed won,186000,Priya Raman,2026-10-30,100,closed,NaCore pack,Done
+OPP-4415,Sundquist Meats new logo,Sundquist Meats,closed won,242000,Mateo Ferreira,2026-11-06,100,closed,NaCore pack,Done
+OPP-4421,Velde Juices expansion,Velde Juices,closed won,98000,Kim Achterberg,2026-10-21,100,closed,Telemetry add-on,Done
+OPP-4433,Ashgrove Frozen new logo,Ashgrove Frozen,closed won,310000,Mateo Ferreira,2026-11-13,100,closed,NaCore pack,Done
+OPP-4437,Corrin Confectionery renewal,Corrin Confectionery,closed won,154000,Jonas Brandt,2026-10-17,100,closed,NaCore pack,Done
+OPP-4440,Lysholm Fish new logo,Lysholm Fish,closed won,220000,Priya Raman,2026-11-18,100,closed,NaCore pack,Done
+OPP-4446,Pellworth SAP PM connector,Pellworth Snacks,closed won,9500,Kim Achterberg,2026-10-09,100,closed,SAP PM connector,Done
+OPP-4448,Tamsin Mills on-site training,Tamsin Mills,closed lost,23000,Mateo Ferreira,2026-11-02,0,lost,Services,Lost on budget
+OPP-4452,Brenner Mills win-back,Brenner Mills,evaluation,118000,Mateo Ferreira,2027-01-31,30,pipeline,NaCore pack,Grayfield Power lease ends March
+OPP-4455,Oakhurst Dairy expansion,Oakhurst Dairy,negotiation,74000,Priya Raman,2026-12-05,75,commit,Telemetry add-on,Deal desk for 12% discount
+OPP-4458,Fennick Foods new logo,Fennick Foods,discovery,160000,Kim Achterberg,2027-03-15,10,pipeline,NaCore pack,Book plant visit
+OPP-4461,Halloran Brewing new logo,Halloran Brewing,proposal,96000,Mateo Ferreira,2026-12-18,45,best case,NaCore pack,Security questionnaire
+OPP-4463,Varga Pickles renewal,Varga Pickles,negotiation,58000,Jonas Brandt,2026-12-10,80,commit,NaCore pack,Legal redline
+OPP-4466,Ostler Dairy SAP PM connector,Ostler Dairy,evaluation,9500,Kim Achterberg,2026-12-12,40,best case,SAP PM connector,Bundle with new logo
+OPP-4469,Kestrel Bay Seafood new logo,Kestrel Bay Seafood,discovery,140000,Priya Raman,2027-02-28,10,pipeline,NaCore pack,Discovery call 3 Dec
+OPP-4477,Ilford Grains Telemetry pilot,Ilford Grains,proposal,21000,Mateo Ferreira,2026-12-15,50,best case,Telemetry add-on,Pilot scope sign-off
+OPP-4480,Rowan Dairy renewal,Rowan Dairy,closed won,0,Jonas Brandt,2026-10-02,100,closed,NaCore pack,Renewal at zero uplift
+OPP-4484,Marston Oils new logo,Marston Oils,qualification,88000,Kim Achterberg,2027-01-20,20,pipeline,NaCore pack,MEDDICC gaps: economic buyer
+OPP-4486,Haldane on-site days,Haldane Beverages,proposal,11500,Priya Raman,2026-12-08,60,best case,Services,10 engineering days at €1150
+OPP-4490,Selby Sauces new logo,Selby Sauces,negotiation,128000,Mateo Ferreira,2026-12-16,70,commit,NaCore pack,Deal desk for 8% discount

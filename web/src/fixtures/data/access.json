@@ -1,0 +1,176 @@
+{
+ "users": {
+  "columns": [
+   "name",
+   "display",
+   "roles",
+   "labels",
+   "dbs",
+   "disabled"
+  ],
+  "rows": [
+   {
+    "name": "admin",
+    "display": "Gabriel (admin)",
+    "roles": "admin",
+    "labels": "*",
+    "dbs": "*",
+    "disabled": false
+   },
+   {
+    "name": "kim",
+    "display": "Kim Lee",
+    "roles": "sales-rep",
+    "labels": "ops, legal",
+    "dbs": "sso, crm",
+    "disabled": false
+   },
+   {
+    "name": "ana",
+    "display": "Ana Ruiz",
+    "roles": "researcher",
+    "labels": "ip-sensitive",
+    "dbs": "sso, lab",
+    "disabled": false
+   },
+   {
+    "name": "grokbot",
+    "display": "Public bot",
+    "roles": "",
+    "labels": "",
+    "dbs": "sso",
+    "disabled": false
+   },
+   {
+    "name": "old-intern",
+    "display": "Old intern",
+    "roles": "analyst",
+    "labels": "finance",
+    "dbs": "sso",
+    "disabled": true
+   }
+  ]
+ },
+ "roles": {
+  "columns": [
+   "role",
+   "grants"
+  ],
+  "rows": [
+   {
+    "role": "admin",
+    "grants": 0
+   },
+   {
+    "role": "sales-rep",
+    "grants": 2
+   },
+   {
+    "role": "analyst",
+    "grants": 1
+   },
+   {
+    "role": "researcher",
+    "grants": 1
+   }
+  ]
+ },
+ "grants": {
+  "columns": [
+   "role",
+   "effect",
+   "actions",
+   "labels",
+   "sections",
+   "kinds",
+   "dbs"
+  ],
+  "rows": [
+   {
+    "role": "sales-rep",
+    "effect": "allow",
+    "actions": "read, write",
+    "labels": "*",
+    "sections": "",
+    "kinds": "",
+    "dbs": "*"
+   },
+   {
+    "role": "sales-rep",
+    "effect": "deny",
+    "actions": "read",
+    "labels": "hr",
+    "sections": "",
+    "kinds": "",
+    "dbs": "*"
+   },
+   {
+    "role": "analyst",
+    "effect": "allow",
+    "actions": "read",
+    "labels": "finance",
+    "sections": "invoices",
+    "kinds": "",
+    "dbs": "*"
+   },
+   {
+    "role": "researcher",
+    "effect": "allow",
+    "actions": "read, write",
+    "labels": "ip-sensitive",
+    "sections": "",
+    "kinds": "",
+    "dbs": "sso, lab"
+   },
+   {
+    "role": "user:kim",
+    "effect": "allow",
+    "actions": "read",
+    "labels": "legal",
+    "sections": "",
+    "kinds": "",
+    "dbs": "sso"
+   }
+  ]
+ },
+ "labels": {
+  "columns": [
+   "label",
+   "description",
+   "nodes"
+  ],
+  "rows": [
+   {
+    "label": "finance",
+    "description": "Prices, margins, invoices",
+    "nodes": 1
+   },
+   {
+    "label": "ops",
+    "description": "Rollout operations data",
+    "nodes": 4
+   },
+   {
+    "label": "security",
+    "description": "Security findings",
+    "nodes": 3
+   },
+   {
+    "label": "ip-sensitive",
+    "description": "Unpublished research",
+    "nodes": 2
+   },
+   {
+    "label": "legal",
+    "description": "Compliance and contracts",
+    "nodes": 1
+   },
+   {
+    "label": "hr",
+    "description": "People data",
+    "nodes": 0
+   }
+  ]
+ },
+ "explain": "EXPLAIN ACCESS n154 FOR kim\n  node labels:     finance\n  kim holds:       ops, legal   (role sales-rep: read,write * · deny read hr; user grant: read legal)\n  missing:         finance\n  result:          INVISIBLE — kim lacks clearance \"finance\"\n  note:            for kim, n154 does not exist (errors say \"no such item n154\")"
+}

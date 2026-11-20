@@ -1,0 +1,202 @@
+[
+ {
+  "name": "date",
+  "type": "date",
+  "builtin": true,
+  "enabled": true,
+  "locales": [
+   "en",
+   "pl",
+   "nb"
+  ],
+  "pii": false
+ },
+ {
+  "name": "datetime",
+  "type": "datetime",
+  "builtin": true,
+  "enabled": true,
+  "locales": [
+   "en",
+   "pl",
+   "nb"
+  ],
+  "pii": false
+ },
+ {
+  "name": "duration",
+  "type": "duration",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "money",
+  "type": "money",
+  "builtin": true,
+  "enabled": true,
+  "locales": [
+   "en",
+   "pl",
+   "nb"
+  ],
+  "pii": false
+ },
+ {
+  "name": "percent",
+  "type": "percent",
+  "builtin": true,
+  "enabled": true,
+  "locales": [
+   "en",
+   "pl",
+   "nb"
+  ],
+  "pii": false
+ },
+ {
+  "name": "number_unit",
+  "type": "number_unit",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "email",
+  "type": "email",
+  "builtin": true,
+  "enabled": true,
+  "pii": true
+ },
+ {
+  "name": "phone",
+  "type": "phone",
+  "builtin": true,
+  "enabled": true,
+  "locales": [
+   "en",
+   "pl",
+   "nb"
+  ],
+  "pii": true
+ },
+ {
+  "name": "url",
+  "type": "url",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "domain",
+  "type": "domain",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "person",
+  "type": "person",
+  "builtin": true,
+  "enabled": true,
+  "pii": true
+ },
+ {
+  "name": "org",
+  "type": "org",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "iban",
+  "type": "iban",
+  "builtin": true,
+  "enabled": true,
+  "pii": true
+ },
+ {
+  "name": "vat",
+  "type": "vat",
+  "builtin": true,
+  "enabled": true,
+  "pii": true
+ },
+ {
+  "name": "card",
+  "type": "card",
+  "builtin": true,
+  "enabled": true,
+  "pii": true
+ },
+ {
+  "name": "ip",
+  "type": "ip",
+  "builtin": true,
+  "enabled": true,
+  "pii": true
+ },
+ {
+  "name": "version",
+  "type": "version",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "id_code",
+  "type": "id_code",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "hashtag",
+  "type": "hashtag",
+  "builtin": true,
+  "enabled": false,
+  "pii": false
+ },
+ {
+  "name": "mention",
+  "type": "mention",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "geo",
+  "type": "geo",
+  "builtin": true,
+  "enabled": true,
+  "pii": false
+ },
+ {
+  "name": "address",
+  "type": "address",
+  "builtin": true,
+  "enabled": true,
+  "locales": [
+   "en",
+   "pl",
+   "nb"
+  ],
+  "pii": true
+ },
+ {
+  "name": "sku",
+  "type": "id_code",
+  "builtin": false,
+  "enabled": true,
+  "regex": "\\bSKU-\\d{5}\\b",
+  "pii": false
+ },
+ {
+  "name": "run_id",
+  "type": "id_code",
+  "builtin": false,
+  "enabled": false,
+  "regex": "\\bR-\\d{3,4}\\b",
+  "pii": false
+ }
+]

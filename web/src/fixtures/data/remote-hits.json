@@ -1,0 +1,23 @@
+[
+ {
+  "id": "lab:x204",
+  "kind": "fact",
+  "text": "Load test: Entra token endpoint p95 = 180 ms at 500 rps",
+  "weight": 0.42,
+  "score": 0.71
+ },
+ {
+  "id": "lab:f311",
+  "kind": "fact",
+  "text": "Token cache hit rate 97% under soak",
+  "weight": 0.5,
+  "score": 0.52
+ },
+ {
+  "id": "lab:d330",
+  "kind": "decision",
+  "text": "Soak tests run nightly in the lab tenant",
+  "weight": 0.6,
+  "score": 0.33
+ }
+]

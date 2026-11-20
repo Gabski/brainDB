@@ -1,0 +1,5 @@
+[
+ {"name":"sso","nodes":50,"edges":112,"step":4,"sizeBytes":48213,"updated":"2026-11-20T09:28:11Z","goal":"Prepare the SSO login rollout plan for the app"},
+ {"name":"crm","nodes":1843,"edges":5120,"step":31,"sizeBytes":2210331,"updated":"2026-11-19T17:02:40Z","goal":"Prepare Q4 renewals"},
+ {"name":"lab","nodes":142,"edges":388,"step":12,"sizeBytes":120554,"updated":"2026-11-18T08:11:00Z","goal":"Qualify the 4.5 V cell"}
+]

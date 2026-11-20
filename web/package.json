@@ -1,0 +1,38 @@
+{
+  "name": "braindb-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "brainDB web UI (React + three.js), served by the Go server",
+  "license": "Apache-2.0",
+  "author": "Gabriel Koziestański",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vitest run && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "lint:emoji": "node scripts/lint-emoji.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "lucide-react": "1.77.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "^10.6.8",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/coverage-v8": "4.1.12",
+    "storybook": "^10.6.8",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.8",
+    "vitest": "4.1.12"
+  }
+}

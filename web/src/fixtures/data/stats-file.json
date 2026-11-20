@@ -1,0 +1,14 @@
+{
+    "db": "brain",
+    "edges": 449,
+    "files": [
+        {
+            "bytes": 51285,
+            "name": "brain.xml"
+        }
+    ],
+    "format": "xml",
+    "nodes": 144,
+    "step": 1,
+    "storage": "file"
+}

@@ -1,0 +1,11 @@
+.git
+**/node_modules
+web/storybook-static
+bin/
+dist/
+data/
+*.xml.tmp
+/brain.xml
+/brain.journal.jsonl
+/brain.wal.*
+.env

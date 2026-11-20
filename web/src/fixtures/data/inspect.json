@@ -1,0 +1,416 @@
+{
+ "item": {
+  "node": {
+   "id": "d121",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "We roll out SSO via OIDC with Entra ID",
+   "base": 0.85,
+   "weight": 0.76,
+   "age": 10,
+   "pinned": false,
+   "activation": 1,
+   "depth": 0
+  },
+  "decay": 0.891,
+  "chain": [
+   "d121"
+  ],
+  "xml": "<item id=\"d121\" kind=\"decision\" w=\"0.76\" act=\"1.00\" depth=\"0\" age=\"10d\">We roll out SSO via OIDC with Entra ID\n  <link to=\"A:idp\" w=\"0.85\" type=\"concept\"/>\n  <link to=\"A:auth\" w=\"0.60\" type=\"concept\"/>\n  <link to=\"A:api\" w=\"0.54\" type=\"concept\"/>\n  <link to=\"f103\" w=\"0.85\" type=\"assoc\"/>\n  <link to=\"t131\" w=\"0.80\" type=\"assoc\"/>\n  <link to=\"t134\" w=\"0.70\" type=\"assoc\"/>\n  <link to=\"t136\" w=\"0.70\" type=\"assoc\"/>\n  <link to=\"f102\" w=\"0.80\" type=\"assoc\"/>\n  <link to=\"x180\" w=\"0.75\" type=\"assoc\"/>\n  <link to=\"lab:x204\" w=\"0.70\" type=\"external\"/>\n  <link to=\"d120\" w=\"0.50\" type=\"supersede\"/>\n</item>"
+ },
+ "links": [
+  {
+   "to": "A:idp",
+   "w": 0.85,
+   "type": "concept"
+  },
+  {
+   "to": "f103",
+   "w": 0.85,
+   "type": "assoc"
+  },
+  {
+   "to": "t131",
+   "w": 0.8,
+   "type": "assoc"
+  },
+  {
+   "to": "f102",
+   "w": 0.8,
+   "type": "assoc"
+  },
+  {
+   "to": "x180",
+   "w": 0.75,
+   "type": "assoc"
+  },
+  {
+   "to": "t134",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "to": "t136",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "to": "lab:x204",
+   "w": 0.7,
+   "type": "external"
+  },
+  {
+   "to": "A:auth",
+   "w": 0.6,
+   "type": "concept"
+  },
+  {
+   "to": "A:api",
+   "w": 0.54,
+   "type": "concept"
+  },
+  {
+   "to": "d120",
+   "w": 0.5,
+   "type": "supersede"
+  }
+ ],
+ "near": [
+  {
+   "id": "f103",
+   "cos": 0.62,
+   "linked": true
+  },
+  {
+   "id": "d120",
+   "cos": 0.47,
+   "linked": true
+  },
+  {
+   "id": "c181",
+   "cos": 0.44,
+   "linked": false
+  },
+  {
+   "id": "A:idp",
+   "cos": 0.41,
+   "linked": true
+  },
+  {
+   "id": "t134",
+   "cos": 0.37,
+   "linked": true
+  },
+  {
+   "id": "x180",
+   "cos": 0.35,
+   "linked": true
+  }
+ ],
+ "test": {
+  "reached": [
+   {
+    "id": "A:idp",
+    "act": 0.63,
+    "depth": 1
+   },
+   {
+    "id": "t131",
+    "act": 0.46,
+    "depth": 1
+   },
+   {
+    "id": "A:auth",
+    "act": 0.44,
+    "depth": 1
+   },
+   {
+    "id": "f103",
+    "act": 0.43,
+    "depth": 1
+   },
+   {
+    "id": "t134",
+    "act": 0.41,
+    "depth": 1
+   },
+   {
+    "id": "t136",
+    "act": 0.4,
+    "depth": 1
+   },
+   {
+    "id": "A:api",
+    "act": 0.4,
+    "depth": 1
+   },
+   {
+    "id": "f102",
+    "act": 0.38,
+    "depth": 1
+   },
+   {
+    "id": "lab:x204",
+    "act": 0.37,
+    "depth": 1
+   },
+   {
+    "id": "x180",
+    "act": 0.35,
+    "depth": 1
+   },
+   {
+    "id": "k175",
+    "act": 0.28,
+    "depth": 2
+   },
+   {
+    "id": "A:mfa",
+    "act": 0.26,
+    "depth": 2
+   },
+   {
+    "id": "A:sec",
+    "act": 0.23,
+    "depth": 2
+   },
+   {
+    "id": "q141",
+    "act": 0.22,
+    "depth": 2
+   },
+   {
+    "id": "c182",
+    "act": 0.22,
+    "depth": 2
+   },
+   {
+    "id": "f101",
+    "act": 0.2,
+    "depth": 2
+   },
+   {
+    "id": "A:data",
+    "act": 0.18,
+    "depth": 2
+   },
+   {
+    "id": "f107",
+    "act": 0.18,
+    "depth": 2
+   },
+   {
+    "id": "f110",
+    "act": 0.17,
+    "depth": 2
+   },
+   {
+    "id": "c181",
+    "act": 0.16,
+    "depth": 2
+   }
+  ],
+  "ablation": [
+   {
+    "to": "A:idp",
+    "w": 0.85,
+    "type": "concept",
+    "dLit": -3,
+    "dSum": -1.06,
+    "critical": false
+   },
+   {
+    "to": "A:auth",
+    "w": 0.6,
+    "type": "concept",
+    "dLit": -5,
+    "dSum": -1.04,
+    "critical": false
+   },
+   {
+    "to": "lab:x204",
+    "w": 0.7,
+    "type": "external",
+    "dLit": -1,
+    "dSum": -0.37,
+    "critical": true
+   },
+   {
+    "to": "A:api",
+    "w": 0.54,
+    "type": "concept",
+    "dLit": -1,
+    "dSum": -0.28,
+    "critical": false
+   },
+   {
+    "to": "t136",
+    "w": 0.7,
+    "type": "assoc",
+    "dLit": -1,
+    "dSum": -0.26,
+    "critical": false
+   },
+   {
+    "to": "t134",
+    "w": 0.7,
+    "type": "assoc",
+    "dLit": 0,
+    "dSum": -0.2,
+    "critical": false
+   },
+   {
+    "to": "f102",
+    "w": 0.8,
+    "type": "assoc",
+    "dLit": 0,
+    "dSum": -0.17,
+    "critical": false
+   },
+   {
+    "to": "t131",
+    "w": 0.8,
+    "type": "assoc",
+    "dLit": 0,
+    "dSum": -0.15,
+    "critical": false
+   },
+   {
+    "to": "f103",
+    "w": 0.85,
+    "type": "assoc",
+    "dLit": 0,
+    "dSum": -0.14,
+    "critical": false
+   },
+   {
+    "to": "x180",
+    "w": 0.75,
+    "type": "assoc",
+    "dLit": 0,
+    "dSum": -0.1,
+    "critical": false
+   },
+   {
+    "to": "d120",
+    "w": 0.5,
+    "type": "supersede",
+    "dLit": 0,
+    "dSum": 0,
+    "critical": false
+   }
+  ]
+ },
+ "suggest": [
+  {
+   "u": "d121",
+   "v": "c181",
+   "score": 1.3,
+   "via": [
+    "A:auth",
+    "A:api",
+    "x180",
+    "t134"
+   ],
+   "commonStems": 2,
+   "cos": 0.44
+  },
+  {
+   "u": "d121",
+   "v": "c182",
+   "score": 0.73,
+   "via": [
+    "A:idp",
+    "x180",
+    "t136"
+   ],
+   "commonStems": 0,
+   "cos": 0.12
+  },
+  {
+   "u": "d121",
+   "v": "q141",
+   "score": 0.44,
+   "via": [
+    "A:idp",
+    "f103"
+   ],
+   "commonStems": 0,
+   "cos": 0.13
+  },
+  {
+   "u": "d121",
+   "v": "c183",
+   "score": 0.44,
+   "via": [
+    "x180"
+   ],
+   "commonStems": 1,
+   "cos": 0.09
+  },
+  {
+   "u": "d121",
+   "v": "f201",
+   "score": 0.4,
+   "via": [
+    "A:auth"
+   ],
+   "commonStems": 1,
+   "cos": 0.28
+  },
+  {
+   "u": "d121",
+   "v": "n153",
+   "score": 0.38,
+   "via": [
+    "A:idp"
+   ],
+   "commonStems": 1,
+   "cos": 0.23
+  }
+ ],
+ "paths": [
+  {
+   "path": [
+    "d121",
+    "A:idp",
+    "A:auth",
+    "t132"
+   ],
+   "weights": [
+    0.85,
+    0.9,
+    0.61
+   ],
+   "strength": 0.222
+  },
+  {
+   "path": [
+    "d121",
+    "A:auth",
+    "t132"
+   ],
+   "weights": [
+    0.6,
+    0.61
+   ],
+   "strength": 0.2
+  },
+  {
+   "path": [
+    "d121",
+    "A:idp",
+    "A:auth",
+    "A:sec",
+    "t132"
+   ],
+   "weights": [
+    0.85,
+    0.9,
+    0.7,
+    0.88
+   ],
+   "strength": 0.195
+  }
+ ]
+}

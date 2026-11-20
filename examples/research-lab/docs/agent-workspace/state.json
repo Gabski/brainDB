@@ -1,0 +1,12 @@
+{
+  "goal": "Prepare the evidence for the 15 Dec 2026 EL-7 go/no-go and answer Tessaline's NaCore 2 spec questions",
+  "items": [
+    {"id": "t901", "kind": "task", "section": "tasks", "text": "Compute mean ± SD capacity retention per condition from measurements.csv (RUN-2611, RUN-2614)", "tags": ["statistics", "cycling"], "refs": ["f104", "f108"], "pinned": false, "weight": 0.7, "updated_at": "2026-11-19T17:00:00Z"},
+    {"id": "f902", "kind": "fact", "section": "facts", "text": "Welch t-test on 45 °C retention at cycle 150: EL-7 vs EL-0 difference −2.5 points, p = 0.003 (n=4 each)", "tags": ["statistics", "temperature"], "refs": ["f108", "q142"], "pinned": false, "weight": 0.75, "updated_at": "2026-11-19T17:40:00Z"},
+    {"id": "q903", "kind": "question", "section": "questions", "text": "Should the go/no-go wait for 300 cycles at 45 °C, or is 150 enough to decide?", "tags": ["temperature", "grant"], "refs": ["d123"], "pinned": false, "weight": 0.6, "updated_at": "2026-11-20T08:30:00Z"},
+    {"id": "n904", "kind": "note", "section": "notes", "text": "Literature: TMSB is reported to scavenge HF but to decompose with gas release above 40 °C in Li-ion cells", "tags": ["literature", "additives"], "refs": ["h187", "x183"], "pinned": false, "weight": 0.55, "updated_at": "2026-11-20T09:00:00Z"},
+    {"id": "d905", "kind": "decision", "section": "decisions", "text": "Draft answer to Tessaline: 3,000-cycle claim only at 25 °C; 45 °C claim withheld until the pouch validation", "tags": ["partner", "cycling"], "refs": ["q144", "f114"], "pinned": false, "weight": 0.7, "updated_at": "2026-11-20T09:30:00Z"},
+    {"id": "t906", "kind": "task", "section": "tasks", "text": "Extrapolate 25 °C fade of EL-7 to 80% capacity: linear fit predicts about 460 coin-cell cycles, needs pouch data", "tags": ["cycling", "statistics"], "refs": ["f104", "i171"], "pinned": false, "weight": 0.6, "updated_at": "2026-11-20T10:00:00Z"},
+    {"id": "d907", "kind": "decision", "section": "decisions", "text": "Agent rule: summaries for Tessaline are drafts only; Dr. Hanne Solberg approves every external number", "tags": ["AI assistant", "data"], "refs": ["d160"], "pinned": true, "weight": 0.8, "updated_at": "2026-11-18T10:00:00Z"}
+  ]
+}

@@ -1,0 +1,186 @@
+[
+ {
+  "node": "n154",
+  "type": "person",
+  "value": "Kim Aalto",
+  "raw": "Kim Aalto",
+  "confidence": 0.95,
+  "pii": true
+ },
+ {
+  "node": "n154",
+  "type": "phone",
+  "value": "+47 •• •• 44 55",
+  "raw": "+47 22 33 44 55",
+  "confidence": 0.98,
+  "pii": true
+ },
+ {
+  "node": "n154",
+  "type": "email",
+  "value": "kim.aalto@halvorsen.example",
+  "raw": "kim.aalto@halvorsen.example",
+  "confidence": 0.95,
+  "pii": true
+ },
+ {
+  "node": "n154",
+  "type": "date",
+  "value": "2026-12-15",
+  "raw": "15 Dec 2026",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "money",
+  "value": "EUR 48000.00",
+  "raw": "€48,000",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "org",
+  "value": "Halvorsen Freight",
+  "raw": "Halvorsen Freight AS",
+  "confidence": 0.9,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "percent",
+  "value": "0.12",
+  "raw": "12%",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "url",
+  "value": "https://halvorsen.example/pricing",
+  "raw": "https://halvorsen.example/pricing",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "domain",
+  "value": "halvorsen.example",
+  "raw": "halvorsen.example",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "id_code",
+  "value": "#4821",
+  "raw": "#4821",
+  "confidence": 0.8,
+  "pii": false
+ },
+ {
+  "node": "n154",
+  "type": "iban",
+  "value": "NO•• •••• •••• 947",
+  "raw": "NO93 8601 1117 947",
+  "confidence": 0.99,
+  "pii": true
+ },
+ {
+  "node": "r191",
+  "type": "person",
+  "value": "Kim Lee",
+  "raw": "Kim Lee",
+  "confidence": 0.95,
+  "pii": true
+ },
+ {
+  "node": "r193",
+  "type": "person",
+  "value": "Kim Lee",
+  "raw": "Kim Lee",
+  "confidence": 0.95,
+  "pii": true
+ },
+ {
+  "node": "r192",
+  "type": "person",
+  "value": "Ana Ruiz",
+  "raw": "Ana Ruiz",
+  "confidence": 0.95,
+  "pii": true
+ },
+ {
+  "node": "r191",
+  "type": "date",
+  "value": "2026-11-24",
+  "raw": "2026-11-24",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "r192",
+  "type": "date",
+  "value": "2026-11-27",
+  "raw": "2026-11-27",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "r193",
+  "type": "date",
+  "value": "2026-11-30",
+  "raw": "2026-11-30",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "d123",
+  "type": "date",
+  "value": "2026-11-30",
+  "raw": "30 November",
+  "confidence": 0.85,
+  "pii": false
+ },
+ {
+  "node": "f107",
+  "type": "duration",
+  "value": "PT10M",
+  "raw": "10 min",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "n153",
+  "type": "duration",
+  "value": "P90D",
+  "raw": "90 days",
+  "confidence": 0.95,
+  "pii": false
+ },
+ {
+  "node": "c183",
+  "type": "duration",
+  "value": "PT8H",
+  "raw": "8h TTL",
+  "confidence": 0.8,
+  "pii": false
+ },
+ {
+  "node": "f103",
+  "type": "version",
+  "value": "2.0",
+  "raw": "SAML 2.0",
+  "confidence": 0.7,
+  "pii": false
+ },
+ {
+  "node": "x180",
+  "type": "domain",
+  "value": "oidc-flow.md",
+  "raw": "oidc-flow.md",
+  "confidence": 0.5,
+  "pii": false
+ }
+]

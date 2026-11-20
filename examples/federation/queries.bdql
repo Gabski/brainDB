@@ -1,0 +1,93 @@
+-- brainDB BDQL tour on federation: the sales brain mounts the lab brain as source `lab`.
+-- Start both:  docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml up -d --build
+-- Run:         docker compose -f docker-compose.yml -f examples/federation/docker-compose.federation.yml exec -T sales \
+--                 braindb run --brain /data/brain.xml /opt/braindb/federation/queries.bdql
+--   or local:  braindb run --brain sales.xml examples/federation/queries.bdql
+--
+-- Part A runs today: it uses the local side of the federation (declared source, external links, stubs, bridge connector).
+-- Part B needs the federation transport (remote calls, SOURCES, memory@lab, SOURCE SYNC, scope=federated). It is planned
+-- and commented out so this script runs green; uncomment it once the transport is available.
+
+-- ======================= Part A: local side of the federation =======================
+
+-- 1. The declared source and the six external links stored in the sales brain (with cached stubs).
+SHOW sources;
+SELECT a, b, w, type FROM links WHERE type = 'external' FORMAT md;          -- 6 links: f112, q144, d129, f113, t137, q145 -> lab:…
+
+-- 2. Focus the customer's 45 °C question (the external refs show as cached stubs), then look at what the bridge routes.
+CONTEXT FOCUS q144 DEPTH 2 FORMAT md SET;
+SELECT id, type, label, key, degree FROM connectors WHERE type = bridge;
+SELECT id, kind, text FROM memory WHERE route = 'H:bridge-lab' FORMAT md;
+
+-- 3. Local search around the same question.
+SEARCH "cycle life guarantee at 45 °C" MODE hybrid LIMIT 8;
+
+-- 4. Record the lab's answer and tie it to both sides (external links route through H:bridge-lab).
+REMEMBER decision "Quote NaCore 2 with 3,000 cycles at 25 °C only; no 45 °C guarantee until the lab's 15 Dec go/no-go (lab RUN-2614: 84.0% vs 86.5% after 150 cycles)"
+  IN decisions CONCEPTS "Product NaCore packs and integrations", "Contract terms and legal"
+  LINK TO q144 WEIGHT 0.9, d129 WEIGHT 0.8 AS F;
+LINK $F TO lab:f108 WEIGHT 0.8 TYPE external;
+LINK $F TO lab:e191 WEIGHT 0.6 TYPE external;      -- lab hypotheses (h…) are not visible to the partner token
+CONNECT $F TO H:bridge-lab;
+BOOST d129;
+
+-- 5. Entities on the sales side that the lab shares (same people, same partner company).
+SELECT id, text FROM memory WHERE HAS email AND entities.domain = 'tessaline.example';
+EXTRACT FROM "Tessaline Systems AS asks Corvane for RUN-2614 results at 45 °C and 4.3 V before 15.12.2026";
+PATTERN TEST sku 'NaCore 2 is SKU-48200, the 48 V pack SKU-48100';
+RESOLVE email MIN 2 DRY RUN;
+
+-- 6. Access: who runs this script, and what grokbot sees locally.
+WHOAMI;
+AS USER grokbot; SEARCH "cycle life guarantee at 45 °C" LIMIT 5;
+AS USER admin;
+
+-- 7. Fill the quote from local memory.
+FILL TEMPLATE 'quote.xml' OUTPUT xml WITH SOURCES;
+
+-- 8. Purpose: each brain filters its own writes. The sales brain checks against the sales purpose;
+--    the lab never receives writes from sales (sources are read-only), and its own purpose rejects sales topics.
+SHOW PURPOSE;
+CHECK "NaCore 2 keeps 84.0% capacity after 150 cycles at 45 °C (lab RUN-2614)" AS fact IN facts;   -- admitted: product claim backed by lab evidence
+CHECK "Cycler channel 14 is noisy; do not use it for EIS runs" AS note IN notes;                   -- quarantine: lab-internal, belongs in the lab brain
+
+-- ======================= Part B ======================================================
+-- requires: federation (planned): remote transport, SOURCES, memory@lab / memory@*, SOURCE SYNC, scope=federated.
+-- In this build SOURCE SYNC errors, and SOURCES / memory@lab are accepted but answer from local memory only.
+--
+-- SOURCE SYNC lab;
+--
+-- -- Context of the customer's 45 °C question, reaching into the lab through q144 -> lab:f108.
+-- CONTEXT FOCUS q144 DEPTH 2 SOURCES lab FORMAT md;
+-- CONTEXT FOR "cycle life guarantee for NaCore 2 at 45 °C" DEPTH 2 SOURCES * FORMAT md;
+--
+-- -- Federated search: local claims and questions plus lab measurements (scores × source weight 0.7).
+-- SEARCH "cycle life guarantee at 45 °C" MODE hybrid LIMIT 8 SOURCES lab;
+-- SEARCH "capacity at −20 °C cold store" MODE vector LIMIT 5 SOURCES lab;
+--
+-- -- Raw rows from the lab brain.
+-- SELECT id, kind, text, fields.run_id, fields.status FROM memory@lab WHERE kind = experiment ORDER BY id FORMAT md;
+-- SELECT fields.electrolyte, fields.condition, COUNT(*), AVG(fields.capacity_retention_pct)
+--   FROM memory@lab WHERE section = 'measurements' GROUP BY fields.electrolyte, fields.condition;
+-- SELECT id, text, weight FROM memory@lab WHERE kind = decision AND NOT superseded NEAR "go/no-go pouch validation" ORDER BY score DESC LIMIT 3;
+-- SELECT id, kind, text, external FROM memory@* WHERE concept = 'product' OR text ~ 'NaCore 2' LIMIT 15 FORMAT md;
+-- SELECT id, kind, text, external FROM memory@* WHERE route = 'H:bridge-lab' FORMAT md;
+--
+-- -- Entities across both brains.
+-- SELECT id, text FROM memory@* WHERE HAS email AND entities.domain = 'tessaline.example';
+-- SELECT id, text, entities.number_unit FROM memory@lab WHERE entities.number_unit = '45 °C' LIMIT 10;
+-- SELECT id, text, entities.money FROM memory@* WHERE entities.money > 'EUR 100000' AND entities.date BETWEEN '2026-12-01' AND '2026-12-31';
+--
+-- -- Access across brains: the lab answers as user `tessaline` (role partner: no hypotheses).
+-- SEARCH "TMSB decomposition hypothesis" MODE hybrid LIMIT 5 SOURCES lab;   -- lab:h187 never appears; lab:f108 does
+-- AS USER grokbot; SEARCH "cycle life guarantee at 45 °C" SOURCES lab;      -- no lab:… rows for grokbot
+-- AS USER admin;
+--
+-- -- Fill with federated evidence.
+-- FILL TEMPLATE 'quote.xml' OUTPUT xml SCOPE federated WITH SOURCES;
+-- FILL $$
+-- question: "customer question about cycle life at 45 °C:text|kind=question"
+-- lab_result_45c: "capacity retention after 150 cycles at 45 °C:percent|scope=federated"
+-- lab_decision_date: "go/no-go decision date for pouch validation:date|scope=federated"
+-- low_temp_capacity: "capacity at −20 °C relative to room temperature:percent|scope=federated"
+-- $$ AS yaml OUTPUT md WITH SOURCES;

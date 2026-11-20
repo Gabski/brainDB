@@ -1,0 +1,61 @@
+{
+ "mode": "vector",
+ "rows": [
+  {
+   "id": "f110",
+   "raw": 0.59,
+   "enriched": 0.4,
+   "score": 0.4,
+   "lift": 0
+  },
+  {
+   "id": "t132",
+   "raw": 0.52,
+   "enriched": 0.37,
+   "score": 0.37,
+   "lift": 0
+  },
+  {
+   "id": "f102",
+   "raw": 0.3,
+   "enriched": 0.22,
+   "score": 0.22,
+   "lift": 1
+  },
+  {
+   "id": "lab:x204",
+   "raw": 0.22,
+   "enriched": 0.21,
+   "score": 0.21,
+   "lift": 7
+  },
+  {
+   "id": "f103",
+   "raw": 0.31,
+   "enriched": 0.19,
+   "score": 0.19,
+   "lift": -2
+  },
+  {
+   "id": "t136",
+   "raw": 0.28,
+   "enriched": 0.19,
+   "score": 0.19,
+   "lift": -1
+  },
+  {
+   "id": "d121",
+   "raw": 0.21,
+   "enriched": 0.18,
+   "score": 0.18,
+   "lift": 6
+  },
+  {
+   "id": "t131",
+   "raw": 0.26,
+   "enriched": 0.18,
+   "score": 0.18,
+   "lift": -2
+  }
+ ]
+}

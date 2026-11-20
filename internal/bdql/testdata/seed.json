@@ -1,0 +1,23 @@
+{
+  "name": "BDQL fixture",
+  "goal": "Close the Q4 renewals",
+  "sections": ["facts", "decisions", "tasks", "questions", "notes", "pipeline"],
+  "kinds": [{"name": "deal", "label": "deal", "color": "#ff8787", "halfLife": 21, "base": 0.6, "prefix": "g", "section": "pipeline"}],
+  "concepts": [{"id": "renewal", "label": "Renewal"}, {"id": "pricing", "label": "Pricing"}, {"id": "client", "label": "Client"}],
+  "conceptLinks": [["renewal", "pricing", 0.8], ["renewal", "client", 0.7]],
+  "memories": [
+    {"id": "f101", "kind": "fact", "text": "Halvorsen Freight AS has 140 trucks; contact Kim Aalto kim.aalto@halvorsen.example", "concepts": ["client"], "ageDays": 20, "pinned": true},
+    {"id": "f102", "kind": "fact", "text": "List price is €465 per pack per month", "concepts": ["pricing"], "ageDays": 10},
+    {"id": "d121", "kind": "decision", "text": "Offer a 6% multi-year discount for 3-year renewals", "concepts": ["renewal", "pricing"], "ageDays": 5, "base": 0.85},
+    {"id": "d120", "kind": "decision", "text": "Offer a 4% discount", "concepts": ["pricing"], "ageDays": 40, "supersededBy": "d121"},
+    {"id": "t130", "kind": "task", "text": "Send the renewal proposal to Kim Aalto by 15 Dec 2026", "concepts": ["renewal", "client"], "ageDays": 2},
+    {"id": "q140", "kind": "question", "text": "Will procurement accept a 36-month term?", "concepts": ["renewal"], "ageDays": 3},
+    {"id": "n150", "kind": "note", "text": "Call with Halvorsen went well, call kim.aalto@halvorsen.example back", "concepts": ["client"], "ageDays": 1},
+    {"id": "g201", "kind": "deal", "text": "Halvorsen renewal", "concepts": ["renewal"], "ageDays": 4, "fields": {"account": "Halvorsen Freight", "stage": "negotiation", "value": "48000", "close_date": "2026-12-15"}},
+    {"id": "g202", "kind": "deal", "text": "Ostrava upsell", "concepts": ["client"], "ageDays": 6, "fields": {"account": "Ostrava Logistics", "stage": "proposal", "value": "12500", "close_date": "2027-01-20"}},
+    {"id": "g203", "kind": "deal", "text": "Corrin renewal", "concepts": ["renewal"], "ageDays": 30, "fields": {"account": "Corrin Confectionery", "stage": "negotiation", "value": "€9,000", "close_date": "2026-11-30"}}
+  ],
+  "links": [["t130", "d121", 0.8], ["g201", "d121", 0.7], ["q140", "d121", 0.6]],
+  "focus": ["d121", "g201"],
+  "context": {"depth": 2, "threshold": 0.16, "hop": 0.85}
+}

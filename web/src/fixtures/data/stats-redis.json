@@ -1,0 +1,57 @@
+{
+ "storage": "redis",
+ "redis": "error",
+ "nodes": 184320,
+ "edges": 1022110,
+ "indexes": [
+  {
+   "name": "vectors (hash-256)",
+   "size": 184320
+  },
+  {
+   "name": "hnsw",
+   "size": 184320
+  },
+  {
+   "name": "stems",
+   "size": 96211
+  },
+  {
+   "name": "fields",
+   "size": 41022
+  }
+ ],
+ "cacheHitRate": 0.61,
+ "latency": [
+  {
+   "op": "search",
+   "p50": 7.5,
+   "p95": 31.2
+  },
+  {
+   "op": "activation",
+   "p50": 3.1,
+   "p95": 12.4
+  },
+  {
+   "op": "query",
+   "p50": 5.4,
+   "p95": 22.9
+  }
+ ],
+ "format": "both",
+ "files": [
+  {
+   "name": "brain.xml",
+   "bytes": 88213004
+  },
+  {
+   "name": "brain.bin",
+   "bytes": 21550120
+  },
+  {
+   "name": "brain.hnsw",
+   "bytes": 9122800
+  }
+ ]
+}

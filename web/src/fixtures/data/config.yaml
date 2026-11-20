@@ -1,0 +1,16 @@
+name: sso
+description: SSO rollout knowledge base
+goal: Prepare the SSO login rollout plan for the app
+context: {depth: 2, threshold: 0.16, hop: 0.85, showSuperseded: false, focus: [d121, d123, n150]}
+embedding: {model: hash-256, alpha: 0.5, hops: 2, use: enriched, lambda: 0.5}
+budget: {warnTokens: 4000}
+kinds:
+  - {name: risk, label: risk, color: "#ff8787", halfLife: 21, base: 0.6, prefix: k, section: risks}
+sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, rollout, risks]
+import:
+  keepRaw: false
+  chunkSize: 650
+  autolink: {conceptMin: 0.14, similarMin: 0.28, maxSimilar: 3}
+sources:
+  - {name: lab, uri: "http://lab:7791", tokenEnv: LAB_TOKEN, weight: 0.7, federateDepth: 1}
+templates: {dir: templates}

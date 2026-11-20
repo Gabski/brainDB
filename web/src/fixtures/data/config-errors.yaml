@@ -1,0 +1,12 @@
+name: sso
+description: SSO rollout knowledge base
+goal: Prepare the SSO login rollout plan for the app
+context: {depth: 2, threshold: 0.16, hop: 0.85}
+embedding: {model: hash-256, alpha: 0.5, hops: 2, use: enrich, lambda: 0.5}
+budget: {warnTokens: 4000}
+kindz:
+  - {name: risk, color: "#ff8787", halfLife: 21}
+import:
+  keepRaw: false
+  chunkSize: 650
+  autolink: {conceptMin: 0.14, similarMin: high, maxSimilar: 3}

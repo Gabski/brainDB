@@ -1,0 +1,105 @@
+{
+ "mode": "tree",
+ "roots": [
+  "f110",
+  "t132"
+ ],
+ "rows": [
+  {
+   "id": "f110",
+   "score": 0.59,
+   "depth": 0,
+   "parent": null
+  },
+  {
+   "id": "t132",
+   "score": 0.52,
+   "depth": 0,
+   "parent": null
+  },
+  {
+   "id": "A:sec",
+   "score": 0.25,
+   "depth": 1,
+   "parent": "f110"
+  },
+  {
+   "id": "A:auth",
+   "score": 0.19,
+   "depth": 1,
+   "parent": "f110"
+  },
+  {
+   "id": "f103",
+   "score": 0.22,
+   "depth": 2,
+   "parent": "A:auth"
+  },
+  {
+   "id": "c181",
+   "score": 0.2,
+   "depth": 2,
+   "parent": "A:auth"
+  },
+  {
+   "id": "n153",
+   "score": 0.18,
+   "depth": 2,
+   "parent": "A:sec"
+  },
+  {
+   "id": "f101",
+   "score": 0.17,
+   "depth": 2,
+   "parent": "A:auth"
+  },
+  {
+   "id": "f204",
+   "score": 0.13,
+   "depth": 2,
+   "parent": "A:sec"
+  },
+  {
+   "id": "A:data",
+   "score": 0.13,
+   "depth": 2,
+   "parent": "A:sec"
+  },
+  {
+   "id": "d121",
+   "score": 0.2,
+   "depth": 3,
+   "parent": "f103"
+  },
+  {
+   "id": "t136",
+   "score": 0.19,
+   "depth": 3,
+   "parent": "A:data"
+  },
+  {
+   "id": "f105",
+   "score": 0.18,
+   "depth": 3,
+   "parent": "A:data"
+  },
+  {
+   "id": "A:idp",
+   "score": 0.13,
+   "depth": 3,
+   "parent": "f103"
+  },
+  {
+   "id": "x180",
+   "score": 0.12,
+   "depth": 3,
+   "parent": "c181"
+  },
+  {
+   "id": "q141",
+   "score": 0.09,
+   "depth": 3,
+   "parent": "f103"
+  }
+ ]
+}

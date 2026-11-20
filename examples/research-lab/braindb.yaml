@@ -1,0 +1,121 @@
+# brainDB configuration for the research-lab example (Addendum E3).
+# Import rule globs are relative to the imported directory (examples/research-lab/docs).
+name: research-lab
+description: Corvane Institute electrolyte group memory (EL-7 sodium-ion electrolyte for Tessaline NaCore 2)
+goal: Decide by 15 Dec 2026 whether electrolyte EL-7 goes to 500-cycle pouch-cell validation for Tessaline's NaCore 2 packs
+context: {depth: 2, threshold: 0.2, hop: 0.85, showSuperseded: false, focus: [d123, f108, h187]}
+embedding:
+  provider: hash           # offline and free, but lexical: synonyms do not match.
+  alpha: 0.5               # For semantic recall, point it at any OpenAI-compatible endpoint:
+  hops: 2                  #   provider: openai
+  use: enriched            #   model: openai/text-embedding-3-small
+  lambda: 0.5              #   baseUrl: https://openrouter.ai/api/v1
+                           #   apiKeyEnv: OPENROUTER_API_KEY
+budget: {warnTokens: 4000}
+kinds:
+  - {name: experiment, label: experiment, color: "#ff922b", halfLife: 30, base: 0.65, prefix: e, section: experiments}
+  - {name: hypothesis, label: hypothesis, color: "#9775fa", halfLife: 45, base: 0.6, prefix: h, section: hypotheses}
+  - {name: sample, label: sample, color: "#20c997", halfLife: 60, base: 0.55, prefix: p, section: samples}
+sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, hypotheses, experiments, samples, measurements]
+concepts:
+  - {id: temperature, label: High temperature stability, related: [cycling, gassing, safety]}
+  - {id: funding, label: "Grant, partner and deadlines", related: [team, cells]}
+import:
+  keepRaw: false
+  chunkSize: 650
+  autolink: {conceptMin: 0.14, similarMin: 0.28, maxSimilar: 3}
+  rules:
+    - match: "agent-workspace/state.json"
+      importer: json
+    - match: "measurements.csv"
+      importer: csv
+      kind: record
+      section: measurements
+      text: "{cell_id} {run_id} · {electrolyte} · {condition} · {temperature_c} °C · retention {capacity_retention_pct}% after {cycles} cycles · {conductivity_mS_cm} mS/cm · {run_date} · {operator}"
+      concepts: [electrolyte, run_id]
+    - match: "protocol-*.md"
+      importer: markdown
+      kind: summary
+      section: procedures
+      headingsAsConcepts: true
+    - match: "*.md"
+      importer: markdown
+      kind: file
+      section: files
+purpose:
+  name: Corvane electrolyte lab brain
+  description: >
+    Research memory of the Corvane electrolyte group: sodium-ion electrolyte formulations and additives, cell builds,
+    cycling, impedance and gas measurements, protocols, samples, hypotheses, lab safety, grant and partner deadlines.
+  inScope:
+    topics: ["electrolyte formulation and additives", "cell build and test protocols", "cycling, impedance and gassing results",
+             "samples, batches and instruments", "hypotheses and literature", "lab safety", "grant and partner deadlines",
+             "measurements table: cell id, sample id, run id RUN-2611, RUN-2614, RUN-2608, RUN-2617, RUN-2620, electrolyte EL-7, EL-0, condition 25C cycling C/2, 45C cycling C/2, temperature c, conductivity mS cm, capacity retention pct, cycles, coulombic eff pct, run date, operator Ravi Menon, Ana Petrescu"]
+    concepts: [electrolyte, additive, sei, cycling, impedance, gassing, temperature, cells, protocol, safety, instruments, data, stats, funding]
+    kinds: [experiment, hypothesis, sample, fact, decision, task, question, note, summary, file, chunk, idea, record]
+    sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, hypotheses, experiments, samples, measurements]
+  outOfScope:
+    topics: ["sales pipeline, quotes and discounts", "private matters unrelated to work", "food, sports and entertainment",
+             "conference travel, posters and hotel bookings", "lab parties, birthdays and social events"]
+    entities: [card]
+  examples:
+    accept: ["RUN-2620 FEC-only cells hold 97.8% capacity after 50 cycles",
+             "Glovebox regeneration due 1 Dec 2026",
+             "Hypothesis: TMSB decomposes above 40 °C"]
+    reject: ["Marrow Creek discount approval for the renewal", "Cake for Ana's birthday on Friday", "Parking permit renewal"]
+  admission:
+    mode: advise         # advise (default) records the score and stores everything;
+                         # switch to enforce only after reviewing what it would have dropped
+    accept: 0.35
+    review: 0.20
+    apply: [remember, insert, ingest, import]
+    exempt: [admin]
+    chunks: file
+    records: table
+patterns:
+  locales: [en, nb]
+  defaultRegion: NO
+  dateOrder: dmy
+  custom:
+    - {name: run_id, type: id_code, regex: '\bRUN-\d{4}\b', normalize: upper}
+    - {name: sample_id, type: id_code, regex: '\bS-\d{4}\b', normalize: upper}
+    - {name: cell_id, type: id_code, regex: '\b[CP]-\d{4}\b', normalize: upper}
+  fx: {base: EUR, rates: {USD: 0.92, NOK: 0.085, PLN: 0.23}}
+privacy:
+  mask: [phone, iban]
+connectors:
+  maxFanout: 200
+  entityAnchors: [email, phone]
+  anchors:
+    - {key: sample, match: ["fields.sample_id", "measurements.sample_id"]}
+    - {key: run, match: ["fields.run_id", "measurements.run_id"]}
+  aliases:
+    - {label: SEI resistance, terms: ["R_SEI", "interphase resistance", "SEI impedance"]}
+templates: {dir: templates}
+mcp: {actor: agent, tools: [view, search, inspect, query, fill, exec, ingest]}
+publish: {mode: readonly, tools: [view, search, query, fill]}
+access:
+  enabled: true
+  labels:
+    - {name: ip-sensitive, description: "Unpublished results, hypotheses and raw data (patent filing pending)"}
+  defaults:
+    kinds: {hypothesis: [ip-sensitive]}
+    import:
+      "measurements.csv": [ip-sensitive]
+      "meeting-minutes-2026-11-19.md": [ip-sensitive]
+      "agent-workspace/state.json": [ip-sensitive]
+  roles:
+    - name: researcher
+      grants:
+        - {actions: [read, write], labels: [ip-sensitive]}
+    - name: partner
+      grants:
+        - {actions: [read], labels: [ip-sensitive], kinds: [fact, decision, experiment]}
+    - name: admin
+      grants:
+        - {actions: [read, write, admin], labels: ["*"], dbs: ["*"]}
+  users:
+    - {name: ana, display: Ana Petrescu, roles: [researcher], defaultWriteLabels: [ip-sensitive], tokenEnv: BRAINDB_TOKEN_ANA}
+    - {name: tessaline, display: Tessaline sales brain (federation), roles: [partner], tokenEnv: LAB_TOKEN}
+    - {name: visitor, display: Seminar guest, roles: [], labels: [], tokenEnv: BRAINDB_TOKEN_VISITOR}
+    - {name: admin, roles: [admin], tokenEnv: BRAINDB_TOKEN}

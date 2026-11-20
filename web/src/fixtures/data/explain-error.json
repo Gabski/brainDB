@@ -1,0 +1,1 @@
+{"ok":false,"errors":[{"statement":2,"line":3,"col":1,"message":"unknown keyword SELEKT (did you mean SELECT?)"},{"statement":3,"line":5,"col":18,"message":"unknown kind \"tsk\" (did you mean task?)"}]}

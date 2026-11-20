@@ -1,0 +1,124 @@
+{
+ "output": "{\n  \"project\": {\n    \"name\": \"SSO rollout\",\n    \"deadline\": \"2026-11-30\",\n    \"idp\": \"Microsoft Entra ID\"\n  },\n  \"waves\": [\n    {\n      \"wave\": \"pilot\",\n      \"owner\": \"Kim Lee\",\n      \"users\": \"120\"\n    },\n    {\n      \"wave\": \"staff\",\n      \"owner\": \"Ana Ruiz\",\n      \"users\": \"1400\"\n    },\n    {\n      \"wave\": \"everyone\",\n      \"owner\": \"Kim Lee\",\n      \"users\": \"5000\"\n    }\n  ],\n  \"risk\": \"Guest accounts may bypass conditional access\"\n}",
+ "format": "json",
+ "values": [
+  {
+   "path": "project.name",
+   "description": "project name",
+   "type": "text",
+   "value": "SSO rollout",
+   "source": "d121",
+   "score": 0.62,
+   "snippet": "We roll out SSO via OIDC with Entra ID"
+  },
+  {
+   "path": "project.deadline",
+   "description": "SSO rollout deadline",
+   "type": "date",
+   "value": "2026-11-30",
+   "source": "d123",
+   "score": 0.81,
+   "snippet": "SSO rollout deadline: 30 November"
+  },
+  {
+   "path": "project.idp",
+   "description": "identity provider",
+   "type": "name",
+   "value": "Microsoft Entra ID",
+   "source": "f102",
+   "score": 0.74,
+   "snippet": "The company uses Microsoft Entra ID"
+  },
+  {
+   "path": "waves[0].wave",
+   "description": ".fields.wave",
+   "type": "text",
+   "value": "pilot",
+   "source": "r191",
+   "score": 1,
+   "snippet": "wave: pilot"
+  },
+  {
+   "path": "waves[0].owner",
+   "description": ".fields.owner",
+   "type": "text",
+   "value": "Kim Lee",
+   "source": "r191",
+   "score": 1,
+   "snippet": "owner: Kim Lee"
+  },
+  {
+   "path": "waves[0].users",
+   "description": ".fields.users",
+   "type": "text",
+   "value": "120",
+   "source": "r191",
+   "score": 1,
+   "snippet": "users: 120"
+  },
+  {
+   "path": "waves[1].wave",
+   "description": ".fields.wave",
+   "type": "text",
+   "value": "staff",
+   "source": "r192",
+   "score": 1,
+   "snippet": "wave: staff"
+  },
+  {
+   "path": "waves[1].owner",
+   "description": ".fields.owner",
+   "type": "text",
+   "value": "Ana Ruiz",
+   "source": "r192",
+   "score": 1,
+   "snippet": "owner: Ana Ruiz"
+  },
+  {
+   "path": "waves[1].users",
+   "description": ".fields.users",
+   "type": "text",
+   "value": "1400",
+   "source": "r192",
+   "score": 1,
+   "snippet": "users: 1400"
+  },
+  {
+   "path": "waves[2].wave",
+   "description": ".fields.wave",
+   "type": "text",
+   "value": "everyone",
+   "source": "r193",
+   "score": 1,
+   "snippet": "wave: everyone"
+  },
+  {
+   "path": "waves[2].owner",
+   "description": ".fields.owner",
+   "type": "text",
+   "value": "Kim Lee",
+   "source": "r193",
+   "score": 1,
+   "snippet": "owner: Kim Lee"
+  },
+  {
+   "path": "waves[2].users",
+   "description": ".fields.users",
+   "type": "text",
+   "value": "5000",
+   "source": "r193",
+   "score": 1,
+   "snippet": "users: 5000"
+  },
+  {
+   "path": "risk",
+   "description": "main open risk",
+   "type": "text",
+   "value": "Guest accounts may bypass conditional access",
+   "source": "k175",
+   "score": 0.48,
+   "snippet": "Guest accounts may bypass conditional access"
+  }
+ ],
+ "missing": []
+}

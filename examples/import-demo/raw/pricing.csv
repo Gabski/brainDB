@@ -1,0 +1,27 @@
+sku,segment,list_price_eur,discount_pct,net_price_eur,valid_from,valid_to,note
+PX-200,enterprise,7900,12,6952.0,2026-01-01,2026-12-31,volume deal needs approval
+PX-200,mid-market,7900,8,7268.0,2026-01-01,2026-12-31,
+PX-200,smb,7900,0,7900.0,2026-01-01,2026-12-31,
+PX-300,enterprise,10900,12,9592.0,2026-01-01,2026-12-31,volume deal needs approval
+PX-300,mid-market,10900,8,10028.0,2026-01-01,2026-12-31,
+PX-300,smb,10900,0,10900.0,2026-01-01,2026-12-31,
+AX-1,enterprise,5400,12,4752.0,2026-01-01,2026-12-31,volume deal needs approval
+AX-1,mid-market,5400,8,4968.0,2026-01-01,2026-12-31,
+AX-1,smb,5400,0,5400.0,2026-01-01,2026-12-31,
+GR-64,enterprise,1450,12,1276.0,2026-01-01,2026-12-31,volume deal needs approval
+GR-64,mid-market,1450,8,1334.0,2026-01-01,2026-12-31,
+GR-64,smb,1450,0,1450.0,2026-01-01,2026-12-31,
+GR-83,enterprise,2350,12,2068.0,2026-01-01,2026-12-31,volume deal needs approval
+GR-83,mid-market,2350,8,2162.0,2026-01-01,2026-12-31,
+GR-83,smb,2350,0,2350.0,2026-01-01,2026-12-31,
+WF-10,enterprise,140,12,123.2,2026-01-01,2026-12-31,volume deal needs approval
+WF-10,mid-market,140,8,128.8,2026-01-01,2026-12-31,
+WF-10,smb,140,0,140.0,2026-01-01,2026-12-31,
+SV-CARE,enterprise,1200,12,1056.0,2026-01-01,2026-12-31,volume deal needs approval
+SV-CARE,mid-market,1200,8,1104.0,2026-01-01,2026-12-31,
+SV-CARE,smb,1200,0,1200.0,2026-01-01,2026-12-31,
+SV-PRIO,enterprise,2600,12,2288.0,2026-01-01,2026-12-31,volume deal needs approval
+SV-PRIO,mid-market,2600,8,2392.0,2026-01-01,2026-12-31,
+SV-PRIO,smb,2600,0,2600.0,2026-01-01,2026-12-31,
+PX-200,enterprise,8300,12,7304.0,2027-01-01,2027-12-31,2027 price increase +5%
+PX-300,enterprise,11450,12,10076.0,2027-01-01,2027-12-31,2027 price increase +5%

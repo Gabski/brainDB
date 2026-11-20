@@ -1,0 +1,77 @@
+# brainDB as a service.
+#   docker compose up -d --build            # sales-company on :7791, research-lab on :7792
+#   docker compose --profile test run --rm smoke
+#   docker compose exec -T sales braindb-entrypoint mcp   # MCP over stdio inside the running container
+#
+# Ports are published on 127.0.0.1 only. Set BRAINDB_TOKEN (e.g. in .env) before exposing them further.
+
+name: braindb
+
+x-braindb: &braindb
+  build:
+    context: .
+    target: runtime
+    args:
+      VERSION: ${BRAINDB_VERSION:-dev}
+  image: braindb:${BRAINDB_VERSION:-dev}
+  restart: unless-stopped
+  environment: &env
+    BRAINDB_ADDR: 0.0.0.0:7791
+    BRAINDB_BRAIN: /data/brain.xml
+    BRAINDB_TOKEN: ${BRAINDB_TOKEN:-}
+    BRAINDB_TOKEN_READ: ${BRAINDB_TOKEN_READ:-}
+    # The container listens on 0.0.0.0 but compose publishes the port on 127.0.0.1 only, so running without
+    # a token is allowed here. Set BRAINDB_TOKEN (and BRAINDB_ALLOW_NO_TOKEN=0) before exposing it further.
+    BRAINDB_ALLOW_NO_TOKEN: ${BRAINDB_ALLOW_NO_TOKEN:-1}
+    # Embedding engine. Unset = the built-in offline hash engine. To use a real model, set these (e.g. in .env);
+    # BRAINDB_EMBED_KEY_ENV names the variable that holds the key, so the key itself stays out of this file.
+    BRAINDB_EMBED_PROVIDER: ${BRAINDB_EMBED_PROVIDER:-}
+    BRAINDB_EMBED_MODEL: ${BRAINDB_EMBED_MODEL:-}
+    BRAINDB_EMBED_BASE_URL: ${BRAINDB_EMBED_BASE_URL:-}
+    BRAINDB_EMBED_KEY_ENV: ${BRAINDB_EMBED_KEY_ENV:-OPENROUTER_API_KEY}
+    OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7791/api/health"]
+    interval: 15s
+    timeout: 3s
+    start_period: 10s
+    retries: 3
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: ["no-new-privileges:true"]
+
+services:
+  sales:
+    <<: *braindb
+    container_name: braindb-sales
+    environment:
+      <<: *env
+      BRAINDB_EXAMPLE: sales-company
+    ports: ["127.0.0.1:7791:7791"]
+    volumes: [sales-data:/data]
+
+  lab:
+    <<: *braindb
+    container_name: braindb-lab
+    environment:
+      <<: *env
+      BRAINDB_EXAMPLE: research-lab
+    ports: ["127.0.0.1:7792:7791"]
+    volumes: [lab-data:/data]
+
+  # End-to-end smoke tests against both running services.
+  smoke:
+    image: alpine:3.20
+    profiles: [test]
+    depends_on:
+      sales: {condition: service_healthy}
+      lab: {condition: service_healthy}
+    environment:
+      BRAINDB_TOKEN: ${BRAINDB_TOKEN:-}
+      TARGETS: "http://sales:7791 http://lab:7791"
+    volumes: ["./scripts:/scripts:ro"]
+    entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl >/dev/null && sh /scripts/smoke-test.sh"]
+
+volumes:
+  sales-data:
+  lab-data:

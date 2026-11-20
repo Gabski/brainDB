@@ -1,0 +1,28 @@
+# Account brief for an account executive. Schema template (brainDB Addendum A4):
+# every string leaf is a slot "description[:type][|option...]".
+account:
+  name: "key account company name:org|kind=account|field=account"
+  owner: "account owner:name|kind=account|field=owner"
+  owner_email: "account owner email:email|kind=account"
+  renewal_date: "contract renewal date:date|kind=account|field=renewal_date"
+  arr: "annual recurring revenue ARR:money"
+  plants: "number of plants:number|kind=account|field=plants"
+  exec_sponsor: "executive sponsor:name"
+renewal:
+  offer: "current renewal offer term and price:text|kind=decision"
+  annual_price: "renewal price per year:money|kind=decision"
+  discount: "multi-year discount:percent"
+  target_close: "renewal target close date:date|kind=deal"
+  procurement_contact: "customer procurement contact email:email|kind=task"
+risks[]: "renewal risks and open questions|kind=question|limit=4"
+risks[].id: ".id"
+risks[].question: ".text"
+risks[].evidence: "evidence or answer for this risk"
+open_deals[]: "open deals for this account|kind=deal|limit=5"
+open_deals[].deal: ".fields.deal"
+open_deals[].stage: ".fields.stage"
+open_deals[].value: ".fields.value"
+open_deals[].close_date: ".fields.close_date"
+competitor: "competitor offer and price:text|concept=competition"
+next_steps: "next steps for the renewal:list|kind=task|scope=context"
+summary: "current account status:text"

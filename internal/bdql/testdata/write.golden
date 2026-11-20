@@ -1,0 +1,104 @@
+-- [1] REMEMBER fact "Procurement accepts 36-month terms" CONCEPTS "Renewal", "Procure…
+changes: +f401
+
+-- [2] LINK $F TO g201 WEIGHT 0.7
+changes: ~f401↔g201
+
+-- [3] SUPERSEDE q140 WITH $F
+changes: ⇄q140→f401
+
+-- [4] CONCEPT "Churn risk" MEMBERS g203 RELATED "Renewal" AS C
+changes: +◆A:churn-risk
+
+-- [5] INSERT INTO deal (text, account, stage, value) VALUES ('Telematics upsell', 'Os…
+changes: +g402 +g403 g402◆A:client g402≈g202 g403◆A:churn-risk g403◆A:client g403≈g203
+
+-- [6] UPDATE memory SET fields.stage = 'won' WHERE id = g201
+changes: ~g201
+
+-- [7] UPDATE memory SET fields.owner = 'Kim' WHERE kind = deal DRY RUN
+dry run: would update 5 items: g201, g202, g203, g402, g403
+
+-- [8] BOOST d121, g201
+changes: ▲d121 ▲g201
+
+-- [9] WEAKEN n150
+changes: ▼n150
+
+-- [10] PIN d121
+changes: pin:d121
+
+-- [11] UNPIN d121
+changes: unpin:d121
+
+-- [12] FOCUS d121, $F
+changes: focus=d121,f401
+
+-- [13] FOCUS ADD g202
+changes: focus=d121,f401,g202
+
+-- [14] FOCUS REMOVE g202
+changes: focus=d121,f401
+
+-- [15] GOAL "Win Halvorsen" FOCUS d121
+changes: goal
+
+-- [16] CONNECTOR alias "ACV" TERMS 'annual contract value' AS A
+changes: +⧉H:acv
+
+-- [17] CONNECTOR hub "Q4 renewals" CONNECT g201, g203, d121 AS H
+changes: +⧉H:q4-renewals
+
+-- [18] CONNECT t130 TO $H
+changes: ~t130⧉H:q4-renewals
+
+-- [19] DISCONNECT t130 FROM $H
+changes: -t130⧉H:q4-renewals
+
+-- [20] KIND ADD customer COLOR '#ff8787' HALF LIFE 90 BASE 0.7 PREFIX u SECTION custom…
+changes: +kind:customer
+
+-- [21] REMEMBER customer "Halvorsen Freight AS" FIELDS (account = 'Halvorsen Freight')
+changes: +u404 u404◆A:client u404≈f101 u404≈g201 u404≈n150
+
+-- [22] RESOLVE account BY fields.account MIN 2
+| label | key | members | count |
+|---|---|---|---|
+| Halvorsen Freight | account:halvorsen freight | g201,u404 | 2 |
+| Ostrava Logistics | account:ostrava logistics | g202,g402 | 2 |
+| Corrin Confectionery | account:corrin confectionery | g203,g403 | 2 |
+
+-- [23] RESOLVE email DRY RUN
+| label | key | members | count |
+|---|---|---|---|
+| kim.aalto@halvorsen.example | email:kim.aalto@halvorsen.example | f101,n150 | 2 |
+
+-- [24] FORGET WHERE kind = note DRY RUN
+dry run: would forget 1 items: n150
+
+-- [25] FORGET n150
+changes: -n150
+
+-- [26] SELECT id, fields.stage FROM memory WHERE kind = deal ORDER BY id
+| id | fields.stage |
+|---|---|
+| g201 | won |
+| g202 | proposal |
+| g203 | negotiation |
+| g402 | proposal |
+| g403 | lead |
+
+-- [27] SELECT id, type, label, key, degree FROM connectors ORDER BY id
+| id | type | label | key | degree |
+|---|---|---|---|---|
+| H:account-corrin-confectionery | anchor | Corrin Confectionery | account:corrin confectionery | 2 |
+| H:account-halvorsen-freight | anchor | Halvorsen Freight | account:halvorsen freight | 2 |
+| H:account-ostrava-logistics | anchor | Ostrava Logistics | account:ostrava logistics | 2 |
+| H:acv | alias | ACV |  | 0 |
+| H:q4-renewals | hub | Q4 renewals |  | 3 |
+
+-- [28] SELECT id FROM memory WHERE route = 'H:q4-renewals' ORDER BY id
+| id |
+|---|
+| g203 |
+[ok] step 22 · lit 7/13 memories + 4 concepts · ~191 tok · depth 2/2 thr 0.16 · focus d121

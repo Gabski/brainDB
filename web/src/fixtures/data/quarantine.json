@@ -1,0 +1,5 @@
+[
+ {"id":"n401","kind":"note","text":"Team offsite moved to Thursday, bring laptops for the SSO demo","score":0.29,"reasons":["pos 0.31 (deadlines and client commitments)","neg 0.24 (office logistics)","section notes not in scope"],"section":"review","intendedSection":"notes","by":"claude","ts":1795165200000},
+ {"id":"f402","kind":"fact","text":"Kim prefers Teams over Slack for client calls","score":0.24,"reasons":["pos 0.26 (client commitments)","neg 0.18 (private matters unrelated to work)"],"section":"review","intendedSection":"facts","by":"kim","ts":1795161600000},
+ {"id":"x403","kind":"file","text":"slides-q4-allhands.pdf — company all-hands deck","score":0.21,"reasons":["pos 0.22","no in-scope concept linked","chunks inherit the file decision"],"section":"review","intendedSection":"files","by":"ui","ts":1795158000000}
+]

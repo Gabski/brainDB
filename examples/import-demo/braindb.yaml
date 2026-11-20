@@ -1,0 +1,147 @@
+# brainDB configuration for the import-demo example (Addendum E3).
+# Import rule globs are relative to the --from directory (examples/import-demo/raw). First match wins.
+name: demo
+description: Pellucid Coffee Systems customer knowledge base built from a pile of exports
+goal: Close every open order before 20 Dec 2026 and keep enterprise accounts out of escalation
+context: {depth: 2, threshold: 0.16, hop: 0.85, showSuperseded: false}
+embedding:
+  provider: hash           # offline and free, but lexical: synonyms do not match.
+  alpha: 0.5               # For semantic recall, point it at any OpenAI-compatible endpoint:
+  hops: 2                  #   provider: openai
+  use: enriched            #   model: openai/text-embedding-3-small
+  lambda: 0.5              #   baseUrl: https://openrouter.ai/api/v1
+                           #   apiKeyEnv: OPENROUTER_API_KEY
+budget: {warnTokens: 4000}
+kinds:
+  - {name: customer, label: customer, color: "#ff8787", halfLife: 180, base: 0.7, prefix: u, section: customers}
+  - {name: contact, label: contact, color: "#ffc078", halfLife: 180, base: 0.5, prefix: v, section: contacts}
+  - {name: purchase, label: order, color: "#74c0fc", halfLife: 60, base: 0.6, prefix: o, section: orders}
+  - {name: ticket, label: ticket, color: "#e599f7", halfLife: 21, base: 0.6, prefix: k, section: tickets}
+  - {name: product, label: product, color: "#63e6be", halfLife: 365, base: 0.6, prefix: y, section: products}
+sections: [facts, decisions, notes, plans, accounts, knowledge, pricing, meetings, customers, contacts, orders, tickets, products, suppliers, catalog]
+concepts:
+  - {id: churn, label: Churn risk, related: [support, renewals]}
+  - {id: escalation, label: Escalations, related: [support, enterprise]}
+import:
+  keepRaw: false
+  chunkSize: 650
+  autolink: {conceptMin: 0.14, similarMin: 0.28, maxSimilar: 3}
+  rules:
+    - match: "notes/**/*.md"
+      importer: markdown
+      kind: note
+      section: notes
+      headingsAsConcepts: false
+    - match: "crm.sql"
+      importer: sql
+      tables:
+        customers: {kind: customer, text: "{name} ({segment}, {status}) · {city} · owner {owner} · customer since {customer_since}", concepts: [segment, status], key: id}
+        contacts:  {kind: contact, text: "{full_name}, {role} · {email}", key: id, foreignKeys: true}
+        orders:    {kind: purchase, text: "Order {id}: {quantity} × {sku} = {total} {currency} · {status} · {created_at}", concepts: [status], key: id, foreignKeys: true}
+    - match: "mysql-sample.sql"
+      importer: sql
+      tables:
+        suppliers: {kind: record, section: suppliers, text: "{name} ({city}, {country}): {notes}", key: id}
+        products:  {kind: record, section: catalog, text: "{sku} {name} · cost €{unit_cost_eur} · lead time {lead_time_days} days", key: sku, foreignKeys: true}
+    - match: "tickets.jsonl"
+      importer: json
+      kind: ticket
+      section: tickets
+      json: {path: "$"}
+      text: "{id} [{priority}] {subject} · {product} · {status} · customer {customer.name}"
+      concepts: [priority, product, status]
+    - match: "products.json"
+      importer: json
+      kind: product
+      section: products
+      json: {path: "$.data.items"}
+      text: "{sku} {name} · {category} · list €{price.list} {price.unit} · warranty {warranty.months} months"
+      concepts: [category]
+    - match: "pricing.csv"
+      importer: csv
+      kind: record
+      section: pricing
+      text: "{sku} {segment}: list €{list_price_eur}, discount {discount_pct}%, net €{net_price_eur} · valid {valid_from} to {valid_to}"
+      concepts: [segment]
+purpose:
+  name: Pellucid customer knowledge base
+  description: >
+    Customer, order, product and support knowledge of Pellucid Coffee Systems: customers and contacts, orders and prices,
+    espresso machines, grinders and service plans, support tickets, escalations, churn signals and account plans.
+  inScope:
+    topics: ["customers and contacts", "orders, prices and discounts", "espresso machines, grinders and filters",
+             "service plans and support tickets", "escalations and churn risk", "account plans and renewals",
+             "customer table: hotels, cafés, offices, ferries, universities, clinics and lounges in Oslo, Stockholm, Helsinki; segment enterprise, mid-market or smb; status active, trial or churned; account owner",
+             "contact table: customer contacts such as facilities manager, procurement lead, head barista, operations director, finance controller, with email and phone",
+             "order table: orders of PX-200, PX-300, AX-1, GR-64, GR-83, WF-10, SV-CARE and SV-PRIO in EUR with status open, shipped, invoiced or cancelled",
+             "support ticket table: milk system, steam wand, group head, grinder, filter delivery and service visit issues; priority urgent, high, medium, low; status open, pending, closed",
+             "supplier and product cost tables: supplier name, city, country, notes, unit cost, lead time days",
+             "key customer accounts: Harbor Lane Hotels, Northgate Offices, Fjordline Ferries, Tidewater University, Meridian Airports Lounge, Copperleaf Cafés, Westbrook Fitness",
+             "pricing: price list rows with sku, segment enterprise, mid-market, smb, list price eur, discount pct, net price eur, valid from 2026-01-01 to 2026-12-31; volume deal needs approval",
+             "price table: PX-200, PX-300, AX-1, GR-64, GR-83, WF-10, SV-CARE, SV-PRIO list price, discount and net price per segment enterprise, mid-market, smb"]
+    concepts: [churn, escalation]
+    kinds: [customer, contact, purchase, ticket, product, record, note, fact, decision, summary, file, chunk]
+    sections: [notes, plans, accounts, knowledge, pricing, meetings, customers, contacts, orders, tickets, products, suppliers, catalog]
+  outOfScope:
+    topics: ["lunch menus and canteen", "personal reminders and private errands", "payment card data",
+             "office social events"]
+    entities: [card]
+  examples:
+    accept: ["Meridian Airports Lounge reported an urgent AX-1 milk system issue",
+             "PX-300 enterprise price rises 5% from January 2027",
+             "Westbrook Fitness trial ends on 15.12.2026"]
+    reject: ["Lunch menu for Friday: fish soup and bread", "Pick up dry cleaning and call the dentist",
+             "Card 4111 1111 1111 1111 for the online shop"]
+  admission:
+    mode: advise         # advise (default) records the score and stores everything;
+                         # switch to enforce only after reviewing what it would have dropped
+    accept: 0.35
+    review: 0.20
+    apply: [remember, insert, ingest, import]
+    exempt: [admin]
+    chunks: file
+    records: table
+patterns:
+  locales: [en, nb, pl]
+  defaultRegion: NO
+  dateOrder: dmy
+  disabled: [hashtag]
+  custom:
+    - {name: sku, type: id_code, regex: '\b(?:SKU-\d{5}|PX-\d{3}|AX-\d|GR-\d{2}|WF-\d{2}|SV-(?:CARE|PRIO))\b', normalize: upper}
+    - {name: ticket, type: id_code, regex: '\bTCK-\d{4}\b', normalize: upper}
+  fx: {base: EUR, rates: {USD: 0.92, NOK: 0.085, SEK: 0.087, DKK: 0.134, PLN: 0.23}}
+privacy:
+  mask: [phone]
+connectors:
+  maxFanout: 200
+  importHub: true
+  entityAnchors: [email, phone, vat]
+  anchors:
+    - {key: customer, match: ["customers.id", "orders.customer_id", "contacts.customer_id", "tickets.customer_id", "fields.customer_id"]}
+    - {key: product, match: ["products.sku", "orders.sku", "tickets.product", "pricing.sku", "catalog.sku", "fields.product"]}
+  aliases:
+    - {label: ARR, terms: ["annual recurring revenue", "annual contract value", "ACV"]}
+    - {label: SLA, terms: ["service level", "response time", "service level agreement"]}
+    - {label: net price, terms: ["discounted price", "price after discount"]}
+mcp: {actor: agent, tools: [view, search, inspect, query, fill, exec, ingest]}
+access:
+  enabled: true
+  labels:
+    - {name: finance, description: "Order values and invoicing"}
+  defaults:
+    import: {"crm.sql#orders": [finance]}
+  roles:
+    - name: support
+      grants:
+        - {actions: [read, write], labels: ["*"]}
+        - {deny: true, actions: [read], labels: [finance]}
+    - name: analyst
+      grants:
+        - {actions: [read], labels: [finance]}
+    - name: admin
+      grants:
+        - {actions: [read, write, admin], labels: ["*"], dbs: ["*"]}
+  users:
+    - {name: rosa, display: Rosa Pettersen, roles: [support], tokenEnv: BRAINDB_TOKEN_ROSA}
+    - {name: lee, display: Lee Moberg, roles: [analyst], tokenEnv: BRAINDB_TOKEN_LEE, dbs: [demo]}
+    - {name: admin, roles: [admin], tokenEnv: BRAINDB_TOKEN}

@@ -1,0 +1,82 @@
+{
+ "files": [
+  {
+   "path": "export/notes/standup.md",
+   "importer": "markdown",
+   "status": "created",
+   "nodes": 3,
+   "edges": 4,
+   "records": 0,
+   "admitted": 3,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "export/notes/retro.md",
+   "importer": "markdown",
+   "status": "skipped",
+   "nodes": 0,
+   "edges": 0,
+   "records": 0,
+   "message": "unchanged (hash match)",
+   "admitted": 0,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "export/dump.sql",
+   "importer": "sql",
+   "status": "updated",
+   "nodes": 42,
+   "edges": 61,
+   "records": 40,
+   "message": "6 rows changed, old versions superseded",
+   "admitted": 40,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "export/broken.json",
+   "importer": "json",
+   "status": "error",
+   "nodes": 0,
+   "edges": 0,
+   "records": 0,
+   "message": "line 14: unexpected token '}'"
+  },
+  {
+   "path": "export/archive.sqlite",
+   "importer": "sqlite",
+   "status": "skipped",
+   "nodes": 0,
+   "edges": 0,
+   "records": 0,
+   "message": "sqlite3 CLI not found",
+   "admitted": 0,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "export/scan.pdf",
+   "importer": "pdf",
+   "status": "error",
+   "nodes": 1,
+   "edges": 0,
+   "records": 0,
+   "message": "pdftotext not installed: file node only"
+  }
+ ],
+ "totals": {
+  "files": 6,
+  "nodes": 46,
+  "edges": 65,
+  "records": 40,
+  "errors": 2,
+  "skipped": 2
+ },
+ "mapping": "import:\n  rules:\n    - match: \"notes/*.md\"\n      importer: markdown\n    - match: \"dump.sql\"\n      importer: sql\n"
+}

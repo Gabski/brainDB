@@ -1,0 +1,239 @@
+-- [1] SHOW kinds
+| name | label | color | base | halfLife | floor | prefix | section | builtin |
+|---|---|---|---|---|---|---|---|---|
+| fact | fact | #4ea8ff | 0.6 | 180 | 0.7 | f | facts | true |
+| decision | decision | #ffa94d | 0.7 | 365 | 0.8 | d | decisions | true |
+| record | record | #91a7ff | 0.5 | 180 | 0.7 | r | records | true |
+| file | file | #f783ac | 0.5 | 180 | 0.6 | x | files | true |
+| chunk | chunk | #94d82d | 0.45 | 120 | 0.55 | c | files | true |
+| summary | summary | #38d9a9 | 0.6 | 90 | 0.4 | s | procedures | true |
+| idea | idea | #ffe066 | 0.5 | 60 | 0.25 | i | ideas | true |
+| task | task | #69db7c | 0.55 | 14 | 0 | t | tasks | true |
+| question | question | #da77f2 | 0.5 | 7 | 0 | q | questions | true |
+| note | note | #adb5bd | 0.4 | 7 | 0 | n | notes | true |
+| concept | concept | #e7f5ff | 0.8 |  | 1 | A: | concepts | true |
+| connector | connector | #868e96 | 1 |  | 1 | H: | connectors | true |
+| deal | deal | #ff8787 | 0.6 | 21 | 0 | g | pipeline | false |
+
+-- [2] SHOW sections
+| name | items |
+|---|---|
+| facts | 2 |
+| decisions | 2 |
+| tasks | 1 |
+| questions | 1 |
+| notes | 1 |
+| pipeline | 3 |
+
+-- [3] SELECT id, kind, weight FROM memory WHERE kind IN (deal, task) ORDER BY id
+| id | kind | weight |
+|---|---|---|
+| g201 | deal | 0.5258 |
+| g202 | deal | 0.4922 |
+| g203 | deal | 0.2229 |
+| t130 | task | 0.4981 |
+
+-- [4] SELECT id, fields.account, fields.value FROM memory WHERE kind = deal AND field…
+| id | fields.account | fields.value |
+|---|---|---|
+| g201 | Halvorsen Freight | 48000 |
+| g202 | Ostrava Logistics | 12500 |
+
+-- [5] SELECT id FROM memory WHERE fields.value BETWEEN 9000 AND 13000 ORDER BY id
+| id |
+|---|
+| g202 |
+| g203 |
+
+-- [6] SELECT fields.stage, COUNT(*), SUM(fields.value), AVG(fields.value), MIN(fields…
+| fields.stage | COUNT(*) | SUM(fields.value) | AVG(fields.value) | MIN(fields.value) | MAX(fields.value) |
+|---|---|---|---|---|---|
+| negotiation | 2 | 57000 | 28500 | 9000 | 48000 |
+| proposal | 1 | 12500 | 12500 | 12500 | 12500 |
+
+-- [7] SELECT id, text FROM memory WHERE text ~ 'renewal' AND NOT superseded AND lit O…
+| id | text |
+|---|---|
+| d121 | Offer a 6% multi-year discount for 3-year renewals |
+| g201 | Halvorsen renewal |
+| g203 | Corrin renewal |
+| t130 | Send the renewal proposal to Kim Aalto by 15 Dec 2026 |
+
+-- [8] SELECT id FROM memory WHERE concept = 'Pricing' ORDER BY id
+| id |
+|---|
+| d120 |
+| d121 |
+| f102 |
+
+-- [9] SELECT id FROM memory WHERE (kind = note OR kind = question) AND age <= 3 ORDER…
+| id |
+|---|
+| n150 |
+| q140 |
+
+-- [10] SELECT id, fields.* FROM memory WHERE kind = deal ORDER BY id LIMIT 2 OFFSET 1
+| id | fields.account | fields.stage | fields.value | fields.close_date |
+|---|---|---|---|---|
+| g202 | Ostrava Logistics | proposal | 12500 | 2027-01-20 |
+| g203 | Corrin Confectionery | negotiation | €9,000 | 2026-11-30 |
+
+-- [11] SELECT id, text FROM memory WHERE HAS email ORDER BY id
+| id | text |
+|---|---|
+| f101 | Halvorsen Freight AS has 140 trucks; contact Kim Aalto kim.aalto@halvorsen.example |
+| n150 | Call with Halvorsen went well, call kim.aalto@halvorsen.example back |
+
+-- [12] SELECT id FROM memory WHERE entities.date <= '2026-12-31' ORDER BY id
+| id |
+|---|
+| g201 |
+| g203 |
+| t130 |
+
+-- [13] SELECT id FROM memory WHERE entities.money > 'EUR 100' ORDER BY id
+| id |
+|---|
+| f102 |
+| g203 |
+
+-- [14] SELECT type, value, COUNT(*) FROM entities WHERE type = email GROUP BY value
+| type | value | COUNT(*) |
+|---|---|---|
+| email | kim.aalto@halvorsen.example | 2 |
+
+-- [15] SELECT id, text FROM memory NEAR "multi-year discount" LIMIT 3
+| id | text | score |
+|---|---|---|
+| d121 | Offer a 6% multi-year discount for 3-year renewals | 0.8175 |
+| f102 | List price is €465 per pack per month | 0.4673 |
+| t130 | Send the renewal proposal to Kim Aalto by 15 Dec 2026 | 0.3165 |
+
+-- [16] SELECT a, b, w, type FROM links WHERE type = assoc ORDER BY a, b
+| a | b | w | type |
+|---|---|---|---|
+| d121 | f102 | 0.57 | assoc |
+| f101 | n150 | 0.35 | assoc |
+| f102 | d120 | 0.34 | assoc |
+| g201 | d121 | 0.7 | assoc |
+| g201 | g203 | 0.5 | assoc |
+| g202 | f101 | 0.3 | assoc |
+| g203 | q140 | 0.37 | assoc |
+| n150 | t130 | 0.4 | assoc |
+| q140 | d121 | 0.6 | assoc |
+| t130 | d121 | 0.8 | assoc |
+
+-- [17] SELECT id, text, degree FROM concepts ORDER BY id
+| id | text | degree |
+|---|---|---|
+| A:client | Client | 5 |
+| A:pricing | Pricing | 4 |
+| A:renewal | Renewal | 7 |
+
+-- [18] SEARCH "renewal discount" MODE hybrid LIMIT 3
+| id | kind | score | text |
+|---|---|---|---|
+| A:renewal | concept | 0.8365 | Renewal |
+| g201 | deal | 0.7354 | Halvorsen renewal |
+| d121 | decision | 0.7336 | Offer a 6% multi-year discount for 3-year renewals |
+
+-- [19] SEARCH "renewal discount" MODE vector LIMIT 3
+| id | kind | score | text |
+|---|---|---|---|
+| A:renewal | concept | 0.673 | Renewal |
+| g201 | deal | 0.5917 | Halvorsen renewal |
+| d121 | decision | 0.5902 | Offer a 6% multi-year discount for 3-year renewals |
+
+-- [20] SEARCH "renewal discount" MODE graph LIMIT 3
+| id | kind | score | text | via |
+|---|---|---|---|---|
+| d121 | decision | 0.909 | Offer a 6% multi-year discount for 3-year renewals |  |
+| A:renewal | concept | 0.44 | Renewal |  |
+| g201 | deal | 0.3577 | Halvorsen renewal |  |
+| A:pricing | concept | 0.5916 | Pricing | via A:renewal |
+| A:client | concept | 0.5176 | Client | via A:renewal |
+| t130 | task | 0.4582 | Send the renewal proposal to Kim Aalto by 15 Dec 2026 | via d121 |
+
+-- [21] QUERY 'kind:deal stage=negotiation sort:-value select:id,fields.value'
+| id | fields.value |
+|---|---|
+| g201 | 48000 |
+| g203 | €9,000 |
+
+-- [22] INSPECT d121 WITH item, links
+<item id="d121" kind="decision" w="0.85" act="1.00" depth="0" age="5d">Offer a 6% multi-year discount for 3-year renewals</item>
+weight 0.85 = base 0.85 × decay 0.998 (age 5 d, half-life 365 d, floor 0.80)
+path from focus: d121
+
+links:
+  ◆0.90 A:renewal [◆] w=0.80 act=0.67 d1 — Renewal
+  ~0.80 t130 [task] w=0.50 act=0.46 d1 — Send the renewal proposal to Kim Aalto by 15 Dec 2026
+  ~0.70 g201 [deal] w=0.53 act=1.00 d0 — Halvorsen renewal
+  ◆0.64 A:pricing [◆] w=0.80 act=0.47 d1 — Pricing
+  ~0.60 q140 [question] w=0.37 act=0.30 d1 — Will procurement accept a 36-month term?
+  ~0.57 f102 [fact] w=0.59 act=0.36 d1 — List price is €465 per pack per month
+  ⇄0.50 d120 [decision] w=0.21 (faded) ⇄d121 — Offer a 4% discount
+
+-- [23] PATHS FROM t130 TO f102 LIMIT 2
+
+knowledge paths t130 → f102:
+  #1 strength 0.302 · 2 hops: t130 —0.80→ d121 —0.57→ f102
+  #2 strength 0.247 · 3 hops (beyond the context depth): t130 —0.78→ A:renewal —0.80→ A:pricing —0.71→ f102
+
+-- [24] EXTRACT FROM "Call Kim Aalto (+47 22 33 44 55) before 15 Dec 2026 about €48k"
+| type | value | raw | confidence |
+|---|---|---|---|
+| person | Kim Aalto | Kim Aalto | 0.92 |
+| phone | +4722334455 | +47 22 33 44 55 | 0.9 |
+| date | 2026-12-15 | 15 Dec 2026 | 0.97 |
+| money | EUR 48000.00 | €48k | 0.95 |
+
+-- [25] EXTRACT f101
+| type | value | raw | confidence |
+|---|---|---|---|
+| org | Halvorsen Freight | Halvorsen Freight AS | 0.9 |
+| person | Kim Aalto | Kim Aalto | 0.92 |
+| email | kim.aalto@halvorsen.example | kim.aalto@halvorsen.example | 0.99 |
+| domain | halvorsen.example | halvorsen.example | 0.95 |
+
+-- [26] EXPLAIN SELECT * FROM memory WHERE fields.stage = 'won'
+statement: SELECT
+table: memory
+filter: {"col":"fields.stage","op":"=","val":{"text":"won","kind":"string"}}
+access: full scan over 13 nodes (no index matches this filter)
+writes: false
+ast:
+{
+  "kind": "SELECT",
+  "index": 0,
+  "line": 0,
+  "col": 0,
+  "statement": "",
+  "write": false,
+  "select": {
+    "columns": [
+      {
+        "Col": "*",
+        "Agg": ""
+      }
+    ],
+    "from": "memory",
+    "where": {
+      "col": "fields.stage",
+      "op": "=",
+      "val": {
+        "text": "won",
+        "kind": "string"
+      }
+    }
+  }
+}
+
+-- [27] LET $top = (SELECT id FROM memory WHERE kind = deal ORDER BY fields.value DESC …
+$top = g201
+
+-- [28] INSPECT $top WITH item
+<item id="g201" kind="deal" w="0.53" act="1.00" depth="0" age="4d">Halvorsen renewal</item>
+weight 0.53 = base 0.6 × decay 0.876 (age 4 d, half-life 21 d)
+path from focus: g201
+[ok] step 1 · lit 6/10 memories + 3 concepts · ~169 tok · depth 2/2 thr 0.16 · focus d121,g201

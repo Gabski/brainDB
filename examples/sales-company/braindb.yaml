@@ -1,0 +1,133 @@
+# brainDB configuration for the sales-company example (Addendum E3).
+# Import rule globs are relative to the imported directory (examples/sales-company/docs).
+name: sales-company
+description: Tessaline Systems sales team memory (NaCore sodium-ion forklift packs)
+goal: Close Q4 2026 at or above the €1.62M commit and renew Marrow Creek Foods for 3 years before 19 December 2026
+context: {depth: 2, threshold: 0.2, hop: 0.85, showSuperseded: false, focus: [d121, d123, g191]}
+embedding:
+  provider: hash           # offline and free, but lexical: synonyms do not match.
+  alpha: 0.5               # For semantic recall, point it at any OpenAI-compatible endpoint:
+  hops: 2                  #   provider: openai
+  use: enriched            #   model: openai/text-embedding-3-small
+  lambda: 0.5              #   baseUrl: https://openrouter.ai/api/v1
+                           #   apiKeyEnv: OPENROUTER_API_KEY
+budget: {warnTokens: 4000}
+kinds:
+  - {name: deal, label: deal, color: "#ff8787", halfLife: 21, base: 0.65, prefix: g, section: pipeline}
+  - {name: account, label: account, color: "#4dabf7", halfLife: 90, base: 0.7, prefix: k, section: accounts}
+sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, pricing, pipeline, accounts]
+concepts:
+  - {id: renewal, label: Account renewal, related: [contract, stakeholders, pricing]}
+  - {id: product, label: Product NaCore packs and integrations, related: [expansion, sla]}
+import:
+  keepRaw: false
+  chunkSize: 650
+  autolink: {conceptMin: 0.14, similarMin: 0.28, maxSimilar: 3}
+  rules:
+    - match: "agent-workspace/state.json"
+      importer: json
+    - match: "pipeline.csv"
+      importer: csv
+      kind: deal
+      section: pipeline
+      text: "{deal} ({account}) · {stage} · €{value} · owner {owner} · close {close_date} · {opportunity}"
+      concepts: [stage, forecast_category, product]
+    - match: "pricing-policy-*.md"
+      importer: markdown
+      kind: file
+      section: pricing
+    - match: "*.md"
+      importer: markdown
+      kind: file
+      section: files
+      headingsAsConcepts: false
+sources:
+  - {name: lab, uri: "http://lab:7791", tokenEnv: LAB_TOKEN, weight: 0.7, ttl: 300, mode: live, federateDepth: 1}
+purpose:
+  name: Tessaline sales brain
+  description: >
+    Knowledge the Tessaline sales team needs to sell and renew NaCore battery pack leases: accounts and contacts,
+    deals and pipeline, pricing and discount rules, product claims backed by lab evidence, SLAs, warranties,
+    competitors and customer commitments.
+  inScope:
+    topics: ["accounts and contacts", "deals, pipeline and forecast", "pricing, quotes and discounts",
+             "NaCore product claims and specs", "SLAs, warranties and pack availability", "warranty requests and cycle-life guarantees for NaCore packs", "competitors and battlecards",
+             "customer meetings and commitments", "renewals and contracts",
+             "pipeline table: opportunity OPP id, deal, account, stage negotiation, verbal, proposal, evaluation, discovery, closed won, closed lost, value, owner, close date, probability, forecast category commit, best case, pipeline, NaCore pack, Telemetry add-on, SAP PM connector, next step"]
+    concepts: [renewal, pricing, discount, pipeline, forecast, product, sla, competition, contract, stakeholders]
+    kinds: [deal, account, fact, decision, task, question, note, summary, file, chunk, idea, record]
+    sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, pricing, pipeline, accounts]
+  outOfScope:
+    topics: ["private matters unrelated to work", "lab internal procedures and electrolyte preparation",
+             "food, sports and entertainment", "office facilities and parking",
+             "trade fairs, travel and hotel bookings", "HR policies, company cars and employee benefits",
+             "office parties and team events"]
+    entities: [card]
+  examples:
+    accept: ["Marrow Creek asked for a 24-month warranty on NaCore 2 packs",
+             "Q4 commit is EUR 1.62M after the Haldane slip",
+             "Grayfield Power quoted LFP packs at 159 EUR per pack per month"]
+    reject: ["Lunch menu for Friday: lasagne and salad", "Photo of the office cat", "Remember to book the dentist"]
+  admission:
+    mode: advise         # advise (default) records the score and stores everything;
+                         # switch to enforce only after reviewing what it would have dropped
+    accept: 0.35
+    review: 0.20
+    apply: [remember, insert, ingest, import]
+    exempt: [admin]
+    chunks: file
+    records: table
+patterns:
+  locales: [en, nb, de, pl]
+  defaultRegion: NO
+  dateOrder: dmy
+  custom:
+    - {name: sku, type: id_code, regex: '\bSKU-\d{5}\b', normalize: upper}
+    - {name: opportunity, type: id_code, regex: '\bOPP-\d{4}\b', normalize: upper}
+    - {name: invoice, type: id_code, regex: '\bINV-\d{4}-\d{4}\b', normalize: upper}
+  fx: {base: EUR, rates: {USD: 0.92, NOK: 0.085, PLN: 0.23}}
+privacy:
+  mask: [phone, iban]
+connectors:
+  maxFanout: 200
+  entityAnchors: [email, phone, vat]
+  anchors:
+    - {key: account, match: ["fields.account", "pipeline.account"]}
+  aliases:
+    - {label: ARR, terms: ["annual recurring revenue", "annual contract value", "ACV"]}
+templates: {dir: templates}
+mcp: {actor: agent, tools: [view, search, inspect, query, fill, exec, ingest, sources]}
+access:
+  enabled: true
+  labels:
+    - {name: finance, description: "Price lists, quotes, discount authority, margins, invoices, bank details"}
+    - {name: hr, description: "People data: leave, commission plans"}
+    - {name: internal, description: "Pipeline, forecast, account data; staff only"}
+    - {name: "customer:ostler", description: "Ostler Dairy evaluation (confidential under NDA)"}
+  defaults:
+    sections: {pricing: [finance], pipeline: [internal], accounts: [internal]}
+    import:
+      "pricing-policy-2026.md": [finance]
+      "pipeline.csv": [internal]
+      "marrow-creek-call-notes-2026-11-19.md": [internal]
+      "agent-workspace/state.json": [internal]
+  roles:
+    - name: sales-rep
+      grants:
+        - {actions: [read, write], labels: ["*"]}
+        - {actions: [read], labels: [finance], sections: [pricing]}
+        - {deny: true, actions: [read, write], labels: [hr]}
+        - {deny: true, actions: [read, write], labels: [finance], sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, pipeline, accounts]}
+    - name: analyst
+      grants:
+        - {actions: [read], labels: [finance, internal]}
+    - name: admin
+      grants:
+        - {actions: [read, write, admin], labels: ["*"], dbs: ["*"]}
+  users:
+    - {name: kim, display: Kim Achterberg, roles: [sales-rep], defaultWriteLabels: [internal], tokenEnv: BRAINDB_TOKEN_KIM}
+    - {name: ilse, display: Ilse Varga, roles: [analyst], tokenEnv: BRAINDB_TOKEN_ILSE}
+    # dbs: restricts a user to named databases. The name comes from the brain file (brain.xml -> "brain")
+    # or, with --data-dir, from its directory, so leave it out unless you run several and know their names.
+    - {name: grokbot, display: Website assistant, roles: [], labels: [], tokenEnv: BRAINDB_TOKEN_GROKBOT}
+    - {name: admin, roles: [admin], tokenEnv: BRAINDB_TOKEN}

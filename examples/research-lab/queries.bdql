@@ -1,0 +1,131 @@
+-- brainDB BDQL tour on the research-lab example (Corvane Institute, EL-7 electrolyte).
+-- Run: braindb run examples/research-lab/queries.bdql --db research-lab
+-- The script contains writes, so it runs as one transaction (Addendum G3).
+
+SHOW kinds;
+
+-- 1. Ad-hoc slice for the 45 °C question.
+CONTEXT FOR "45 °C fade TMSB decomposition" DEPTH 2 FORMAT md;
+
+-- 2. Persist the go/no-go focus.
+CONTEXT FOCUS d123, f108, h187 DEPTH 2 THRESHOLD 0.2 SET;
+
+-- 3. Measurements at 45 °C from measurements.csv (records, section measurements).
+SELECT fields.cell_id, fields.run_id, fields.electrolyte, fields.capacity_retention_pct, fields.run_date, fields.operator
+  FROM memory
+  WHERE section = 'measurements' AND fields.temperature_c = 45
+  ORDER BY fields.capacity_retention_pct DESC
+  FORMAT md;
+
+-- 4. Mean retention and conductivity per electrolyte and condition.
+SELECT fields.electrolyte, fields.condition, COUNT(*), AVG(fields.capacity_retention_pct), MIN(fields.capacity_retention_pct), AVG(fields.conductivity_mS_cm)
+  FROM memory WHERE section = 'measurements' GROUP BY fields.electrolyte, fields.condition;
+
+-- 5. Samples and their water content (the B2 batch is superseded by B3).
+SELECT id, fields.sample_id, fields.electrolyte, fields.batch, fields.water_ppm, superseded
+  FROM memory WHERE kind = sample ORDER BY fields.prepared DESC FORMAT md;
+
+-- 6. Experiments still running, ranked against a phrase.
+SELECT id, fields.run_id, fields.condition, fields.operator, fields.status
+  FROM memory WHERE kind = experiment AND fields.status = 'running'
+  NEAR "high temperature cycling" ORDER BY score DESC LIMIT 5;
+
+-- 7. Search in each mode.
+SEARCH "pouch gas leaking seal" MODE hybrid LIMIT 5;
+SEARCH "SEI resistance impedance" MODE vector LIMIT 5;
+SEARCH "Tessaline NaCore 2 cycle life claim" MODE tree LIMIT 6;
+SEARCH "glovebox regeneration" MODE graph LIMIT 5;
+
+-- 8. How does the TMSB hypothesis reach the go/no-go decision?
+PATHS FROM h187 TO d123 LIMIT 3;
+
+-- 9. Edge ablation around the 45 °C result.
+TEST f108;
+
+-- 10. Link proposals for the synergy hypothesis.
+SUGGEST h186;
+
+-- 11. Write transaction: new result, linked to the hypothesis and question; old hypothesis stays superseded.
+REMEMBER fact "RUN-2620 at cycle 50: FEC-only cells hold 97.8% capacity, TMSB-only 96.1% (n=4 each)"
+  IN facts CONCEPTS "Additives FEC and TMSB", "Statistics and replicates"
+  LINK TO e193 WEIGHT 0.9, h186 WEIGHT 0.7
+  FIELDS (run_id = 'RUN-2620', cycles = 50) LABELS (ip-sensitive)
+  AS F;
+LINK $F TO q140 WEIGHT 0.6;
+REMEMBER note "Group meeting moved again: Friday 27 Nov 2026, 10:00, Tessaline joins by phone"
+  IN notes CONCEPTS "Lab team" LINK TO n150 WEIGHT 0.5 AS G;
+SUPERSEDE n153 WITH $G;
+BOOST h186, e193;
+
+-- 12. New samples into the custom kind.
+INSERT INTO sample (text, sample_id, electrolyte, batch, volume_ml, water_ppm, prepared, operator, location)
+  VALUES ('Sample S-0461: EL-0 + 2 wt% FEC for the ablation, 100 mL', 'S-0461', 'EL-0+FEC', 'A1', 100, 12, '2026-11-17', 'Ravi Menon', 'glovebox shelf 3'),
+         ('Sample S-0462: EL-0 + 0.5 wt% TMSB for the ablation, 100 mL', 'S-0462', 'EL-0+TMSB', 'A1', 100, 15, '2026-11-17', 'Ravi Menon', 'glovebox shelf 3');
+
+-- 13. Mark the 45 °C run as reviewed.
+UPDATE memory SET fields.status = 'running, reviewed 20 Nov' WHERE kind = experiment AND fields.run_id = 'RUN-2614';
+
+-- 14. Preview deleting old archive notes (dry run).
+FORGET WHERE kind = note AND age > 60 AND NOT pinned DRY RUN;
+
+-- 15. Templates.
+FILL TEMPLATE 'weekly-status.yaml' OUTPUT yaml WITH SOURCES;
+FILL TEMPLATE 'sample-sheet.json' OUTPUT json;
+FILL TEMPLATE 'experiment-report.md' OUTPUT md SCOPE memory;
+
+-- 16. Connectors (seed: anchors for partner Tessaline, sample S-0457, RUN-2614; hub "EL-7 go/no-go"; alias SEI resistance).
+SHOW connectors;
+SELECT id, type, label, key, degree FROM connectors WHERE type = anchor ORDER BY degree DESC;
+SELECT id, kind, text FROM memory WHERE route = 'H:go-no-go' ORDER BY weight DESC FORMAT md;
+SEARCH "R_SEI after 50 cycles" MODE hybrid LIMIT 5;                                    -- alias expands to "SEI resistance"
+RESOLVE sample BY fields.sample_id MIN 2 DRY RUN;                                      -- samples ↔ measurements.csv rows
+RESOLVE run BY fields.run_id MIN 2;
+CONNECTOR anchor "RUN-2611 (25 °C cycling)" KEY 'run:RUN-2611' CONNECT e190, f104, x180 AS R;
+CONNECT f105 TO $R;
+
+-- 17. Entities (Addendum I): units, money in NOK / USD / zł, dates in ISO, "15.12.2026" and "Q1 2027", phones, IBAN.
+SHOW patterns;
+SELECT type, COUNT(*) FROM entities GROUP BY type;
+SELECT value, COUNT(*) FROM entities WHERE type = number_unit GROUP BY value ORDER BY COUNT(*) DESC LIMIT 15;   -- 25 °C, 45 °C, 4.3 V, 8.6 mS/cm …
+SELECT value, COUNT(*) FROM entities WHERE type = id_code GROUP BY value ORDER BY COUNT(*) DESC LIMIT 10;       -- RUN-2611, RUN-2614, S-0457 …
+SELECT id, text FROM memory WHERE HAS email AND entities.domain = 'corvane.example';
+SELECT id, text, entities.money FROM memory WHERE entities.money > 'EUR 10000';                                  -- €310,000 and NOK 4.8M (via patterns.fx)
+SELECT id, text FROM memory WHERE entities.date BETWEEN '2026-12-01' AND '2026-12-31' ORDER BY weight DESC;      -- go/no-go, grant report, glovebox
+EXTRACT FROM "Dr. Hanne Solberg (+47 55 58 20 14) wants RUN-2614 at 45 °C and 4.5 V data before 15.12.2026; beamtime USD 3.2k";
+EXTRACT f118;
+PATTERN ADD batch '\bB\d\b' TYPE id_code NORMALIZE upper;
+PATTERN TEST batch 'EL-7 batch B3 replaced B2';
+PATTERN REMOVE batch;
+RESOLVE email MIN 2 DRY RUN;      -- hanne.solberg@corvane.example in n150 and Hanne.Solberg@… in the minutes
+RESOLVE phone MIN 2 DRY RUN;      -- +47 55 58 20 14 = 55 58 20 14
+
+-- 18. Access control (Addendum M): unpublished results carry the label ip-sensitive.
+WHOAMI;
+SHOW grants FOR ana;
+SHOW users;
+EXPLAIN ACCESS f108 FOR visitor;      -- hidden: ip-sensitive, visitor holds no labels
+EXPLAIN ACCESS h187 FOR tessaline;    -- hidden: role partner reads ip-sensitive facts, decisions and experiments, not hypotheses
+AS USER visitor; SEARCH "45 °C fade TMSB" MODE hybrid LIMIT 5;             -- q140, d123 and protocol items only
+AS USER ana;     SEARCH "45 °C fade TMSB" MODE hybrid LIMIT 5;             -- h187, q140, f108
+AS USER visitor; FILL TEMPLATE 'weekly-status.yaml' OUTPUT yaml;          -- headline.retention_25c / retention_45c / sei_resistance → missing
+AS USER ana;     FILL TEMPLATE 'weekly-status.yaml' OUTPUT yaml;          -- 91.4%, 84.0%, 38 ohm
+AS USER admin;                        -- AS USER switches the principal until the next AS USER
+LABEL WHERE kind = experiment AND NOT labels ~ 'ip-sensitive' ADD ip-sensitive DRY RUN;
+GRANT read ON LABEL ip-sensitive TO USER ana;
+
+-- 19. Purpose and admission (Addendum O). Scores measured with the real scorer (hash-256); they can differ slightly with another embedding.
+SHOW PURPOSE;
+CHECK "RUN-2620 at cycle 100: FEC-only cells hold 95.9% capacity, TMSB-only 93.2% (n=4)" AS fact IN facts;   -- 0.44 admitted
+CHECK "Marrow Creek discount approval: 6% multi-year discount signed off by the CFO";                      -- 0.15 rejected (sales topic)
+AS USER ana;
+REMEMBER note "Conference trip to Ulm next spring: Ravi presents the FEC poster" IN notes AS Q1;               -- 0.28 quarantine
+REMEMBER note "Group Christmas dinner on 18 Dec; Lukas books the table" IN notes AS Q2;                        -- 0.24 quarantine
+AS USER admin;
+SELECT id, text, purpose.score, purpose.reasons FROM quarantine ORDER BY purpose.score DESC;
+ADMIT $Q1 IN notes;
+REJECT $Q2 REASON 'social event';
+REMEMBER note "Tessaline asked for a NaCore 2 price indication to budget the pouch validation" IN notes
+  OVERRIDE PURPOSE REASON 'partner budget context for the 15 Dec go/no-go';
+
+-- 20. Compact shorthand.
+QUERY 'kind:experiment status=running sort:-age select:id,fields.run_id,fields.operator' FORMAT md;

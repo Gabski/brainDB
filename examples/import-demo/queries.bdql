@@ -1,0 +1,148 @@
+-- brainDB BDQL tour on the import-demo database (Pellucid Coffee Systems, built from raw exports).
+-- Create first:  braindb create demo --from examples/import-demo/raw --config examples/import-demo/braindb.yaml
+-- Run:           braindb run examples/import-demo/queries.bdql --db demo
+-- Record ids are assigned by the importer, so this script looks them up with LET instead of hard-coding them.
+
+USE demo;
+SHOW sections;
+SHOW concepts;
+
+-- 1. Enterprise customers (crm.sql, table customers; segment became a concept and a field).
+SELECT id, fields.id, fields.name, fields.city, fields.owner, fields.customer_since
+  FROM memory WHERE kind = customer AND fields.segment = 'enterprise'
+  ORDER BY fields.customer_since FORMAT md;                    -- expect 5 rows
+
+-- 2. Contacts of enterprise customers (customers 1, 3, 5, 8, 12).
+SELECT fields.full_name, fields.role, fields.email, fields.customer_id
+  FROM memory WHERE kind = contact AND fields.customer_id IN (1, 3, 5, 8, 12)
+  ORDER BY fields.customer_id FORMAT md;                       -- expect 10 rows
+
+-- 3. Which customers have open orders? (COPY + INSERT rows of table orders)
+SELECT fields.customer_id, COUNT(*), SUM(fields.total)
+  FROM memory WHERE kind = purchase AND fields.status = 'open' GROUP BY fields.customer_id;   -- expect 10 customers, 14 orders
+
+-- 4. Tickets (tickets.jsonl) of those customers that are not closed: a join across SQL and JSONL by customer_id.
+SELECT fields.id, fields.customer.name, fields.priority, fields.product, fields.status
+  FROM memory
+  WHERE kind = ticket AND fields.status != 'closed' AND fields.customer_id IN (1, 4, 5, 7, 8, 9, 11, 12, 14, 15)
+  ORDER BY fields.priority FORMAT md;                          -- expect 14 rows
+
+-- 5. Ticket load by priority and status.
+SELECT fields.priority, fields.status, COUNT(*) FROM memory WHERE kind = ticket GROUP BY fields.priority, fields.status;
+
+-- 6. Products (products.json, $.data.items) with nested fields flattened.
+SELECT fields.sku, fields.name, fields.price.list, fields.supplier.name, fields.warranty.months
+  FROM memory WHERE kind = product ORDER BY fields.price.list DESC FORMAT md;
+
+-- 7. Enterprise net prices (pricing.csv) and supplier costs (mysql-sample.sql).
+SELECT fields.sku, fields.list_price_eur, fields.discount_pct, fields.net_price_eur, fields.valid_from
+  FROM memory WHERE section = 'pricing' AND fields.segment = 'enterprise' ORDER BY fields.sku;
+SELECT fields.sku, fields.unit_cost_eur, fields.lead_time_days FROM memory WHERE section = 'catalog' ORDER BY fields.lead_time_days DESC;
+
+-- 8. Notes (markdown with front-matter and wiki links) ranked against a question.
+-- Front-matter kind/section override the rule defaults, so notes live in several sections.
+SELECT id, section, fields.title, fields.account FROM memory WHERE section IN ('plans', 'accounts', 'knowledge', 'pricing', 'meetings') NEAR "AX-1 milk system clogging workaround" ORDER BY score DESC LIMIT 5;
+
+-- 9. Search across everything in each mode.
+SEARCH "Meridian Airports Lounge escalation" MODE hybrid LIMIT 8;
+SEARCH "churned customer urgent ticket" MODE vector LIMIT 5;
+SEARCH "priority service plan 4 h response" MODE tree LIMIT 6;
+SEARCH "Autoflow lead time milk pump" MODE graph LIMIT 5;
+
+-- 10. Graph view of one account: FK edges pull in its orders and contacts, auto-links pull in tickets and notes.
+LET $meridian = (SELECT id FROM memory WHERE kind = customer AND fields.name = 'Meridian Airports Lounge' LIMIT 1);
+LET $axnote   = (SELECT id FROM memory WHERE fields.title = 'AX-1 milk system clogging' LIMIT 1);
+CONTEXT FOCUS $meridian DEPTH 2 FORMAT md;
+PATHS FROM $meridian TO $axnote LIMIT 3;
+TEST $meridian;
+SUGGEST $meridian;
+
+-- 11. Write transaction: remember the outcome of the site visit and link it.
+REMEMBER note "Kasper Nilsen replaced the AX-1 milk pump (MP-7) at Meridian Airports Lounge on 21 Nov 2026; clogging stopped"
+  IN notes CONCEPTS "Escalations" LINK TO $meridian WEIGHT 0.9, $axnote WEIGHT 0.7 AS F;
+BOOST $F;
+
+-- 12. Insert a new order and a new ticket by hand (extra columns become fields).
+INSERT INTO purchase (text, id, customer_id, sku, quantity, total, currency, status, created_at)
+  VALUES ('Order 1041: 1 × SV-PRIO = 2288.00 EUR · open · 2026-11-21', 1041, 12, 'SV-PRIO', 1, 2288.00, 'EUR', 'open', '2026-11-21')
+  LABELS (finance);                                     -- same label the import gave the other orders
+INSERT INTO ticket (text, id, customer_id, product, priority, status)
+  VALUES ('TCK-3131 [medium] Priority plan onboarding call · SV-PRIO · open', 'TCK-3131', 12, 'SV-PRIO', 'medium', 'open');
+
+-- 13. Bulk update: close Meridian's AX-1 ticket.
+UPDATE memory SET fields.status = 'closed' WHERE kind = ticket AND fields.id = 'TCK-3109';
+
+-- 14. Preview removing tickets of churned customers (dry run only).
+FORGET WHERE kind = ticket AND fields.customer.name IN ('Little Ember Bakery', 'Oxbow Bookshop Café') DRY RUN;
+
+-- 15. Connectors: anchors join the same customer across crm.sql, tickets.jsonl and notes; aliases route vocabulary.
+SHOW connectors;
+RESOLVE customer BY fields.customer_id, fields.id, fields.account MIN 2 DRY RUN;      -- preview anchors from shared key values
+RESOLVE customer BY fields.customer_id, fields.account MIN 2;
+SELECT id, type, label, key, degree FROM connectors WHERE type = anchor ORDER BY degree DESC LIMIT 10;
+LET $hmeridian = (SELECT id FROM connectors WHERE key = 'customer:12' LIMIT 1);
+CONTEXT FOCUS $hmeridian DEPTH 1 FORMAT md SET;                                         -- everything about customer 12, from every file
+SELECT id, kind, section, text FROM memory WHERE route = $hmeridian LIMIT 20;      -- knowledge reached through the anchor
+CONNECTOR alias "SLA" TERMS 'service level', 'response time', 'service level agreement';
+SEARCH "service level for enterprise customers" MODE hybrid LIMIT 5;                 -- alias expands the query terms
+CONNECTOR hub "AX-1 escalations" CONNECT $axnote, $F AS HX;
+CONNECT $meridian TO $HX;
+SUGGEST CONNECTORS LIMIT 5;
+
+-- 16. Inline template fill.
+FILL $$
+customer: "customer of the Meridian escalation:name|kind=customer"
+open_tickets[]: "open tickets for this customer|kind=ticket|limit=5"
+open_tickets[].id: ".fields.id"
+open_tickets[].priority: ".fields.priority"
+workaround: "AX-1 milk system workaround:text"
+service_plan_price: "priority service plan price per year:money"
+$$ AS yaml OUTPUT md;
+
+-- 17. Entities: the same people and companies across SQL, JSONL and Markdown.
+SHOW patterns;
+SHOW pii;
+SELECT type, COUNT(*) FROM entities GROUP BY type;
+SELECT value, COUNT(*) FROM entities WHERE type = domain GROUP BY value ORDER BY COUNT(*) DESC LIMIT 15;   -- meridian.example, westbrook.example …
+SELECT id, kind, text FROM memory WHERE HAS email AND entities.domain = 'meridian.example';               -- contacts 20, 21, Meridian tickets (reporter), note
+SELECT id, text, entities.money FROM memory WHERE entities.money > 'EUR 10000' AND entities.date BETWEEN '2026-11-01' AND '2026-11-30';
+SELECT id, text FROM memory WHERE HAS vat;                                                                 -- Norwegian customers (NO … MVA)
+EXTRACT FROM "Astrid Engen (24 40 87 67, ASTRID.ENGEN@westbrook.example) asks for SV-CARE before 15.12.2026; worth 12 500 NOK";
+PATTERN ADD order_no '\b10[0-9]{2}\b' TYPE id_code;
+PATTERN TEST order_no 'Open order 1038 (2 × AX-1, €10,800)';
+PATTERN REMOVE order_no;
+RESOLVE email MIN 2 DRY RUN;      -- contacts.email = tickets.reporter.email (written in upper / title case) = note mentions
+RESOLVE phone MIN 2 DRY RUN;      -- +47 24 40 87 67 (crm.sql) = 24408767 (tickets) = 24 40 87 67 (churn note)
+RESOLVE vat MIN 2 DRY RUN;       -- Westbrook Fitness AS: crm.sql vat_no = churn-signals note
+
+-- 18. Access control (Addendum M): crm.sql orders were imported with the default label finance.
+WHOAMI;
+SHOW grants FOR rosa;
+EXPLAIN ACCESS $meridian FOR rosa;                     -- visible (customer rows are unlabelled)
+AS USER rosa; SELECT COUNT(*) FROM memory WHERE kind = purchase;                 -- 0: orders do not exist in rosa's view
+AS USER lee;  SELECT fields.status, COUNT(*), SUM(fields.total) FROM memory WHERE kind = purchase GROUP BY fields.status;
+AS USER rosa; FILL $$
+customer: "customer of the Meridian escalation:name|kind=customer"
+open_order_value: "open order value for this customer:money|kind=purchase"
+$$ AS yaml OUTPUT yaml;                                -- open_order_value → missing for rosa, €10,800 for lee or admin
+AS USER admin;                                         -- AS USER switches the principal until the next AS USER
+LABEL WHERE section = 'pricing' ADD finance DRY RUN;
+
+-- 19. Purpose and admission (Addendum O). The import already quarantined team-offsite-ideas.md (≈0.27) and rejected
+--     lunch-menu.md, personal-reminder.md and webshop-payment-test.md (card number). Scores are hash-256 estimates.
+SHOW PURPOSE;
+CHECK "Support ticket: Harbor Lane Hotels reports the PX-300 steam wand leaking, priority high" AS ticket IN tickets;  -- ≈0.44 admitted
+CHECK "Pick up the dry cleaning and call the dentist on Thursday";                                               -- ≈0.15 rejected
+CHECK "Test payment with card 4111 1111 1111 1111";                                                               -- rejected: forbidden entity card
+SELECT id, fields.title, purpose.score, purpose.reasons FROM quarantine ORDER BY purpose.score DESC;
+LET $off = (SELECT id FROM quarantine WHERE fields.title = 'Team offsite ideas' LIMIT 1);
+REJECT $off REASON 'office social event, not customer knowledge';
+AS USER rosa;
+REMEMBER note "Westbrook Fitness staff party asked about renting a PX-200 for one evening" IN notes AS Q1;   -- ≈0.31 quarantine
+AS USER admin;
+ADMIT $Q1 IN accounts;
+REMEMBER note "Rosa covers the support phone over Christmas; Kasper is on holiday" IN meetings
+  OVERRIDE PURPOSE REASON 'support coverage plan for the holiday escalation rota';
+
+-- 20. Compact shorthand.
+QUERY 'kind:purchase status=open sort:-total limit:5 select:fields.id,fields.customer_id,fields.total' FORMAT md;

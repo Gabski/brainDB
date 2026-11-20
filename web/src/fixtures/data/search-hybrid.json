@@ -1,0 +1,66 @@
+{
+ "mode": "hybrid",
+ "lambda": 0.5,
+ "rows": [
+  {
+   "id": "f110",
+   "vector": 0.59,
+   "graph": 1,
+   "score": 0.79,
+   "depth": 0
+  },
+  {
+   "id": "t132",
+   "vector": 0.52,
+   "graph": 0.88,
+   "score": 0.7,
+   "depth": 0
+  },
+  {
+   "id": "f103",
+   "vector": 0.31,
+   "graph": 0.53,
+   "score": 0.42,
+   "depth": 0
+  },
+  {
+   "id": "f102",
+   "vector": 0.3,
+   "graph": 0.51,
+   "score": 0.41,
+   "depth": 0
+  },
+  {
+   "id": "d121",
+   "vector": 0.21,
+   "graph": 0.61,
+   "score": 0.41,
+   "depth": 1,
+   "via": "f103"
+  },
+  {
+   "id": "A:idp",
+   "vector": 0.07,
+   "graph": 0.67,
+   "score": 0.37,
+   "depth": 1,
+   "via": "f103"
+  },
+  {
+   "id": "A:sec",
+   "vector": 0.06,
+   "graph": 0.65,
+   "score": 0.36,
+   "depth": 1,
+   "via": "t132"
+  },
+  {
+   "id": "t136",
+   "vector": 0.28,
+   "graph": 0.34,
+   "score": 0.31,
+   "depth": 2,
+   "via": "A:idp"
+  }
+ ]
+}

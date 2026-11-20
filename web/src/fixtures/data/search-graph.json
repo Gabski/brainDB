@@ -1,0 +1,87 @@
+{
+ "mode": "graph",
+ "rows": [
+  {
+   "id": "f110",
+   "score": 0.71
+  },
+  {
+   "id": "t132",
+   "score": 0.66
+  },
+  {
+   "id": "f101",
+   "score": 0.25
+  },
+  {
+   "id": "f107",
+   "score": 0.25
+  },
+  {
+   "id": "f105",
+   "score": 0.22
+  }
+ ],
+ "via": [
+  {
+   "id": "A:sec",
+   "score": 0.65,
+   "depth": 1,
+   "via": "t132"
+  },
+  {
+   "id": "A:api",
+   "score": 0.55,
+   "depth": 1,
+   "via": "f107"
+  },
+  {
+   "id": "A:auth",
+   "score": 0.52,
+   "depth": 1,
+   "via": "f101"
+  },
+  {
+   "id": "A:mfa",
+   "score": 0.41,
+   "depth": 2,
+   "via": "A:sec"
+  },
+  {
+   "id": "A:data",
+   "score": 0.38,
+   "depth": 2,
+   "via": "A:sec"
+  },
+  {
+   "id": "A:idp",
+   "score": 0.34,
+   "depth": 2,
+   "via": "A:auth"
+  },
+  {
+   "id": "f104",
+   "score": 0.32,
+   "depth": 1,
+   "via": "f107"
+  },
+  {
+   "id": "c183",
+   "score": 0.27,
+   "depth": 2,
+   "via": "A:sec"
+  },
+  {
+   "id": "k175",
+   "score": 0.26,
+   "depth": 2,
+   "via": "A:sec"
+  },
+  {
+   "id": "d127",
+   "score": 0.25,
+   "depth": 2,
+   "via": "A:sec"
+  }
+ ]
+}

@@ -1,0 +1,231 @@
+{
+ "dryRun": true,
+ "files": [
+  {
+   "path": "raw/notes/kickoff.md",
+   "importer": "markdown",
+   "status": "created",
+   "nodes": 5,
+   "edges": 9,
+   "records": 0,
+   "admitted": 5,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/notes/renewal-risks.md",
+   "importer": "markdown",
+   "status": "created",
+   "nodes": 4,
+   "edges": 7,
+   "records": 0,
+   "admitted": 4,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/notes/pricing-call.md",
+   "importer": "markdown",
+   "status": "created",
+   "nodes": 3,
+   "edges": 5,
+   "records": 0,
+   "admitted": 3,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/crm.sql",
+   "importer": "sql",
+   "status": "created",
+   "nodes": 214,
+   "edges": 391,
+   "records": 210,
+   "admitted": 210,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/tickets.jsonl",
+   "importer": "json",
+   "status": "created",
+   "nodes": 31,
+   "edges": 44,
+   "records": 30,
+   "admitted": 30,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/products.json",
+   "importer": "json",
+   "status": "created",
+   "nodes": 9,
+   "edges": 12,
+   "records": 8,
+   "admitted": 8,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/pricing.csv",
+   "importer": "csv",
+   "status": "created",
+   "nodes": 13,
+   "edges": 24,
+   "records": 12,
+   "admitted": 12,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/logo.png",
+   "importer": "image",
+   "status": "created",
+   "nodes": 1,
+   "edges": 0,
+   "records": 0,
+   "admitted": 1,
+   "quarantined": 0,
+   "rejected": 0,
+   "reasons": []
+  },
+  {
+   "path": "raw/notes/lunch-menu.md",
+   "importer": "markdown",
+   "status": "skipped",
+   "nodes": 0,
+   "edges": 0,
+   "records": 0,
+   "admitted": 0,
+   "quarantined": 0,
+   "rejected": 1,
+   "reasons": [
+    "score 0.03 < review 0.20: matches reject example \"Lunch menu for Friday\""
+   ],
+   "message": "rejected by purpose"
+  },
+  {
+   "path": "raw/notes/personal.md",
+   "importer": "markdown",
+   "status": "created",
+   "nodes": 1,
+   "edges": 0,
+   "records": 0,
+   "admitted": 0,
+   "quarantined": 1,
+   "rejected": 0,
+   "reasons": [
+    "score 0.24 in review band: private matters unrelated to work"
+   ]
+  },
+  {
+   "path": "raw/tickets-paste.txt",
+   "importer": "text",
+   "status": "created",
+   "nodes": 3,
+   "edges": 2,
+   "records": 0,
+   "admitted": 2,
+   "quarantined": 0,
+   "rejected": 1,
+   "reasons": [
+    "chunk 2: forbidden entity type card \u2192 rejected"
+   ]
+  }
+ ],
+ "totals": {
+  "files": 8,
+  "nodes": 280,
+  "edges": 492,
+  "records": 260,
+  "errors": 0,
+  "skipped": 0,
+  "admitted": 272,
+  "quarantined": 1,
+  "rejected": 2
+ },
+ "tables": [
+  {
+   "name": "customers",
+   "file": "raw/crm.sql",
+   "columns": [
+    "id",
+    "name",
+    "segment",
+    "owner",
+    "country"
+   ],
+   "rows": 40,
+   "primaryKey": "id",
+   "foreignKeys": [],
+   "concepts": [
+    "segment"
+   ]
+  },
+  {
+   "name": "orders",
+   "file": "raw/crm.sql",
+   "columns": [
+    "id",
+    "customer_id",
+    "total",
+    "currency",
+    "status",
+    "created_at"
+   ],
+   "rows": 120,
+   "primaryKey": "id",
+   "foreignKeys": [
+    {
+     "column": "customer_id",
+     "references": "customers.id"
+    }
+   ],
+   "concepts": [
+    "status",
+    "currency"
+   ]
+  },
+  {
+   "name": "contacts",
+   "file": "raw/crm.sql",
+   "columns": [
+    "id",
+    "customer_id",
+    "name",
+    "email",
+    "role"
+   ],
+   "rows": 50,
+   "primaryKey": "id",
+   "foreignKeys": [
+    {
+     "column": "customer_id",
+     "references": "customers.id"
+    }
+   ],
+   "concepts": [
+    "role"
+   ]
+  }
+ ],
+ "concepts": [
+  "segment",
+  "status",
+  "currency",
+  "role",
+  "priority",
+  "product",
+  "renewal",
+  "pricing"
+ ],
+ "mapping": "import:\n  rules:\n    - match: \"notes/**/*.md\"\n      importer: markdown\n      kind: note\n      section: notes\n      headingsAsConcepts: true\n    - match: \"*.sql\"\n      importer: sql\n      tables:\n        customers: {kind: record, text: \"{name} ({segment}) \u00b7 owner {owner}\", concepts: [segment], key: id}\n        orders: {kind: record, section: orders, text: \"Order {id}: {total} {currency}\", foreignKeys: true}\n        contacts: {kind: record, section: contacts, concepts: [role]}\n    - match: \"tickets.jsonl\"\n      importer: json\n      kind: record\n      section: tickets\n      concepts: [priority, product]\n    - match: \"pricing.csv\"\n      importer: csv\n      section: pricing\n"
+}

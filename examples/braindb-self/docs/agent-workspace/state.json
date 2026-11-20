@@ -1,0 +1,12 @@
+{
+  "goal": "Decide whether hash-256 stays the documented default, and prepare the 0.0.3 benchmark table",
+  "items": [
+    {"id": "t901", "kind": "task", "section": "tasks", "text": "Re-run braindb eval with openai/text-embedding-3-small and with the vector-only control, same gold set, same k", "tags": ["benchmark", "embeddings"], "refs": ["t160", "q182"], "pinned": false, "weight": 0.75, "updated_at": "2026-11-20T09:10:00Z"},
+    {"id": "f902", "kind": "fact", "section": "facts", "text": "Cost of the experiment: 144 node texts and 32 queries embedded once, then cached by sha256(model + text), so repeat runs are free", "tags": ["embeddings", "benchmark"], "refs": ["f117", "t160"], "pinned": false, "weight": 0.7, "updated_at": "2026-11-20T09:20:00Z"},
+    {"id": "q903", "kind": "question", "section": "questions", "text": "If the remote model lifts paraphrase MRR above 0.5, does graph mode still beat vector mode, or was the graph compensating for a weak seed?", "tags": ["retrieval", "activation"], "refs": ["q182", "f111"], "pinned": false, "weight": 0.72, "updated_at": "2026-11-20T09:35:00Z"},
+    {"id": "n904", "kind": "note", "section": "notes", "text": "Fully offline alternative for the same run: Ollama on 127.0.0.1:11434/v1 with nomic-embed-text, so the experiment is not actually blocked on a paid key", "tags": ["embeddings"], "refs": ["t160"], "pinned": false, "weight": 0.6, "updated_at": "2026-11-20T09:50:00Z"},
+    {"id": "d905", "kind": "decision", "section": "decisions", "text": "Draft for the 0.0.3 README: keep hash-256 as the default for offline and zero-cost use, and state at the quick start that paraphrase recall needs a real model", "tags": ["docs", "embeddings"], "refs": ["d151", "t166"], "pinned": true, "weight": 0.8, "updated_at": "2026-11-20T10:05:00Z"},
+    {"id": "s906", "kind": "summary", "section": "procedures", "text": "Rule for this workspace: no number enters the README without engine, dimension, node count, k and date next to it", "tags": ["benchmark", "docs"], "refs": ["s213", "d150"], "pinned": false, "weight": 0.65, "updated_at": "2026-11-20T10:15:00Z"},
+    {"id": "x907", "kind": "idea", "section": "ideas", "text": "Add an agent-shaped bucket to the gold set, taken from real transcripts: questions asked mid-task, with the id that ended the search", "tags": ["benchmark", "agentmem"], "refs": ["t165", "x223"], "pinned": false, "weight": 0.55, "updated_at": "2026-11-20T10:30:00Z"}
+  ]
+}

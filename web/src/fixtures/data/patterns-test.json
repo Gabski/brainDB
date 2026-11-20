@@ -1,0 +1,51 @@
+{
+ "text": "Order SKU-10422 for Kim Aalto, €1,200 due 2026-12-15, call +48 600 100 200",
+ "entities": [
+  {
+   "type": "id_code",
+   "value": "SKU-10422",
+   "raw": "SKU-10422",
+   "start": 6,
+   "end": 15,
+   "confidence": 0.95,
+   "pii": false
+  },
+  {
+   "type": "person",
+   "value": "Kim Aalto",
+   "raw": "Kim Aalto",
+   "start": 20,
+   "end": 29,
+   "confidence": 0.95,
+   "pii": true
+  },
+  {
+   "type": "money",
+   "value": "EUR 1200.00",
+   "raw": "€1,200",
+   "start": 31,
+   "end": 37,
+   "confidence": 0.95,
+   "pii": false
+  },
+  {
+   "type": "date",
+   "value": "2026-12-15",
+   "raw": "2026-12-15",
+   "start": 42,
+   "end": 52,
+   "confidence": 0.95,
+   "pii": false
+  },
+  {
+   "type": "phone",
+   "value": "+48 •••• 200",
+   "raw": "+48 600 100 200",
+   "start": 59,
+   "end": 74,
+   "confidence": 0.95,
+   "pii": true,
+   "masked": true
+  }
+ ]
+}

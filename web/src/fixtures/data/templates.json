@@ -1,0 +1,20 @@
+[
+ {
+  "name": "rollout-brief.yaml",
+  "path": "templates/rollout-brief.yaml",
+  "format": "yaml",
+  "content": "project:\n  name: \"project name\"\n  deadline: \"SSO rollout deadline:date\"\n  idp: \"identity provider:name\"\nwaves[]: \"rollout waves|kind=record|limit=5\"\nwaves[].wave: \".fields.wave\"\nwaves[].owner: \".fields.owner\"\nwaves[].users: \".fields.users\"\nrisk: \"main open risk\"\nbudget: \"approved budget:money\"\n"
+ },
+ {
+  "name": "status.md",
+  "path": "templates/status.md",
+  "format": "md",
+  "content": "# Status: {{ project name }}\n\nDeadline: {{ SSO rollout deadline:date }}\nMFA policy: {{ MFA policy }}\n\n{{#each rollout waves|kind=record|limit=5}}- {{ .fields.wave }} ({{ .fields.users }} users, owner {{ .fields.owner }})\n{{/each}}"
+ },
+ {
+  "name": "decision.xml",
+  "path": "templates/decision.xml",
+  "format": "xml",
+  "content": "<decision title=\"main decision\" date=\"decision date:date\">\n  <rationale>why this decision was made</rationale>\n  <task repeat=\"open tasks|kind=task|limit=3\" id=\".id\">.text</task>\n</decision>\n"
+ }
+]

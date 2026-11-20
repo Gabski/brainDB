@@ -1,0 +1,102 @@
+# brainDB configuration for the braindb-self example: the project's own knowledge, held in brainDB.
+# Import rule globs are relative to the imported directory (examples/braindb-self/docs).
+name: braindb-self
+description: brainDB's own project brain — decisions, spec addenda, measurements, roadmap and the agent playbook
+goal: Ship 0.0.3 with the paraphrase question answered by a measurement, SQLite behind the storage interface, and no silent behaviour change for 0.0.2 brains
+# This graph is densely linked (72 hand-written edges over 95 memories), so the default threshold is 0.3, not 0.2.
+# At 0.2 the same focus lights 47% of the brain; at 0.3 it lights 23% for the same answers. See README.md.
+context: {depth: 2, threshold: 0.3, hop: 0.85, showSuperseded: false, focus: [q180, d151, t161]}
+embedding:
+  provider: hash           # offline, deterministic, free — and lexical, which this brain documents as a finding.
+  alpha: 0.5               # For paraphrase recall, point it at any OpenAI-compatible endpoint:
+  hops: 2                  #   provider: openai
+  use: enriched            #   model: openai/text-embedding-3-small
+  lambda: 0.5              #   baseUrl: https://openrouter.ai/api/v1
+                           #   apiKeyEnv: OPENROUTER_API_KEY
+budget: {warnTokens: 3000}
+kinds:
+  - {name: addendum, label: spec addendum, color: "#845ef7", halfLife: 365, floor: 0.85, base: 0.7, prefix: a, section: spec}
+  - {name: command, label: CLI command, color: "#20c997", halfLife: 180, floor: 0.7, base: 0.55, prefix: c, section: cli}
+  - {name: benchmark, label: measurement, color: "#fab005", halfLife: 90, floor: 0.6, base: 0.6, prefix: m, section: measurements}
+sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, spec, cli, measurements]
+concepts:
+  - {id: retrieval, label: Retrieval and search quality, related: [embeddings, activation, benchmark]}
+  - {id: decay, label: "Decay, weights and floors", related: [activation, storage]}
+  - {id: embeddings, label: Embedding engines, related: [retrieval, benchmark]}
+  - {id: agentmem, label: Agent memory practice, related: [mcp, purpose, activation]}
+import:
+  keepRaw: false
+  chunkSize: 650
+  autolink: {conceptMin: 0.14, similarMin: 0.28, maxSimilar: 3}
+  rules:
+    - match: "agent-workspace/state.json"
+      importer: json
+    - match: "eval-runs.csv"
+      importer: csv
+      kind: benchmark
+      section: measurements
+      text: "{suite} · {engine} dim {dim} · {mode} on {bucket}: recall@5 {recall5}, recall@10 {recall10}, MRR {mrr}, nDCG@10 {ndcg10}, {no_hit} of {queries} queries with no hit ({nodes} nodes, k={k}, {measured_on})"
+      concepts: [benchmark, retrieval, embeddings]
+    - match: "cli-surface.csv"
+      importer: csv
+      kind: command
+      section: cli
+      text: "braindb {command} ({status}, {surface}): {summary} · flags: {key_flags}"
+      concepts: [bdql, mcp]
+    - match: "adr/*.md"
+      importer: markdown
+      kind: file
+      section: spec
+      concepts: [docs]
+    - match: "*.md"
+      importer: markdown
+      kind: file
+      section: files
+      headingsAsConcepts: false
+purpose:
+  name: brainDB project brain
+  description: >
+    What a maintainer or an AI agent needs in order to work on brainDB itself: design decisions and the reasoning
+    behind them, the specification addenda, what is built versus specified, measured retrieval quality and the
+    conditions it was measured under, the CLI and BDQL surface, the roadmap, repository conventions, and the
+    practice of using a graph memory as an agent's knowledge base.
+  inScope:
+    topics: ["design decisions and their reasoning", "spec addenda A to O", "retrieval quality measurements and gold sets",
+             "decay, floors, activation and context slicing", "embedding engines and their trade-offs",
+             "BDQL and the CLI surface", "MCP and agent integration", "storage engine and file formats",
+             "federation, sources and external links", "users, roles and access labels", "purpose and admission",
+             "roadmap, release process and repository conventions",
+             "eval table: run id, suite, engine, dimension, mode vector hybrid graph tree, bucket lexical paraphrase, recall, MRR, nDCG, queries with no hit, nodes, k, measurement date",
+             "cli table: command, status working planned, surface cli http mcp, summary, key flags"]
+    concepts: [retrieval, decay, activation, embeddings, bdql, mcp, storage, federation, access, purpose, entities, ui, ingest, connectors, benchmark, agentmem, release, docs]
+    kinds: [addendum, command, benchmark, fact, decision, task, question, note, summary, file, chunk, idea, record]
+    sections: [facts, decisions, tasks, questions, notes, procedures, ideas, files, spec, cli, measurements]
+  outOfScope:
+    topics: ["customer accounts, deals and pricing", "laboratory chemistry and battery testing",
+             "private matters unrelated to the project", "unrelated open-source projects",
+             "conference travel and hotel bookings"]
+  examples:
+    accept: ["Decay floors keep a decision in the graph after a year instead of fading it to zero",
+             "graph mode reached MRR 1.00 on the 16 lexical queries, measured 20 Nov 2026 with hash-256",
+             "connectors.bridges is rejected by the loader so the key cannot silently do nothing"]
+    reject: ["Marrow Creek asked for a 24-month warranty on NaCore 2 packs",
+             "EL-7 retains 91.4% capacity after 200 cycles at 25 C",
+             "Remember to renew the domain"]
+  admission:
+    mode: advise         # advise (default) records the score and stores everything.
+    accept: 0.35         # This brain documents why enforce is opt-in; it would be odd to ship it enforcing.
+    review: 0.20
+    apply: [remember, insert, ingest, import]
+    exempt: [admin]
+    chunks: file
+    records: table
+patterns:
+  locales: [en]
+  defaultRegion: NO
+  dateOrder: dmy
+  custom:
+    - {name: addendum, type: id_code, regex: '\bAddendum [A-O]\d?\b', normalize: upper}
+    - {name: release, type: id_code, regex: '\b0\.0\.\d+\b'}
+    - {name: eval_run, type: id_code, regex: '\bEVAL-\d{4}\b', normalize: upper}
+templates: {dir: templates}
+mcp: {actor: agent, tools: [view, search, inspect, query, fill, exec]}

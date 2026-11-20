@@ -1,0 +1,31 @@
+{
+  "project": {
+    "version": "the current version of brainDB:version|kind=fact|section=facts",
+    "status": "project status concept not a stable contract:text|kind=fact|section=facts|min=0.3",
+    "license": "license and attribution Apache-2.0:text|kind=fact|section=facts|min=0.3",
+    "goal": "the goal of this brain:text|min=0.25"
+  },
+  "model": {
+    "context_rule": "the whole brain is memory only the lit slice is context:text|kind=fact|section=facts|min=0.3",
+    "decay_rule": "what decay must never do to knowledge:text|kind=decision|section=decisions|min=0.3",
+    "activation_formula": "how activation spreads level by level with hop:text|kind=fact|section=facts|min=0.3",
+    "node_classes": "two node classes and which one costs tokens:text|kind=fact|section=facts|min=0.3"
+  },
+  "conventions": {
+    "emoji": "no emoji anywhere icons are inline SVG:text|kind=decision|section=decisions|min=0.3",
+    "ci": "what CI gates on every push and pull request:text|kind=decision|section=decisions|min=0.3",
+    "numbers": "what must be recorded next to every measured number:text|kind=summary|section=procedures|min=0.2",
+    "examples": "what adding an example requires:text|kind=summary|section=procedures|min=0.3"
+  },
+  "do_not_break": {
+    "decay_defaults": "floors for decision fact record file and chunk:text|kind=fact|section=facts|min=0.3",
+    "admission_mode": "purpose admission defaults to advise not enforce:text|kind=decision|section=decisions|min=0.3",
+    "key_handling": "API keys referenced by environment variable name never written:text|kind=fact|section=facts|min=0.3"
+  },
+  "current_work": {
+    "blocking_question": "does a real embedding model fix the paraphrase collapse:text|kind=question|section=questions|min=0.3",
+    "next_tasks[]": "tasks planned for the next release|kind=task|section=tasks|limit=5|min=0.2",
+    "next_tasks[].id": ".id",
+    "next_tasks[].task": ".text"
+  }
+}

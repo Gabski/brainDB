@@ -1,0 +1,20 @@
+{
+ "name": "admin",
+ "display": "Gabriel (admin)",
+ "roles": [
+  "admin"
+ ],
+ "labels": [
+  "*"
+ ],
+ "dbs": [
+  "*"
+ ],
+ "admin": true,
+ "defaultWriteLabels": [],
+ "user": "admin",
+ "can": {
+  "review": true,
+  "purposeOverride": true
+ }
+}

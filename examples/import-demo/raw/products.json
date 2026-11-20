@@ -1,0 +1,220 @@
+{
+  "meta": {
+    "source": "Pellucid PIM export",
+    "exported_at": "2026-11-18T21:00:00Z",
+    "count": 8
+  },
+  "data": {
+    "items": [
+      {
+        "sku": "PX-200",
+        "name": "Pellucid PX-200 two-group espresso machine",
+        "category": "espresso",
+        "specs": {
+          "groups": 2,
+          "boiler_l": 11,
+          "power_w": 4200
+        },
+        "price": {
+          "list": 7900,
+          "currency": "EUR",
+          "unit": "per unit"
+        },
+        "supplier": {
+          "id": 1,
+          "name": "Pellucid Manufacturing S.r.l.",
+          "country": "IT"
+        },
+        "tags": [
+          "commercial",
+          "dual boiler"
+        ],
+        "warranty": {
+          "months": 24,
+          "onsite": true
+        }
+      },
+      {
+        "sku": "PX-300",
+        "name": "Pellucid PX-300 three-group espresso machine",
+        "category": "espresso",
+        "specs": {
+          "groups": 3,
+          "boiler_l": 17,
+          "power_w": 6300
+        },
+        "price": {
+          "list": 10900,
+          "currency": "EUR",
+          "unit": "per unit"
+        },
+        "supplier": {
+          "id": 1,
+          "name": "Pellucid Manufacturing S.r.l.",
+          "country": "IT"
+        },
+        "tags": [
+          "commercial",
+          "high volume"
+        ],
+        "warranty": {
+          "months": 24,
+          "onsite": true
+        }
+      },
+      {
+        "sku": "AX-1",
+        "name": "Autoflow AX-1 bean-to-cup machine",
+        "category": "bean-to-cup",
+        "specs": {
+          "groups": 1,
+          "boiler_l": 2,
+          "power_w": 2800
+        },
+        "price": {
+          "list": 5400,
+          "currency": "EUR",
+          "unit": "per unit"
+        },
+        "supplier": {
+          "id": 2,
+          "name": "Autoflow GmbH",
+          "country": "DE"
+        },
+        "tags": [
+          "self-service",
+          "office"
+        ],
+        "warranty": {
+          "months": 24,
+          "onsite": true
+        }
+      },
+      {
+        "sku": "GR-64",
+        "name": "Grindwell GR-64 flat burr grinder",
+        "category": "grinder",
+        "specs": {
+          "burr_mm": 64,
+          "power_w": 650
+        },
+        "price": {
+          "list": 1450,
+          "currency": "EUR",
+          "unit": "per unit"
+        },
+        "supplier": {
+          "id": 3,
+          "name": "Grindwell Ltd",
+          "country": "GB"
+        },
+        "tags": [
+          "grinder"
+        ],
+        "warranty": {
+          "months": 12,
+          "onsite": true
+        }
+      },
+      {
+        "sku": "GR-83",
+        "name": "Grindwell GR-83 flat burr grinder",
+        "category": "grinder",
+        "specs": {
+          "burr_mm": 83,
+          "power_w": 1100
+        },
+        "price": {
+          "list": 2350,
+          "currency": "EUR",
+          "unit": "per unit"
+        },
+        "supplier": {
+          "id": 3,
+          "name": "Grindwell Ltd",
+          "country": "GB"
+        },
+        "tags": [
+          "grinder",
+          "high volume"
+        ],
+        "warranty": {
+          "months": 12,
+          "onsite": true
+        }
+      },
+      {
+        "sku": "WF-10",
+        "name": "ClearFlow WF-10 water filter cartridge",
+        "category": "consumable",
+        "specs": {
+          "capacity_l": 10000
+        },
+        "price": {
+          "list": 140,
+          "currency": "EUR",
+          "unit": "per unit"
+        },
+        "supplier": {
+          "id": 4,
+          "name": "ClearFlow Water AB",
+          "country": "SE"
+        },
+        "tags": [
+          "consumable",
+          "water"
+        ],
+        "warranty": {
+          "months": 12,
+          "onsite": false
+        }
+      },
+      {
+        "sku": "SV-CARE",
+        "name": "CareService annual maintenance plan",
+        "category": "service",
+        "specs": {
+          "visits_per_year": 4,
+          "response_h": 24
+        },
+        "price": {
+          "list": 1200,
+          "currency": "EUR",
+          "unit": "per year"
+        },
+        "supplier": null,
+        "tags": [
+          "service"
+        ],
+        "warranty": {
+          "months": 12,
+          "onsite": true
+        }
+      },
+      {
+        "sku": "SV-PRIO",
+        "name": "CareService Priority plan (4 h response)",
+        "category": "service",
+        "specs": {
+          "visits_per_year": 6,
+          "response_h": 4
+        },
+        "price": {
+          "list": 2600,
+          "currency": "EUR",
+          "unit": "per year"
+        },
+        "supplier": null,
+        "tags": [
+          "service",
+          "priority"
+        ],
+        "warranty": {
+          "months": 12,
+          "onsite": true
+        }
+      }
+    ],
+    "next": null
+  }
+}

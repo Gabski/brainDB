@@ -1,0 +1,15 @@
+{
+ "ok": true,
+ "status": "[ok] explain only, nothing executed",
+ "results": [
+  {"index":0,"statement":"EXPLAIN SELECT id, text, score FROM memory@* WHERE kind IN (fact, decision) AND lit NEAR \"token limits\" ORDER BY score DESC LIMIT 5;","kind":"plan",
+   "plan":{"op":"Limit","detail":"5","rows":5,"children":[
+     {"op":"Sort","detail":"score DESC","rows":18,"children":[
+       {"op":"Merge","detail":"local + lab (× 0.70)","rows":18,"children":[
+         {"op":"Filter","detail":"kind IN (fact, decision) AND lit","rows":11,"children":[
+           {"op":"HybridSearch","detail":"\"token limits\" λ=0.50","index":"vectors (hash-256)","rows":40,"cache":"miss"}]},
+         {"op":"RemoteSearch","detail":"source lab, timeout 2s","rows":7,"cache":"hit"}]}]}]},
+   "text":"Limit 5\n└─ Sort score DESC\n   └─ Merge local + lab\n      ├─ Filter kind IN (fact, decision) AND lit\n      │  └─ HybridSearch \"token limits\" [vectors]\n      └─ RemoteSearch lab [cache hit]",
+   "elapsed_ms":0.6}
+ ]
+}

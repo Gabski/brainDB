@@ -1,0 +1,50 @@
+[
+ {
+  "type": "changed",
+  "ts": 1795164480000,
+  "by": "ui",
+  "tool": "context",
+  "summary": "focus d121,d123,n150 · depth 2",
+  "ids": [
+   "d121",
+   "d123",
+   "n150"
+  ]
+ },
+ {
+  "type": "changed",
+  "ts": 1795165920000,
+  "by": "claude",
+  "tool": "brain_ingest",
+  "summary": "ingested docs/oidc-flow.md (3 chunks), docs/rollout.csv (3 records)",
+  "ids": [
+   "x180",
+   "c181",
+   "c182",
+   "c183",
+   "x190",
+   "r191",
+   "r192",
+   "r193"
+  ]
+ },
+ {
+  "type": "changed",
+  "ts": 1795166460000,
+  "by": "claude",
+  "tool": "brain_exec",
+  "summary": "remember risk k175 \"Guest accounts may bypass conditional access\"\nlink k175 ↔ d125 (new, 0.55)",
+  "ids": [
+   "k175",
+   "d125"
+  ]
+ },
+ {
+  "type": "changed",
+  "ts": 1795166880000,
+  "by": "file",
+  "tool": "reload",
+  "summary": "brain.xml changed on disk, reloaded",
+  "ids": []
+ }
+]

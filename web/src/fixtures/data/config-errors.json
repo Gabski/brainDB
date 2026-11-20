@@ -1,0 +1,1 @@
+{"ok":false,"errors":[{"line":5,"message":"embedding.use: must be raw or enriched, got \"enrich\""},{"line":7,"message":"unknown key \"kindz\" (did you mean \"kinds\"?)"},{"line":12,"message":"import.autolink.similarMin: expected a number"}],"effective":null}

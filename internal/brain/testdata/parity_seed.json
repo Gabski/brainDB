@@ -1,0 +1,37 @@
+{
+  "name": "Parity",
+  "goal": "Ship the SSO login rollout",
+  "sections": ["facts", "decisions", "tasks", "questions", "notes", "procedures", "ideas", "files"],
+  "concepts": [
+    {"id": "auth", "label": "Authentication"}, {"id": "idp", "label": "Identity provider"},
+    {"id": "sec", "label": "Security"}, {"id": "time", "label": "Deadlines"},
+    {"id": "client", "label": "Client"}, {"id": "api", "label": "API integrations"}
+  ],
+  "conceptLinks": [["auth", "idp", 0.9], ["auth", "sec", 0.7], ["client", "time", 0.75], ["idp", "api", 0.65]],
+  "memories": [
+    {"id": "f101", "kind": "fact", "text": "The app currently has e-mail and password login", "concepts": ["auth"], "ageDays": 30, "pinned": true},
+    {"id": "f102", "kind": "fact", "text": "The company uses Microsoft Entra ID", "concepts": ["idp", "api"], "ageDays": 28},
+    {"id": "f103", "kind": "fact", "text": "Entra ID supports OIDC and SAML 2.0", "concepts": ["idp", "api", "auth"], "ageDays": 20},
+    {"id": "f104", "kind": "fact", "text": "About 5000 active users, ąęłńóśźż Zürich", "concepts": ["client"], "ageDays": 15},
+    {"id": "f107", "kind": "fact", "text": "Graph API limit: 10k requests per 10 minutes", "concepts": ["api"], "ageDays": 3},
+    {"id": "d120", "kind": "decision", "text": "We plan SSO through SAML", "concepts": ["idp", "auth"], "ageDays": 35, "supersededBy": "d121"},
+    {"id": "d121", "kind": "decision", "text": "We roll out SSO through OIDC with Entra ID", "concepts": ["idp", "auth", "api"], "ageDays": 10, "base": 0.85},
+    {"id": "d123", "kind": "decision", "text": "SSO rollout deadline: 30 November", "concepts": ["time", "client"], "ageDays": 5, "base": 0.8},
+    {"id": "t131", "kind": "task", "text": "Register the app in Entra (redirect URI, scopes)", "concepts": ["idp", "api"], "ageDays": 2},
+    {"id": "t132", "kind": "task", "text": "Add a rate limit on /login", "concepts": ["sec", "auth"], "ageDays": 5},
+    {"id": "q140", "kind": "question", "text": "Do we require MFA for all users?", "concepts": ["sec", "client"], "ageDays": 25},
+    {"id": "n150", "kind": "note", "text": "PM: the client asks whether SSO lands by the end of the month", "concepts": ["client", "time"], "ageDays": 1},
+    {"id": "s161", "kind": "summary", "text": "AI procedure: intake, spec, plan, execution, verification, closing", "concepts": ["sec"], "ageDays": 4},
+    {"id": "i170", "kind": "idea", "text": "Google login next to Entra", "concepts": ["idp", "auth", "client"], "ageDays": 6, "base": 0.25}
+  ],
+  "links": [["d121", "f103", 0.85], ["t131", "d121", 0.8], ["t132", "f101", 0.6], ["n150", "d123", 0.8], ["i170", "d121", 0.3], ["d121", "f102", 0.8]],
+  "archive": {
+    "auth": ["Password reset by e-mail", "Account lock after 5 attempts", "Remember-me cookie 30 days"],
+    "idp": ["Group sync from AD", "Test tenant in Entra"],
+    "sec": ["CSP headers on the frontend", "JWT key rotation every 90 days"],
+    "client": ["Client asks for a weekly report", "Demo feedback: simpler login"],
+    "time": ["Sprint 12 closed", "Demo moved by a week"]
+  },
+  "focus": ["d121", "d123", "n150"],
+  "context": {"depth": 2, "threshold": 0.16, "hop": 0.85}
+}

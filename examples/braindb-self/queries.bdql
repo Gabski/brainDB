@@ -1,0 +1,80 @@
+-- brainDB BDQL tour on the braindb-self example: the project's own knowledge, held in brainDB.
+-- Run: braindb run examples/braindb-self/queries.bdql --db braindb-self
+-- The script contains writes, so it runs as one transaction (Addendum G3).
+
+SHOW stats;
+
+-- 1. The question this brain exists to answer, as an ad-hoc slice. Does not change the shared focus.
+CONTEXT FOR "does the default embedding engine still deserve to be the default" DEPTH 2 FORMAT md;
+
+-- 2. Persist focus and parameters. Threshold 0.3, not the usual 0.2: this graph is dense (see README).
+CONTEXT FOCUS q180, d151, t161 DEPTH 2 THRESHOLD 0.3 HOP 0.85 SET;
+
+-- 3. The decisions that are still in force, newest first. Superseded ones are excluded.
+SELECT id, text, weight
+  FROM memory
+  WHERE kind = decision AND NOT superseded
+  ORDER BY weight DESC
+  LIMIT 8
+  FORMAT md;
+
+-- 4. What was decided and then reversed: the record of why the current rule exists.
+SELECT id, text FROM memory WHERE kind = decision AND superseded FORMAT md;
+
+-- 5. The measurement table, imported from eval-runs.csv as kind benchmark.
+SELECT fields.mode, fields.bucket, fields.mrr, fields.ndcg10, fields.no_hit
+  FROM memory
+  WHERE kind = benchmark AND fields.bucket = 'paraphrase'
+  ORDER BY fields.mrr DESC
+  FORMAT md;
+
+-- 6. Aggregate over the same table: how each mode does across both buckets.
+SELECT fields.mode, COUNT(*), AVG(fields.mrr), AVG(fields.ndcg10)
+  FROM memory WHERE kind = benchmark AND fields.bucket != 'all' GROUP BY fields.mode;
+
+-- 7. What is specified but not built, from the CLI surface table.
+SELECT fields.command, fields.surface, fields.summary
+  FROM memory WHERE kind = command AND fields.status = 'planned' FORMAT md;
+
+-- 8. The spec, by addendum letter.
+SELECT id, fields.letter, fields.title FROM memory WHERE kind = addendum ORDER BY fields.letter LIMIT 20 FORMAT md;
+
+-- 9. The same question in each search mode. On a lexical engine, mode is the whole difference.
+SEARCH "paraphrase recall collapse embedding engine" MODE hybrid LIMIT 5;
+SEARCH "decay floor durable kinds" MODE vector LIMIT 5;
+SEARCH "SQLite storage engine dependency" MODE tree LIMIT 6;
+SEARCH "what an agent should do at the end of a turn" MODE graph LIMIT 5;
+
+-- 10. Why is the open question about the default engine connected to the task that answers it?
+PATHS FROM q181 TO t160 LIMIT 3;
+
+-- 11. Which links carry the paraphrase finding? (propagation plus ablation of every synapse)
+TEST f110;
+
+-- 12. Missing links around the roadmap decision.
+SUGGEST d151;
+
+-- 13. Write transaction: record the outcome of the measurement, link it, retire the old guidance.
+REMEMBER decision "0.0.3 README keeps hash-256 as the default for offline use and states at the quick start that paraphrase recall needs a real embedding model"
+  IN decisions CONCEPTS "Embedding engines", "Documentation and spec parity"
+  LINK TO q181 WEIGHT 0.85, t166 WEIGHT 0.8
+  AS D;
+LINK $D TO f110 WEIGHT 0.7;
+BOOST f110, q180;
+
+-- 14. New rows straight into a custom kind: the next two measurements, before they are run.
+INSERT INTO benchmark (text, run_id, suite, engine, mode, bucket, mrr, ndcg10, measured_on)
+  VALUES ('EVAL-0002 planned: remote embedding model, same gold set, same k', 'EVAL-0002', 'sales-company', 'text-embedding-3-small', 'hybrid', 'paraphrase', 0, 0, '2026-12-01'),
+         ('EVAL-0003 planned: remote model, vector only, the flat-RAG control', 'EVAL-0003', 'sales-company', 'text-embedding-3-small', 'vector', 'paraphrase', 0, 0, '2026-12-01');
+
+-- 15. Bulk update with a WHERE, as the guards require.
+UPDATE memory SET fields.milestone = '0.0.3' WHERE kind = task AND NOT superseded;
+
+-- 16. Preview a cleanup instead of running it.
+FORGET WHERE kind = note AND age > 365 AND NOT pinned DRY RUN;
+
+-- 17. Fill a document from the brain, with the evidence for every value.
+FILL TEMPLATE 'release-notes.md' OUTPUT md WITH SOURCES;
+
+-- 18. The slice an agent would actually receive for its first turn.
+CONTEXT FOR "what should I know before changing the decay defaults" DEPTH 1 FORMAT md;

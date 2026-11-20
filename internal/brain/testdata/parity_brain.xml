@@ -1,0 +1,132 @@
+<brain version="1" step="1" name="Parity">
+<goal>Ship the SSO login rollout</goal>
+<embedding model="hash-256" dim="256" alpha="0.5" hops="2" use="enr" lambda="0.5"/>
+<context seeds="d121,d123,n150" goal-focus="d121,d123,n150" depth="2" threshold="0.16" hop="0.85" show-superseded="0"/>
+<abstractions>
+  <concept id="A:auth" base="0.8">Authentication</concept>
+  <concept id="A:idp" base="0.8">Identity provider</concept>
+  <concept id="A:sec" base="0.8">Security</concept>
+  <concept id="A:time" base="0.8">Deadlines</concept>
+  <concept id="A:client" base="0.8">Client</concept>
+  <concept id="A:api" base="0.8">API integrations</concept>
+</abstractions>
+<memory>
+<section name="facts">
+  <item id="f101" kind="fact" base="0.6" age="30" touched="2026-10-21T09:30:00.000Z" pinned="1">The app currently has e-mail and password login</item>
+  <item id="f102" kind="fact" base="0.6" age="28" touched="2026-10-23T09:30:00.000Z">The company uses Microsoft Entra ID</item>
+  <item id="f103" kind="fact" base="0.6" age="20" touched="2026-10-31T09:30:00.000Z">Entra ID supports OIDC and SAML 2.0</item>
+  <item id="f104" kind="fact" base="0.6" age="15" touched="2026-11-05T09:30:00.000Z">About 5000 active users, ąęłńóśźż Zürich</item>
+  <item id="f107" kind="fact" base="0.6" age="3" touched="2026-11-17T09:30:00.000Z">Graph API limit: 10k requests per 10 minutes</item>
+  <item id="f201" kind="fact" base="0.6" age="215" touched="2026-04-19T09:30:00.000Z">Account lock after 5 attempts</item>
+  <item id="f203" kind="fact" base="0.6" age="50" touched="2026-10-01T09:30:00.000Z">Group sync from AD</item>
+  <item id="f206" kind="fact" base="0.6" age="217" touched="2026-04-17T09:30:00.000Z">JWT key rotation every 90 days</item>
+  <item id="f210" kind="fact" base="0.6" age="170" touched="2026-06-03T09:30:00.000Z">Demo moved by a week</item>
+</section>
+<section name="decisions">
+  <item id="d120" kind="decision" base="0.7" age="35" touched="2026-10-16T09:30:00.000Z" superseded-by="d121">We plan SSO through SAML</item>
+  <item id="d121" kind="decision" base="0.85" age="10" touched="2026-11-10T09:30:00.000Z">We roll out SSO through OIDC with Entra ID</item>
+  <item id="d123" kind="decision" base="0.8" age="5" touched="2026-11-15T09:30:00.000Z">SSO rollout deadline: 30 November</item>
+  <item id="d202" kind="decision" base="0.7" age="257" touched="2026-03-08T09:30:00.000Z" superseded-by="f101">Remember-me cookie 30 days</item>
+  <item id="d204" kind="decision" base="0.7" age="222" touched="2026-04-12T09:30:00.000Z">Test tenant in Entra</item>
+  <item id="d208" kind="decision" base="0.7" age="294" touched="2026-01-30T09:30:00.000Z">Demo feedback: simpler login</item>
+  <item id="d209" kind="decision" base="0.7" age="296" touched="2026-01-28T09:30:00.000Z">Sprint 12 closed</item>
+</section>
+<section name="tasks">
+  <item id="t131" kind="task" base="0.55" age="2" touched="2026-11-18T09:30:00.000Z">Register the app in Entra (redirect URI, scopes)</item>
+  <item id="t132" kind="task" base="0.55" age="5" touched="2026-11-15T09:30:00.000Z">Add a rate limit on /login</item>
+</section>
+<section name="questions">
+  <item id="q140" kind="question" base="0.5" age="25" touched="2026-10-26T09:30:00.000Z">Do we require MFA for all users?</item>
+</section>
+<section name="notes">
+  <item id="n150" kind="note" base="0.4" age="1" touched="2026-11-19T09:30:00.000Z">PM: the client asks whether SSO lands by the end of the month</item>
+  <item id="n200" kind="note" base="0.4" age="46" touched="2026-10-05T09:30:00.000Z">Password reset by e-mail</item>
+  <item id="n205" kind="note" base="0.4" age="281" touched="2026-02-12T09:30:00.000Z">CSP headers on the frontend</item>
+  <item id="n207" kind="note" base="0.4" age="208" touched="2026-04-26T09:30:00.000Z">Client asks for a weekly report</item>
+</section>
+<section name="procedures">
+  <item id="s161" kind="summary" base="0.6" age="4" touched="2026-11-16T09:30:00.000Z">AI procedure: intake, spec, plan, execution, verification, closing</item>
+</section>
+<section name="ideas">
+  <item id="i170" kind="idea" base="0.25" age="6" touched="2026-11-14T09:30:00.000Z">Google login next to Entra</item>
+</section>
+<section name="files">
+</section>
+</memory>
+<synapses>
+  <link a="A:auth" b="A:idp" w="0.9" type="abstr"/>
+  <link a="A:auth" b="A:sec" w="0.7" type="abstr"/>
+  <link a="A:client" b="A:time" w="0.75" type="abstr"/>
+  <link a="A:idp" b="A:api" w="0.65" type="abstr"/>
+  <link a="f101" b="A:auth" w="0.7" type="abstr"/>
+  <link a="f102" b="A:idp" w="0.71" type="abstr"/>
+  <link a="f102" b="A:api" w="0.7" type="abstr"/>
+  <link a="f103" b="A:idp" w="0.84" type="abstr"/>
+  <link a="f103" b="A:api" w="0.6" type="abstr"/>
+  <link a="f103" b="A:auth" w="0.58" type="abstr"/>
+  <link a="f104" b="A:client" w="0.79" type="abstr"/>
+  <link a="f107" b="A:api" w="0.75" type="abstr"/>
+  <link a="d120" b="A:idp" w="0.81" type="abstr"/>
+  <link a="d120" b="A:auth" w="0.65" type="abstr"/>
+  <link a="d121" b="A:idp" w="0.75" type="abstr"/>
+  <link a="d121" b="A:auth" w="0.53" type="abstr"/>
+  <link a="d121" b="A:api" w="0.65" type="abstr"/>
+  <link a="d123" b="A:time" w="0.8" type="abstr"/>
+  <link a="d123" b="A:client" w="0.54" type="abstr"/>
+  <link a="t131" b="A:idp" w="0.77" type="abstr"/>
+  <link a="t131" b="A:api" w="0.56" type="abstr"/>
+  <link a="t132" b="A:sec" w="0.81" type="abstr"/>
+  <link a="t132" b="A:auth" w="0.56" type="abstr"/>
+  <link a="q140" b="A:sec" w="0.9" type="abstr"/>
+  <link a="q140" b="A:client" w="0.55" type="abstr"/>
+  <link a="n150" b="A:client" w="0.88" type="abstr"/>
+  <link a="n150" b="A:time" w="0.54" type="abstr"/>
+  <link a="s161" b="A:sec" w="0.73" type="abstr"/>
+  <link a="i170" b="A:idp" w="0.73" type="abstr"/>
+  <link a="i170" b="A:auth" w="0.56" type="abstr"/>
+  <link a="i170" b="A:client" w="0.61" type="abstr"/>
+  <link a="n200" b="A:auth" w="0.87" type="abstr"/>
+  <link a="f201" b="A:auth" w="0.89" type="abstr"/>
+  <link a="d202" b="A:auth" w="0.56" type="abstr"/>
+  <link a="d202" b="A:idp" w="0.43" type="abstr"/>
+  <link a="f203" b="A:idp" w="0.82" type="abstr"/>
+  <link a="f203" b="A:auth" w="0.44" type="abstr"/>
+  <link a="d204" b="A:idp" w="0.79" type="abstr"/>
+  <link a="d204" b="A:auth" w="0.34" type="abstr"/>
+  <link a="n205" b="A:sec" w="0.66" type="abstr"/>
+  <link a="n205" b="A:auth" w="0.4" type="abstr"/>
+  <link a="f206" b="A:sec" w="0.87" type="abstr"/>
+  <link a="n207" b="A:client" w="0.87" type="abstr"/>
+  <link a="n207" b="A:time" w="0.49" type="abstr"/>
+  <link a="d208" b="A:client" w="0.84" type="abstr"/>
+  <link a="d209" b="A:time" w="0.74" type="abstr"/>
+  <link a="f210" b="A:time" w="0.66" type="abstr"/>
+  <link a="d121" b="f103" w="0.85" type="assoc"/>
+  <link a="t131" b="d121" w="0.8" type="assoc"/>
+  <link a="t132" b="f101" w="0.6" type="assoc"/>
+  <link a="n150" b="d123" w="0.8" type="assoc"/>
+  <link a="i170" b="d121" w="0.3" type="assoc"/>
+  <link a="d121" b="f102" w="0.8" type="assoc"/>
+  <link a="f101" b="n205" w="0.45" type="assoc"/>
+  <link a="f102" b="f103" w="0.26" type="assoc"/>
+  <link a="f104" b="i170" w="0.5" type="assoc"/>
+  <link a="f107" b="d121" w="0.53" type="assoc"/>
+  <link a="d121" b="d120" w="0.53" type="sup"/>
+  <link a="q140" b="n205" w="0.53" type="assoc"/>
+  <link a="n150" b="n207" w="0.43" type="assoc"/>
+  <link a="s161" b="q140" w="0.42" type="assoc"/>
+  <link a="s161" b="t132" w="0.26" type="assoc"/>
+  <link a="i170" b="d208" w="0.27" type="assoc"/>
+  <link a="i170" b="n200" w="0.51" type="assoc"/>
+  <link a="n200" b="f203" w="0.5" type="assoc"/>
+  <link a="f201" b="t132" w="0.45" type="assoc"/>
+  <link a="f201" b="f203" w="0.28" type="assoc"/>
+  <link a="d202" b="f203" w="0.52" type="assoc"/>
+  <link a="d202" b="n205" w="0.34" type="assoc"/>
+  <link a="d204" b="t131" w="0.35" type="assoc"/>
+  <link a="n207" b="i170" w="0.58" type="assoc"/>
+  <link a="d208" b="q140" w="0.46" type="assoc"/>
+  <link a="d209" b="d123" w="0.49" type="assoc"/>
+  <link a="d202" b="f101" w="0.5" type="sup"/>
+</synapses>
+</brain>

@@ -1,0 +1,6 @@
+{
+ "accept": {"score": 0.58, "decision": "accept", "pos": 0.49, "neg": 0.08, "bonus": 0.15, "topMatch": "security, MFA and access policy", "topConflict": "office logistics", "rules": ["kind task ∈ inScope.kinds (+0.10)", "section tasks ∈ inScope.sections (+0.05)"]},
+ "review": {"score": 0.27, "decision": "review", "pos": 0.31, "neg": 0.22, "bonus": 0.05, "topMatch": "deadlines and client commitments", "topConflict": "office logistics", "rules": ["section notes not in scope", "neg close to pos: −0.09"]},
+ "reject": {"score": 0.04, "decision": "reject", "pos": 0.12, "neg": 0.61, "bonus": 0, "topMatch": "tests and verification", "topConflict": "food, sports, entertainment", "rules": ["matches reject example \"Lunch menu for Friday\" (cos 0.61)"]},
+ "forbidden": {"score": 0, "decision": "reject", "pos": 0.33, "neg": 0.1, "bonus": 0, "topMatch": "client commitments", "topConflict": "", "rules": ["forbidden entity type card (•••• 1111) → rejected regardless"]}
+}

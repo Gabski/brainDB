@@ -1,0 +1,1743 @@
+{
+ "name": "SSO rollout (demo)",
+ "goal": "Prepare the SSO login rollout plan for the app",
+ "step": 4,
+ "params": {
+  "depth": 2,
+  "threshold": 0.16,
+  "hop": 0.85,
+  "showSuperseded": false
+ },
+ "embedding": {
+  "model": "hash-256",
+  "dim": 256,
+  "alpha": 0.5,
+  "hops": 2,
+  "use": "enriched",
+  "lambda": 0.5,
+  "coherenceRaw": 0.21,
+  "coherenceEnriched": 0.47
+ },
+ "kinds": [
+  {
+   "name": "fact",
+   "label": "fact",
+   "color": "#4ea8ff",
+   "base": 0.6,
+   "halfLife": 30,
+   "prefix": "f",
+   "section": "facts",
+   "builtin": true
+  },
+  {
+   "name": "decision",
+   "label": "decision",
+   "color": "#ffa94d",
+   "base": 0.7,
+   "halfLife": 60,
+   "prefix": "d",
+   "section": "decisions",
+   "builtin": true
+  },
+  {
+   "name": "task",
+   "label": "task",
+   "color": "#69db7c",
+   "base": 0.55,
+   "halfLife": 14,
+   "prefix": "t",
+   "section": "tasks",
+   "builtin": true
+  },
+  {
+   "name": "question",
+   "label": "question",
+   "color": "#da77f2",
+   "base": 0.5,
+   "halfLife": 7,
+   "prefix": "q",
+   "section": "questions",
+   "builtin": true
+  },
+  {
+   "name": "note",
+   "label": "note",
+   "color": "#adb5bd",
+   "base": 0.4,
+   "halfLife": 2,
+   "prefix": "n",
+   "section": "notes",
+   "builtin": true
+  },
+  {
+   "name": "summary",
+   "label": "summary",
+   "color": "#38d9a9",
+   "base": 0.6,
+   "halfLife": 30,
+   "prefix": "s",
+   "section": "procedures",
+   "builtin": true
+  },
+  {
+   "name": "file",
+   "label": "file",
+   "color": "#f783ac",
+   "base": 0.5,
+   "halfLife": 14,
+   "prefix": "x",
+   "section": "files",
+   "builtin": true
+  },
+  {
+   "name": "idea",
+   "label": "idea",
+   "color": "#ffe066",
+   "base": 0.5,
+   "halfLife": 7,
+   "prefix": "i",
+   "section": "ideas",
+   "builtin": true
+  },
+  {
+   "name": "chunk",
+   "label": "chunk",
+   "color": "#94d82d",
+   "base": 0.45,
+   "halfLife": 21,
+   "prefix": "c",
+   "section": "files",
+   "builtin": true
+  },
+  {
+   "name": "record",
+   "label": "record",
+   "color": "#91a7ff",
+   "base": 0.5,
+   "halfLife": 30,
+   "prefix": "r",
+   "section": "rollout",
+   "builtin": true
+  },
+  {
+   "name": "concept",
+   "label": "concept",
+   "color": "#e7f5ff",
+   "base": 0.8,
+   "halfLife": null,
+   "prefix": "A:",
+   "section": "concepts",
+   "builtin": true
+  },
+  {
+   "name": "risk",
+   "label": "risk",
+   "color": "#ff8787",
+   "base": 0.6,
+   "halfLife": 21,
+   "prefix": "k",
+   "section": "risks",
+   "builtin": false
+  }
+ ],
+ "sections": [
+  "facts",
+  "decisions",
+  "tasks",
+  "questions",
+  "notes",
+  "procedures",
+  "ideas",
+  "files",
+  "rollout",
+  "risks"
+ ],
+ "focus": [
+  "d121",
+  "d123",
+  "n150"
+ ],
+ "goalFocus": [
+  "d121",
+  "d123",
+  "n150"
+ ],
+ "nodes": [
+  {
+   "id": "A:auth",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Authentication",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.44,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "A:idp",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Identity / IdP",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.63,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "A:sec",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Security",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.23,
+   "depth": 2,
+   "via": "A:auth"
+  },
+  {
+   "id": "A:mfa",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "MFA",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.26,
+   "depth": 2,
+   "via": "A:auth"
+  },
+  {
+   "id": "A:time",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Deadlines",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.6,
+   "depth": 1,
+   "via": "d123"
+  },
+  {
+   "id": "A:client",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Client",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.57,
+   "depth": 1,
+   "via": "n150"
+  },
+  {
+   "id": "A:api",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "API integrations",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.4,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "A:data",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Sensitive data",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false,
+   "activation": 0.18,
+   "depth": 2,
+   "via": "t136"
+  },
+  {
+   "id": "A:ctx",
+   "kind": "concept",
+   "section": "concepts",
+   "text": "Context management",
+   "base": 0.8,
+   "weight": 0.8,
+   "age": 0,
+   "pinned": false
+  },
+  {
+   "id": "f101",
+   "kind": "fact",
+   "section": "facts",
+   "text": "The app currently has e-mail + password login",
+   "base": 0.6,
+   "weight": 0.6,
+   "age": 30,
+   "pinned": true,
+   "activation": 0.2,
+   "depth": 2,
+   "via": "A:auth"
+  },
+  {
+   "id": "f102",
+   "kind": "fact",
+   "section": "facts",
+   "text": "The company uses Microsoft Entra ID",
+   "base": 0.6,
+   "weight": 0.31,
+   "age": 28,
+   "pinned": false,
+   "activation": 0.38,
+   "depth": 1,
+   "via": "d121",
+   "route": [
+    "H:entra"
+   ]
+  },
+  {
+   "id": "f103",
+   "kind": "fact",
+   "section": "facts",
+   "text": "Entra ID supports OIDC and SAML 2.0",
+   "base": 0.6,
+   "weight": 0.38,
+   "age": 20,
+   "pinned": false,
+   "activation": 0.43,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "f104",
+   "kind": "fact",
+   "section": "facts",
+   "text": "The app has about 5000 active users",
+   "base": 0.6,
+   "weight": 0.42,
+   "age": 15,
+   "pinned": false,
+   "activation": 0.24,
+   "depth": 2,
+   "via": "A:client"
+  },
+  {
+   "id": "f105",
+   "kind": "fact",
+   "section": "facts",
+   "text": "The client requires GDPR compliance for login logs",
+   "base": 0.6,
+   "weight": 0.45,
+   "age": 12,
+   "pinned": false,
+   "labels": [
+    "legal"
+   ]
+  },
+  {
+   "id": "f107",
+   "kind": "fact",
+   "section": "facts",
+   "text": "Graph API limit: 10k requests / 10 min per app",
+   "base": 0.6,
+   "weight": 0.56,
+   "age": 3,
+   "pinned": false,
+   "activation": 0.18,
+   "depth": 2,
+   "via": "A:api"
+  },
+  {
+   "id": "f110",
+   "kind": "fact",
+   "section": "facts",
+   "text": "Audit: no rate limit on /login",
+   "base": 0.6,
+   "weight": 0.52,
+   "age": 6,
+   "pinned": false,
+   "activation": 0.17,
+   "depth": 2,
+   "via": "A:auth"
+  },
+  {
+   "id": "d120",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "We plan SSO via SAML",
+   "base": 0.7,
+   "weight": 0.14,
+   "age": 35,
+   "pinned": false,
+   "supersededBy": "d121"
+  },
+  {
+   "id": "d121",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "We roll out SSO via OIDC with Entra ID",
+   "base": 0.85,
+   "weight": 0.76,
+   "age": 10,
+   "pinned": false,
+   "activation": 1,
+   "depth": 0
+  },
+  {
+   "id": "d122",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "Deadline: end of October",
+   "base": 0.7,
+   "weight": 0.13,
+   "age": 40,
+   "pinned": false,
+   "supersededBy": "d123"
+  },
+  {
+   "id": "d123",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "SSO rollout deadline: 30 November",
+   "base": 0.8,
+   "weight": 0.76,
+   "age": 5,
+   "pinned": false,
+   "activation": 1,
+   "depth": 0
+  },
+  {
+   "id": "d124",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "MFA optional for everyone",
+   "base": 0.7,
+   "weight": 0.15,
+   "age": 30,
+   "pinned": false,
+   "supersededBy": "d125"
+  },
+  {
+   "id": "d125",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "MFA mandatory for admins and external access",
+   "base": 0.7,
+   "weight": 0.67,
+   "age": 4,
+   "pinned": false
+  },
+  {
+   "id": "d127",
+   "kind": "decision",
+   "section": "decisions",
+   "text": "No secrets or client data in external AI services",
+   "base": 0.7,
+   "weight": 0.7,
+   "age": 4,
+   "pinned": true,
+   "labels": [
+    "security"
+   ]
+  },
+  {
+   "id": "t131",
+   "kind": "task",
+   "section": "tasks",
+   "text": "Register the app in Entra (redirect URI, scopes)",
+   "base": 0.55,
+   "weight": 0.5,
+   "age": 2,
+   "pinned": false,
+   "activation": 0.46,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "t132",
+   "kind": "task",
+   "section": "tasks",
+   "text": "Add a rate limit on /login",
+   "base": 0.55,
+   "weight": 0.43,
+   "age": 5,
+   "pinned": false
+  },
+  {
+   "id": "t134",
+   "kind": "task",
+   "section": "tasks",
+   "text": "E2E tests of the OIDC flow (happy path + consent denied)",
+   "base": 0.55,
+   "weight": 0.52,
+   "age": 1,
+   "pinned": false,
+   "activation": 0.41,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "t136",
+   "kind": "task",
+   "section": "tasks",
+   "text": "Account mapping: e-mail → Entra oid",
+   "base": 0.55,
+   "weight": 0.5,
+   "age": 2,
+   "pinned": false,
+   "activation": 0.4,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "q140",
+   "kind": "question",
+   "section": "questions",
+   "text": "Do we require MFA for all users?",
+   "base": 0.5,
+   "weight": 0.04,
+   "age": 25,
+   "pinned": false
+  },
+  {
+   "id": "q141",
+   "kind": "question",
+   "section": "questions",
+   "text": "What about users outside the tenant (B2B guests)?",
+   "base": 0.5,
+   "weight": 0.37,
+   "age": 3,
+   "pinned": false,
+   "activation": 0.22,
+   "depth": 2,
+   "via": "A:idp"
+  },
+  {
+   "id": "n150",
+   "kind": "note",
+   "section": "notes",
+   "text": "PM: client asks whether SSO will be ready by month end",
+   "base": 0.4,
+   "weight": 0.28,
+   "age": 1,
+   "pinned": false,
+   "activation": 1,
+   "depth": 0
+  },
+  {
+   "id": "n153",
+   "kind": "note",
+   "section": "notes",
+   "text": "Entra: refresh token 90 days, shortened by policies",
+   "base": 0.4,
+   "weight": 0.02,
+   "age": 9,
+   "pinned": false
+  },
+  {
+   "id": "s161",
+   "kind": "summary",
+   "section": "procedures",
+   "text": "AI procedure: intake → spec → plan → execute → verify → close",
+   "base": 0.6,
+   "weight": 0.55,
+   "age": 4,
+   "pinned": false
+  },
+  {
+   "id": "i172",
+   "kind": "idea",
+   "section": "ideas",
+   "text": "Passkeys (WebAuthn) as a second stage",
+   "base": 0.5,
+   "weight": 0.23,
+   "age": 8,
+   "pinned": false
+  },
+  {
+   "id": "k175",
+   "kind": "risk",
+   "section": "risks",
+   "text": "Guest accounts may bypass conditional access",
+   "base": 0.6,
+   "weight": 0.49,
+   "age": 6,
+   "pinned": false,
+   "activation": 0.28,
+   "depth": 2,
+   "via": "A:idp",
+   "labels": [
+    "security"
+   ]
+  },
+  {
+   "id": "x180",
+   "kind": "file",
+   "section": "files",
+   "text": "oidc-flow.md — OIDC sequence and token handling",
+   "base": 0.5,
+   "weight": 0.3,
+   "age": 10,
+   "pinned": false,
+   "file": {
+    "name": "oidc-flow.md",
+    "mime": "text/markdown",
+    "size": 3870
+   },
+   "activation": 0.35,
+   "depth": 1,
+   "via": "d121"
+  },
+  {
+   "id": "c181",
+   "kind": "chunk",
+   "section": "files",
+   "text": "The browser is redirected to the Entra authorize endpoint with PKCE, state and nonce.",
+   "base": 0.45,
+   "weight": 0.32,
+   "age": 10,
+   "pinned": false,
+   "parent": "x180",
+   "index": 0,
+   "activation": 0.16,
+   "depth": 2,
+   "via": "A:auth"
+  },
+  {
+   "id": "c182",
+   "kind": "chunk",
+   "section": "files",
+   "text": "The callback exchanges the code for tokens; the id_token oid claim maps to the local account.",
+   "base": 0.45,
+   "weight": 0.32,
+   "age": 10,
+   "pinned": false,
+   "parent": "x180",
+   "index": 1,
+   "activation": 0.22,
+   "depth": 2,
+   "via": "A:idp"
+  },
+  {
+   "id": "c183",
+   "kind": "chunk",
+   "section": "files",
+   "text": "Refresh tokens are kept server-side only; sessions stay in Redis with an 8h TTL.",
+   "base": 0.45,
+   "weight": 0.32,
+   "age": 10,
+   "pinned": false,
+   "parent": "x180",
+   "index": 2
+  },
+  {
+   "id": "x190",
+   "kind": "file",
+   "section": "files",
+   "text": "rollout.csv — 3 rows (wave, users, owner, start_date)",
+   "base": 0.5,
+   "weight": 0.45,
+   "age": 2,
+   "pinned": false,
+   "file": {
+    "name": "rollout.csv",
+    "mime": "text/csv",
+    "size": 212
+   },
+   "activation": 0.38,
+   "depth": 1,
+   "via": "d123",
+   "labels": [
+    "ops"
+   ]
+  },
+  {
+   "id": "r191",
+   "kind": "record",
+   "section": "rollout",
+   "text": "wave: pilot · users: 120 · owner: Kim Lee · start_date: 2026-11-24",
+   "base": 0.5,
+   "weight": 0.48,
+   "age": 2,
+   "pinned": false,
+   "parent": "x190",
+   "index": 0,
+   "fields": {
+    "wave": "pilot",
+    "users": "120",
+    "owner": "Kim Lee",
+    "start_date": "2026-11-24"
+   },
+   "activation": 0.27,
+   "depth": 2,
+   "via": "A:client",
+   "route": [
+    "H:sso-rollout"
+   ],
+   "labels": [
+    "ops"
+   ]
+  },
+  {
+   "id": "r192",
+   "kind": "record",
+   "section": "rollout",
+   "text": "wave: staff · users: 1400 · owner: Ana Ruiz · start_date: 2026-11-27",
+   "base": 0.5,
+   "weight": 0.48,
+   "age": 2,
+   "pinned": false,
+   "parent": "x190",
+   "index": 1,
+   "fields": {
+    "wave": "staff",
+    "users": "1400",
+    "owner": "Ana Ruiz",
+    "start_date": "2026-11-27"
+   },
+   "activation": 0.23,
+   "depth": 2,
+   "via": "A:client",
+   "route": [
+    "H:sso-rollout"
+   ],
+   "labels": [
+    "ops"
+   ]
+  },
+  {
+   "id": "r193",
+   "kind": "record",
+   "section": "rollout",
+   "text": "wave: everyone · users: 5000 · owner: Kim Lee · start_date: 2026-11-30",
+   "base": 0.5,
+   "weight": 0.48,
+   "age": 2,
+   "pinned": false,
+   "parent": "x190",
+   "index": 2,
+   "fields": {
+    "wave": "everyone",
+    "users": "5000",
+    "owner": "Kim Lee",
+    "start_date": "2026-11-30"
+   },
+   "activation": 0.27,
+   "depth": 2,
+   "via": "A:client",
+   "route": [
+    "H:sso-rollout"
+   ],
+   "labels": [
+    "ops"
+   ]
+  },
+  {
+   "id": "n154",
+   "kind": "note",
+   "section": "notes",
+   "text": "Call Kim Aalto (+47 22 33 44 55, kim.aalto@halvorsen.example) before 15 Dec 2026 about the €48,000 renewal of Halvorsen Freight AS: 12% discount, see https://halvorsen.example/pricing, ticket #4821, IBAN NO93 8601 1117 947",
+   "base": 0.4,
+   "weight": 0.14,
+   "age": 3,
+   "pinned": false,
+   "activation": 0.17,
+   "depth": 2,
+   "via": "A:client",
+   "labels": [
+    "finance"
+   ]
+  },
+  {
+   "id": "f201",
+   "kind": "fact",
+   "section": "facts",
+   "text": "Password reset via e-mail",
+   "base": 0.6,
+   "weight": 0.02,
+   "age": 140,
+   "pinned": false
+  },
+  {
+   "id": "n202",
+   "kind": "note",
+   "section": "notes",
+   "text": "Sprint 12 closed",
+   "base": 0.4,
+   "weight": 0,
+   "age": 190,
+   "pinned": false
+  },
+  {
+   "id": "q203",
+   "kind": "question",
+   "section": "questions",
+   "text": "Mask PII in logs?",
+   "base": 0.5,
+   "weight": 0,
+   "age": 95,
+   "pinned": false
+  },
+  {
+   "id": "f204",
+   "kind": "fact",
+   "section": "facts",
+   "text": "JWT signing keys rotate every 90 days",
+   "base": 0.6,
+   "weight": 0,
+   "age": 260,
+   "pinned": false,
+   "supersededBy": "c183"
+  },
+  {
+   "id": "lab:x204",
+   "kind": "fact",
+   "section": "external",
+   "text": "Load test: Entra token endpoint p95 = 180 ms at 500 rps",
+   "base": 0.42,
+   "weight": 0.42,
+   "age": 0,
+   "pinned": false,
+   "source": "lab",
+   "external": true,
+   "activation": 0.37,
+   "depth": 1,
+   "via": "d121",
+   "labels": [
+    "ip-sensitive"
+   ]
+  },
+  {
+   "id": "lab:f310",
+   "kind": "fact",
+   "section": "external",
+   "text": "Lab tenant enforces conditional access for guests",
+   "base": 0.55,
+   "weight": 0.55,
+   "age": 0,
+   "pinned": false,
+   "source": "lab",
+   "external": true,
+   "labels": [
+    "security",
+    "ip-sensitive"
+   ]
+  },
+  {
+   "id": "lab:t322",
+   "kind": "task",
+   "section": "external",
+   "text": "Re-run SSO soak test after policy change",
+   "base": 0.3,
+   "weight": 0.3,
+   "age": 0,
+   "pinned": false,
+   "source": "lab",
+   "external": true
+  },
+  {
+   "id": "spec:c1",
+   "kind": "chunk",
+   "section": "external",
+   "text": "OIDC Core 1.0 §3.1.2.1: nonce is REQUIRED for the implicit flow",
+   "base": 0.5,
+   "weight": 0.5,
+   "age": 0,
+   "pinned": false,
+   "source": "spec",
+   "external": true
+  }
+ ],
+ "edges": [
+  {
+   "a": "A:auth",
+   "b": "A:idp",
+   "w": 0.9,
+   "type": "concept"
+  },
+  {
+   "a": "A:auth",
+   "b": "A:mfa",
+   "w": 0.8,
+   "type": "concept"
+  },
+  {
+   "a": "A:mfa",
+   "b": "A:sec",
+   "w": 0.85,
+   "type": "concept"
+  },
+  {
+   "a": "A:sec",
+   "b": "A:data",
+   "w": 0.8,
+   "type": "concept"
+  },
+  {
+   "a": "A:idp",
+   "b": "A:api",
+   "w": 0.65,
+   "type": "concept"
+  },
+  {
+   "a": "A:client",
+   "b": "A:time",
+   "w": 0.75,
+   "type": "concept"
+  },
+  {
+   "a": "A:auth",
+   "b": "A:sec",
+   "w": 0.7,
+   "type": "concept"
+  },
+  {
+   "a": "A:data",
+   "b": "A:ctx",
+   "w": 0.5,
+   "type": "concept"
+  },
+  {
+   "a": "f101",
+   "b": "A:auth",
+   "w": 0.7,
+   "type": "concept"
+  },
+  {
+   "a": "f102",
+   "b": "A:idp",
+   "w": 0.71,
+   "type": "concept"
+  },
+  {
+   "a": "f103",
+   "b": "A:idp",
+   "w": 0.9,
+   "type": "concept"
+  },
+  {
+   "a": "f103",
+   "b": "A:api",
+   "w": 0.64,
+   "type": "concept"
+  },
+  {
+   "a": "f103",
+   "b": "A:auth",
+   "w": 0.6,
+   "type": "concept"
+  },
+  {
+   "a": "f104",
+   "b": "A:client",
+   "w": 0.78,
+   "type": "concept"
+  },
+  {
+   "a": "f105",
+   "b": "A:data",
+   "w": 0.79,
+   "type": "concept"
+  },
+  {
+   "a": "f107",
+   "b": "A:api",
+   "w": 0.75,
+   "type": "concept"
+  },
+  {
+   "a": "f110",
+   "b": "A:sec",
+   "w": 0.81,
+   "type": "concept"
+  },
+  {
+   "a": "f110",
+   "b": "A:auth",
+   "w": 0.65,
+   "type": "concept"
+  },
+  {
+   "a": "d120",
+   "b": "A:idp",
+   "w": 0.75,
+   "type": "concept"
+  },
+  {
+   "a": "d120",
+   "b": "A:auth",
+   "w": 0.53,
+   "type": "concept"
+  },
+  {
+   "a": "d121",
+   "b": "A:idp",
+   "w": 0.85,
+   "type": "concept"
+  },
+  {
+   "a": "d121",
+   "b": "A:auth",
+   "w": 0.6,
+   "type": "concept"
+  },
+  {
+   "a": "d121",
+   "b": "A:api",
+   "w": 0.54,
+   "type": "concept"
+  },
+  {
+   "a": "d122",
+   "b": "A:time",
+   "w": 0.77,
+   "type": "concept"
+  },
+  {
+   "a": "d122",
+   "b": "A:client",
+   "w": 0.56,
+   "type": "concept"
+  },
+  {
+   "a": "d123",
+   "b": "A:time",
+   "w": 0.81,
+   "type": "concept"
+  },
+  {
+   "a": "d123",
+   "b": "A:client",
+   "w": 0.56,
+   "type": "concept"
+  },
+  {
+   "a": "d124",
+   "b": "A:mfa",
+   "w": 0.9,
+   "type": "concept"
+  },
+  {
+   "a": "d124",
+   "b": "A:sec",
+   "w": 0.55,
+   "type": "concept"
+  },
+  {
+   "a": "d125",
+   "b": "A:mfa",
+   "w": 0.88,
+   "type": "concept"
+  },
+  {
+   "a": "d125",
+   "b": "A:sec",
+   "w": 0.54,
+   "type": "concept"
+  },
+  {
+   "a": "d125",
+   "b": "A:auth",
+   "w": 0.53,
+   "type": "concept"
+  },
+  {
+   "a": "d127",
+   "b": "A:data",
+   "w": 0.73,
+   "type": "concept"
+  },
+  {
+   "a": "d127",
+   "b": "A:sec",
+   "w": 0.56,
+   "type": "concept"
+  },
+  {
+   "a": "d127",
+   "b": "A:ctx",
+   "w": 0.61,
+   "type": "concept"
+  },
+  {
+   "a": "t131",
+   "b": "A:idp",
+   "w": 0.85,
+   "type": "concept"
+  },
+  {
+   "a": "t131",
+   "b": "A:api",
+   "w": 0.51,
+   "type": "concept"
+  },
+  {
+   "a": "t132",
+   "b": "A:sec",
+   "w": 0.88,
+   "type": "concept"
+  },
+  {
+   "a": "t132",
+   "b": "A:auth",
+   "w": 0.61,
+   "type": "concept"
+  },
+  {
+   "a": "t134",
+   "b": "A:auth",
+   "w": 0.82,
+   "type": "concept"
+  },
+  {
+   "a": "t134",
+   "b": "A:api",
+   "w": 0.64,
+   "type": "concept"
+  },
+  {
+   "a": "t136",
+   "b": "A:idp",
+   "w": 0.89,
+   "type": "concept"
+  },
+  {
+   "a": "t136",
+   "b": "A:data",
+   "w": 0.62,
+   "type": "concept"
+  },
+  {
+   "a": "q140",
+   "b": "A:mfa",
+   "w": 0.88,
+   "type": "concept"
+  },
+  {
+   "a": "q140",
+   "b": "A:client",
+   "w": 0.67,
+   "type": "concept"
+  },
+  {
+   "a": "q141",
+   "b": "A:idp",
+   "w": 0.71,
+   "type": "concept"
+  },
+  {
+   "a": "q141",
+   "b": "A:client",
+   "w": 0.53,
+   "type": "concept"
+  },
+  {
+   "a": "n150",
+   "b": "A:client",
+   "w": 0.77,
+   "type": "concept"
+  },
+  {
+   "a": "n150",
+   "b": "A:time",
+   "w": 0.59,
+   "type": "concept"
+  },
+  {
+   "a": "n153",
+   "b": "A:idp",
+   "w": 0.7,
+   "type": "concept"
+  },
+  {
+   "a": "n153",
+   "b": "A:sec",
+   "w": 0.52,
+   "type": "concept"
+  },
+  {
+   "a": "s161",
+   "b": "A:ctx",
+   "w": 0.85,
+   "type": "concept"
+  },
+  {
+   "a": "i172",
+   "b": "A:auth",
+   "w": 0.77,
+   "type": "concept"
+  },
+  {
+   "a": "i172",
+   "b": "A:mfa",
+   "w": 0.59,
+   "type": "concept"
+  },
+  {
+   "a": "k175",
+   "b": "A:idp",
+   "w": 0.79,
+   "type": "concept"
+  },
+  {
+   "a": "k175",
+   "b": "A:sec",
+   "w": 0.69,
+   "type": "concept"
+  },
+  {
+   "a": "x180",
+   "b": "A:idp",
+   "w": 0.84,
+   "type": "concept"
+  },
+  {
+   "a": "x180",
+   "b": "A:api",
+   "w": 0.64,
+   "type": "concept"
+  },
+  {
+   "a": "c181",
+   "b": "A:auth",
+   "w": 0.77,
+   "type": "concept"
+  },
+  {
+   "a": "c181",
+   "b": "A:api",
+   "w": 0.57,
+   "type": "concept"
+  },
+  {
+   "a": "c182",
+   "b": "A:idp",
+   "w": 0.73,
+   "type": "concept"
+  },
+  {
+   "a": "c182",
+   "b": "A:data",
+   "w": 0.53,
+   "type": "concept"
+  },
+  {
+   "a": "c183",
+   "b": "A:sec",
+   "w": 0.88,
+   "type": "concept"
+  },
+  {
+   "a": "x190",
+   "b": "A:client",
+   "w": 0.76,
+   "type": "concept"
+  },
+  {
+   "a": "x190",
+   "b": "A:time",
+   "w": 0.54,
+   "type": "concept"
+  },
+  {
+   "a": "r191",
+   "b": "A:client",
+   "w": 0.83,
+   "type": "concept"
+  },
+  {
+   "a": "r191",
+   "b": "A:time",
+   "w": 0.57,
+   "type": "concept"
+  },
+  {
+   "a": "r192",
+   "b": "A:client",
+   "w": 0.71,
+   "type": "concept"
+  },
+  {
+   "a": "r193",
+   "b": "A:client",
+   "w": 0.84,
+   "type": "concept"
+  },
+  {
+   "a": "r193",
+   "b": "A:time",
+   "w": 0.68,
+   "type": "concept"
+  },
+  {
+   "a": "n154",
+   "b": "A:client",
+   "w": 0.81,
+   "type": "concept"
+  },
+  {
+   "a": "n154",
+   "b": "A:time",
+   "w": 0.67,
+   "type": "concept"
+  },
+  {
+   "a": "f201",
+   "b": "A:auth",
+   "w": 0.83,
+   "type": "concept"
+  },
+  {
+   "a": "n202",
+   "b": "A:time",
+   "w": 0.88,
+   "type": "concept"
+  },
+  {
+   "a": "q203",
+   "b": "A:data",
+   "w": 0.72,
+   "type": "concept"
+  },
+  {
+   "a": "f204",
+   "b": "A:sec",
+   "w": 0.81,
+   "type": "concept"
+  },
+  {
+   "a": "d121",
+   "b": "f103",
+   "w": 0.85,
+   "type": "assoc"
+  },
+  {
+   "a": "t131",
+   "b": "d121",
+   "w": 0.8,
+   "type": "assoc"
+  },
+  {
+   "a": "t134",
+   "b": "d121",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "a": "t132",
+   "b": "f110",
+   "w": 0.9,
+   "type": "assoc"
+  },
+  {
+   "a": "d125",
+   "b": "q140",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "a": "t136",
+   "b": "d121",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "a": "n150",
+   "b": "d123",
+   "w": 0.8,
+   "type": "assoc"
+  },
+  {
+   "a": "f104",
+   "b": "f107",
+   "w": 0.6,
+   "type": "assoc"
+  },
+  {
+   "a": "q141",
+   "b": "f103",
+   "w": 0.5,
+   "type": "assoc"
+  },
+  {
+   "a": "n153",
+   "b": "d125",
+   "w": 0.55,
+   "type": "assoc"
+  },
+  {
+   "a": "i172",
+   "b": "d125",
+   "w": 0.5,
+   "type": "assoc"
+  },
+  {
+   "a": "d121",
+   "b": "f102",
+   "w": 0.8,
+   "type": "assoc"
+  },
+  {
+   "a": "x180",
+   "b": "d121",
+   "w": 0.75,
+   "type": "assoc"
+  },
+  {
+   "a": "k175",
+   "b": "q141",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "a": "x190",
+   "b": "d123",
+   "w": 0.7,
+   "type": "assoc"
+  },
+  {
+   "a": "f105",
+   "b": "q203",
+   "w": 0.4,
+   "type": "assoc"
+  },
+  {
+   "a": "n202",
+   "b": "d122",
+   "w": 0.3,
+   "type": "assoc"
+  },
+  {
+   "a": "d121",
+   "b": "lab:x204",
+   "w": 0.7,
+   "type": "external"
+  },
+  {
+   "a": "k175",
+   "b": "lab:f310",
+   "w": 0.75,
+   "type": "external"
+  },
+  {
+   "a": "lab:f310",
+   "b": "lab:t322",
+   "w": 0.6,
+   "type": "external"
+  },
+  {
+   "a": "c181",
+   "b": "spec:c1",
+   "w": 0.6,
+   "type": "external"
+  },
+  {
+   "a": "x180",
+   "b": "c181",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "a": "x180",
+   "b": "c182",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "a": "x180",
+   "b": "c183",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "a": "c181",
+   "b": "c182",
+   "w": 0.5,
+   "type": "seq"
+  },
+  {
+   "a": "c182",
+   "b": "c183",
+   "w": 0.5,
+   "type": "seq"
+  },
+  {
+   "a": "x190",
+   "b": "r191",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "a": "x190",
+   "b": "r192",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "a": "x190",
+   "b": "r193",
+   "w": 0.9,
+   "type": "part"
+  },
+  {
+   "a": "r191",
+   "b": "r192",
+   "w": 0.5,
+   "type": "seq"
+  },
+  {
+   "a": "r192",
+   "b": "r193",
+   "w": 0.5,
+   "type": "seq"
+  },
+  {
+   "a": "c182",
+   "b": "t136",
+   "w": 0.46,
+   "type": "similar"
+  },
+  {
+   "a": "c181",
+   "b": "t134",
+   "w": 0.38,
+   "type": "similar"
+  },
+  {
+   "a": "k175",
+   "b": "d125",
+   "w": 0.55,
+   "type": "new"
+  },
+  {
+   "a": "d120",
+   "b": "d121",
+   "w": 0.5,
+   "type": "supersede"
+  },
+  {
+   "a": "d122",
+   "b": "d123",
+   "w": 0.5,
+   "type": "supersede"
+  },
+  {
+   "a": "d124",
+   "b": "d125",
+   "w": 0.5,
+   "type": "supersede"
+  },
+  {
+   "a": "f204",
+   "b": "c183",
+   "w": 0.5,
+   "type": "supersede"
+  },
+  {
+   "a": "H:entra",
+   "b": "f102",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:entra",
+   "b": "f103",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:entra",
+   "b": "t131",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:entra",
+   "b": "n153",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:entra",
+   "b": "lab:x204",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:bridge-lab",
+   "b": "d121",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:bridge-lab",
+   "b": "k175",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:bridge-lab",
+   "b": "lab:x204",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:bridge-lab",
+   "b": "lab:f310",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:sso-rollout",
+   "b": "d123",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:sso-rollout",
+   "b": "r191",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:sso-rollout",
+   "b": "r192",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:sso-rollout",
+   "b": "r193",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:sso-rollout",
+   "b": "x190",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:alias-mfa",
+   "b": "d125",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:alias-mfa",
+   "b": "q140",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:alias-mfa",
+   "b": "i172",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:week-47",
+   "b": "n150",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:week-47",
+   "b": "t134",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:week-47",
+   "b": "t131",
+   "w": 0.9,
+   "type": "connector"
+  },
+  {
+   "a": "H:week-47",
+   "b": "x190",
+   "w": 0.9,
+   "type": "connector"
+  }
+ ],
+ "stats": {
+  "lit": 23,
+  "memories": 38,
+  "concepts": 8,
+  "tokens": 797,
+  "reach": 2,
+  "avgWeight": 0.45,
+  "superseded": 4,
+  "newLinks": 1,
+  "byDepth": [
+   3,
+   13,
+   15
+  ],
+  "connectors": 5,
+  "routesUsed": 3,
+  "connectorEdges": 21
+ },
+ "status": "[ok] step 4 · lit 23/38 memories + 8 concepts · ~797 tok · depth 2/2 thr 0.16 · focus d121,d123,n150",
+ "connectors": [
+  {
+   "id": "H:entra",
+   "type": "anchor",
+   "label": "Microsoft Entra ID",
+   "key": "idp:entra",
+   "gain": 0.95,
+   "transparent": true,
+   "degree": 5
+  },
+  {
+   "id": "H:bridge-lab",
+   "type": "bridge",
+   "label": "bridge sso ↔ lab",
+   "gain": 0.85,
+   "transparent": true,
+   "source": "lab",
+   "degree": 4
+  },
+  {
+   "id": "H:sso-rollout",
+   "type": "hub",
+   "label": "SSO rollout waves",
+   "gain": 0.8,
+   "transparent": false,
+   "degree": 5
+  },
+  {
+   "id": "H:alias-mfa",
+   "type": "alias",
+   "label": "MFA",
+   "terms": [
+    "2FA",
+    "two-factor",
+    "multi-factor"
+   ],
+   "gain": 0.9,
+   "transparent": true,
+   "degree": 3
+  },
+  {
+   "id": "H:week-47",
+   "type": "time",
+   "label": "week 2026-W47",
+   "key": "2026-W47",
+   "gain": 0.7,
+   "transparent": false,
+   "degree": 4
+  }
+ ]
+}

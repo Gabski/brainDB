@@ -1,0 +1,24 @@
+{
+ "name": "kim",
+ "display": "Kim Lee",
+ "roles": [
+  "sales-rep"
+ ],
+ "labels": [
+  "ops",
+  "legal"
+ ],
+ "dbs": [
+  "sso",
+  "crm"
+ ],
+ "admin": false,
+ "defaultWriteLabels": [
+  "ops"
+ ],
+ "user": "kim",
+ "can": {
+  "review": false,
+  "purposeOverride": false
+ }
+}

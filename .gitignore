@@ -1,0 +1,12 @@
+/bin/
+/dist/
+/data/
+*.tmp
+*.journal.jsonl
+web/node_modules/
+web/storybook-static/
+# built web UI (the placeholder index.html is committed)
+internal/server/ui/dist/*
+!internal/server/ui/dist/index.html
+*.cache
+embeddings.cache
