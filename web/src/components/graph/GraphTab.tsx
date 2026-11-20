@@ -147,7 +147,11 @@ export function GraphTab({ hideSide }: { hideSide?: boolean }) {
               }}
             />
             <div className="canvas-overlay view-desc">{VIEW_DESC[s.view]}</div>
-            <div className="canvas-overlay hud">drag: rotate · right/shift-drag: pan · wheel: zoom · click: inspect · double-click: focus · arrows/±: keyboard · Esc: cancel</div>
+            <div className="canvas-overlay hud">
+              {s.view === 'map'
+                ? 'drag: pan · wheel: zoom · click: inspect · double-click: focus · arrows/±: keyboard · Esc: cancel'
+                : 'drag: rotate · right/shift-drag: pan · wheel: zoom · click: inspect · double-click: focus · arrows/±: keyboard · Esc: cancel'}
+            </div>
             <Legend kinds={[...g.kinds.values()].filter((k) => st.kinds.some((x) => x.name === k.name) || k.name === 'concept')} showConnectors={showConn && !!st.connectors?.length} sources={sources} />
             {s.accessOverlay && <AccessLegend labels={accessLabels} />}
             {s.pickMode && (

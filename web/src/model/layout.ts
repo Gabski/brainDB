@@ -7,7 +7,7 @@ import type { BrainNode, Vec3 } from '../api/types';
 import { isConceptNode } from './graph';
 import { gauss, hash, mulberry32 } from './util';
 
-export type ViewName = 'brain' | 'layers' | 'sphere' | 'time' | 'embed' | 'tree';
+export type ViewName = 'brain' | 'layers' | 'sphere' | 'time' | 'embed' | 'tree' | 'map';
 
 export const VIEWS: { id: ViewName; label: string }[] = [
   { id: 'brain', label: 'Brain' },
@@ -16,6 +16,7 @@ export const VIEWS: { id: ViewName; label: string }[] = [
   { id: 'time', label: 'Decay' },
   { id: 'embed', label: 'Vectors' },
   { id: 'tree', label: 'Tree' },
+  { id: 'map', label: '2D' },
 ];
 
 export const SECTIONS = ['facts', 'decisions', 'tasks', 'questions', 'notes', 'procedures', 'ideas', 'files'];
@@ -169,4 +170,5 @@ export const VIEW_DESC: Record<ViewName, string> = {
   embed:
     'Vectors: 3D PCA of the embeddings (from the server). Enriched vectors pull related knowledge into clusters; switch raw/enriched in the Embedding panel. Teal edges are vector similarity.',
   tree: 'Tree: maximum spanning tree from the root (first focus item or "Tree root"), i.e. the strongest route to every memory. Files expand into chunks.',
+  map: '2D: the same scene, flattened. Concepts sit on a top row and each memory under the concept it links to most strongly. Drag pans, the wheel zooms, and the view does not orbit.',
 };

@@ -301,6 +301,7 @@ every feature of `the reference UI (not in the repository)`, but all logic goes 
 | Decay | x = age (log), y = weight |
 | Vectors | PCA positions from `/api/layout?view=embed` |
 | Tree | positions from `/api/layout?view=tree` |
+| 2D map | the same scene, orthographic and top-down: concepts on a top row, each memory under the concept it links to most strongly; drag pans, the wheel zooms, no orbit |
 
 Lit nodes glow. Faded and superseded nodes are dim. Path and tree edges show pulses. Labels sit on the top lit nodes.
 

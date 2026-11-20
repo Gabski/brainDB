@@ -83,6 +83,7 @@ export const Views: S = {
   },
 };
 export const GraphTabFull: S = { name: 'GraphTab (connected)', render: () => <MockStore><TabFrame><GraphTab /></TabFrame></MockStore> };
+export const GraphTabMap: S = { name: 'GraphTab (2D map)', render: () => <MockStore initial={{ view: 'map' }}><TabFrame><GraphTab /></TabFrame></MockStore> };
 export const GraphTabEmptyBrain: S = { name: 'GraphTab (empty brain)', render: () => <MockStore mock={{ state: fixtureStateEmpty }}><TabFrame><GraphTab /></TabFrame></MockStore> };
 export const GraphTabLoading: S = { name: 'GraphTab (loading)', render: () => <MockStore mock={{ hang: true }} initial={{ brain: null }}><TabFrame><GraphTab /></TabFrame></MockStore> };
 export const GraphTabError: S = { name: 'GraphTab (backend down)', render: () => <MockStore mock={{ fail: true }} initial={{ brain: null }}><TabFrame><GraphTab /></TabFrame></MockStore> };

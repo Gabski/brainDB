@@ -10,9 +10,10 @@
 > defaults to `advise` instead of `enforce`, the embedding engine is pluggable, and the SQLite backend ships —
 > Redis is off the roadmap. See [CHANGELOG.md](CHANGELOG.md).
 
-📖 **Full guide (GitHub Pages): [`docs/`](docs/index.html)** — installation, usage, BDQL, agent integration, API reference and examples on one page.
+**Project page and documentation:** [https://braindb.eu](https://braindb.eu).
+The full guide — installation, usage, BDQL, agent integration, API reference and examples — is at [https://braindb.eu/docs/](https://braindb.eu/docs/).
 
-**New here?** [docs/OVERVIEW.md](docs/OVERVIEW.md) explains brainDB in plain language first, then the design
+**New here?** The [overview](https://braindb.eu/docs/OVERVIEW.html) explains brainDB in plain language first, then the design
 decisions behind it, why it leans on existing standards, and what is actually built today.
 
 brainDB stores knowledge as a weighted graph:
@@ -831,7 +832,7 @@ internal/mcp/           MCP stdio server
 internal/server/        HTTP API, SSE, embedded UI
 web/                    React + TypeScript + three.js UI, Storybook
 examples/               sales-company, research-lab, braindb-self, import-demo, federation
-docs/index.html         documentation site (GitHub Pages)
+docs/index.html         guide source, published at https://braindb.eu/docs/
 docs/SPEC.md            full specification
 docs/AGENTS.md          how to use brainDB in AI agents
 docs/INTEGRATIONS.md    install in Claude Code, Codex, Cursor, Gemini, Hermes, OpenClaw, Grok

@@ -1,6 +1,7 @@
 /bin/
 /dist/
 /data/
+/.cursor/
 *.tmp
 *.journal.jsonl
 web/node_modules/

@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import type { BrainNode, Connector, Edge, Vec3 } from '../../api/types';
 import { computeLayout, LOBES, timeX, type ViewName } from '../../model/layout';
+import { layoutMap } from '../../model/layout2d';
 import { DEPTH_COLORS, edgeKey, isConceptNode } from '../../model/graph';
 import { clamp, gauss, hash, mulberry32, short } from '../../model/util';
 import { BIG_GRAPH, CONNECTOR_COLOR, labelColor, sourceColor, type ColorMode, type EdgesMode, type PulseBatch, type PulseItem, type Theme } from './sceneShared';
@@ -141,6 +142,7 @@ export class BrainScene {
   private renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(52, 1, 0.1, 3000);
+  private ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20000);
   private GLOW = radialTex();
   private RING = radialTex(true);
   private geoSphere = new THREE.SphereGeometry(1, 16, 12);
@@ -168,6 +170,7 @@ export class BrainScene {
   private orbit = { target: new THREE.Vector3(), goal: null as THREE.Vector3 | null, r: 270, th: 0.7, ph: 1.2 };
   private drag: { x: number; y: number; sx: number; sy: number; pan: boolean } | null = null;
   private hover: string | null = null;
+  private mapNotes: { t: string; p: Vec3 }[] = [];
   private shellTarget = 0.45;
   private raf = 0;
   private last = performance.now();
@@ -306,7 +309,8 @@ export class BrainScene {
     if (prev.connectors !== p.connectors || prev.edges !== p.edges || prev.nodes !== p.nodes) this.syncConnectors(p);
     for (const o of this.C.values()) o.mesh.visible = !!p.showConnectors;
     if (this.connLines) this.connLines.visible = !!p.showConnectors && p.edgesMode !== 'none';
-    if (prev.nodes !== p.nodes || prev.view !== p.view || prev.serverPositions !== p.serverPositions) this.applyLayout(p, prev.view !== p.view);
+    const mapPick = p.view === 'map' && (prev.selected !== p.selected || prev.focus !== p.focus);
+    if (prev.nodes !== p.nodes || prev.view !== p.view || prev.edges !== p.edges || prev.serverPositions !== p.serverPositions || mapPick) this.applyLayout(p, prev.view !== p.view);
     if (prev.view !== p.view) this.onViewChange(p.view);
     if (prev.pulses?.token !== p.pulses.token) this.setPulses(p.pulses);
     if (p.flyTo && prev.flyTo?.token !== p.flyTo.token) {
@@ -314,6 +318,12 @@ export class BrainScene {
       if (o) this.orbit.goal = o.tgt.clone();
     }
     this.renderer.domElement.style.cursor = p.pickMode ? 'crosshair' : 'grab';
+    this.renderer.domElement.setAttribute(
+      'aria-label',
+      p.view === 'map'
+        ? '2D map. Drag to pan, wheel to zoom, click a node to inspect it.'
+        : '3D brain view. Drag to rotate, wheel to zoom, click a node to inspect it.',
+    );
     this.paint();
     this.prev = { ...p };
   }
@@ -468,16 +478,32 @@ export class BrainScene {
     this.scene.add(this.edgeLines);
   }
 
+  /** Flat reading: concepts on a header, memories under the strongest concept, the rest on a shelf. */
+  private mapPositions(p: SceneProps): Map<string, Vec3> {
+    const featured = new Set<string>();
+    for (const n of p.nodes) if (n.activation != null) featured.add(n.id);
+    for (const id of p.focus) featured.add(id);
+    if (p.selected) featured.add(p.selected);
+    const lay = layoutMap(p.nodes, p.edges, p.conceptIds, featured);
+    const S = 0.35;
+    const out = new Map<string, Vec3>();
+    for (const [id, pt] of lay.pos) out.set(id, [pt.x * S, 0, pt.y * S]);
+    this.mapNotes = lay.captions.map((c) => ({ t: c.text, p: [c.x * S, 0, c.y * S] as Vec3 }));
+    return out;
+  }
+
   private applyLayout(p: SceneProps, instant: boolean) {
     const nodes = p.nodes;
     const local = nodes.filter((n) => !n.external);
     const ext = nodes.filter((n) => n.external);
-    const pos = computeLayout(local, p.view, p.conceptIds, p.serverPositions);
-    const sources = [...new Set(ext.map((n) => n.source ?? n.id.split(':')[0]))].sort();
-    for (const n of ext) {
-      const sp = p.serverPositions?.[n.id];
-      const lit = n.activation !== undefined && n.activation !== null;
-      pos.set(n.id, (p.view === 'embed' || p.view === 'tree') && sp ? sp : p.view === 'sphere' && lit ? computeLayout([n], 'sphere', []).get(n.id)! : satellitePos(n, sources));
+    const pos = p.view === 'map' ? this.mapPositions(p) : computeLayout(local, p.view, p.conceptIds, p.serverPositions);
+    if (p.view !== 'map') {
+      const sources = [...new Set(ext.map((n) => n.source ?? n.id.split(':')[0]))].sort();
+      for (const n of ext) {
+        const sp = p.serverPositions?.[n.id];
+        const lit = n.activation !== undefined && n.activation !== null;
+        pos.set(n.id, (p.view === 'embed' || p.view === 'tree') && sp ? sp : p.view === 'sphere' && lit ? computeLayout([n], 'sphere', []).get(n.id)! : satellitePos(n, sources));
+      }
     }
     for (const n of nodes) {
       const o = this.P.get(n.id);
@@ -486,17 +512,49 @@ export class BrainScene {
       o.tgt.set(q[0], q[1], q[2]);
       if (instant && !this.prev.nodes) o.cur.copy(o.tgt);
     }
+    if (p.view !== 'map') this.mapNotes = [];
     this.shellTarget = p.view === 'brain' ? PALETTE[p.theme].shellOpacity : 0;
     for (const [k, g] of Object.entries(this.deco)) g.visible = k === p.view;
   }
 
   private onViewChange(view: ViewName) {
     this.orbit.goal = new THREE.Vector3();
+    if (view === 'map') {
+      this.orbit.th = 0;
+      this.orbit.ph = 0.001;
+      this.frameFlat();
+      return;
+    }
+    if (this.prev.view === 'map') {
+      this.orbit.th = 0.7;
+      this.orbit.ph = 1.2;
+    }
     this.orbit.r = view === 'sphere' ? 380 : view === 'time' ? 300 : view === 'tree' ? 360 : view === 'embed' ? 330 : 270;
     if (view === 'time') {
       this.orbit.th = 0;
       this.orbit.ph = 1.45;
     }
+  }
+
+  /** Frame the lit context. The shelf stays off to the side until the user zooms out. */
+  private frameFlat() {
+    const lit: THREE.Vector3[] = [];
+    for (const pn of this.P.values()) if (pn.node.activation != null) lit.push(pn.tgt);
+    const use = lit.length >= 2 ? lit : [...this.P.values()].map((pn) => pn.tgt);
+    if (!use.length) return;
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (const q of use) {
+      minX = Math.min(minX, q.x);
+      maxX = Math.max(maxX, q.x);
+      minZ = Math.min(minZ, q.z);
+      maxZ = Math.max(maxZ, q.z);
+    }
+    this.orbit.target.set((minX + maxX) / 2, 0, (minZ + maxZ) / 2);
+    this.orbit.goal = null;
+    const aspect = this.host.clientWidth / Math.max(1, this.host.clientHeight);
+    const halfW = (maxX - minX) / 2 + 36;
+    const halfH = (maxZ - minZ) / 2 + 36;
+    this.orbit.r = Math.max(halfH, halfW / Math.max(aspect, 0.25), 40);
   }
 
   // ------------------------------------------------------------------ painting
@@ -699,9 +757,39 @@ export class BrainScene {
   }
 
   // ------------------------------------------------------------------ camera + input
+  private flat() {
+    return this.p?.view === 'map';
+  }
+
+  private cam(): THREE.Camera {
+    return this.flat() ? this.ortho : this.camera;
+  }
+
+  private zoomLimit(r: number) {
+    return clamp(r, 25, this.flat() ? 8000 : 900);
+  }
+
   private updCam() {
-    const o = this.orbit,
-      sp = Math.sin(o.ph);
+    const o = this.orbit;
+    if (this.flat()) {
+      const cam = this.ortho;
+      cam.up.set(0, 0, -1);
+      cam.position.set(o.target.x, o.target.y + Math.max(o.r, 1), o.target.z);
+      cam.lookAt(o.target);
+      const aspect = this.host.clientWidth / Math.max(1, this.host.clientHeight);
+      const half = Math.max(20, o.r);
+      cam.left = -half * aspect;
+      cam.right = half * aspect;
+      cam.top = half;
+      cam.bottom = -half;
+      cam.near = 0.1;
+      cam.far = 20000;
+      cam.updateProjectionMatrix();
+      cam.updateMatrix();
+      return;
+    }
+    this.camera.up.set(0, 1, 0);
+    const sp = Math.sin(o.ph);
     this.camera.position.set(o.target.x + o.r * sp * Math.sin(o.th), o.target.y + o.r * Math.cos(o.ph), o.target.z + o.r * sp * Math.cos(o.th));
     this.camera.lookAt(o.target);
   }
@@ -709,7 +797,7 @@ export class BrainScene {
   private pick(ev: { clientX: number; clientY: number }): string | null {
     const rc = this.renderer.domElement.getBoundingClientRect();
     this.mouse.set(((ev.clientX - rc.left) / rc.width) * 2 - 1, (-(ev.clientY - rc.top) / rc.height) * 2 + 1);
-    this.raycaster.setFromCamera(this.mouse, this.camera);
+    this.raycaster.setFromCamera(this.mouse, this.cam());
     const meshes = [...this.objs.values()].map((o) => o.mesh);
     if (this.p?.showConnectors) for (const c of this.C.values()) meshes.push(c.mesh);
     const hit = this.raycaster.intersectObjects(meshes)[0];
@@ -728,7 +816,7 @@ export class BrainScene {
     cv.setAttribute('aria-label', '3D brain view. Drag to rotate, wheel to zoom, click a node to inspect it.');
     cv.addEventListener('contextmenu', (e) => e.preventDefault());
     cv.addEventListener('pointerdown', (e) => {
-      this.drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, pan: e.button === 2 || e.shiftKey };
+      this.drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, pan: this.flat() || e.button === 2 || e.shiftKey };
       try {
         cv.setPointerCapture(e.pointerId);
       } catch {
@@ -742,9 +830,12 @@ export class BrainScene {
         this.drag.x = e.clientX;
         this.drag.y = e.clientY;
         if (this.drag.pan) {
-          const right = new THREE.Vector3().setFromMatrixColumn(this.camera.matrix, 0),
-            up = new THREE.Vector3().setFromMatrixColumn(this.camera.matrix, 1);
-          this.orbit.target.addScaledVector(right, -dx * this.orbit.r * 0.0016).addScaledVector(up, dy * this.orbit.r * 0.0016);
+          const cam = this.cam();
+          const right = new THREE.Vector3().setFromMatrixColumn(cam.matrix, 0),
+            up = new THREE.Vector3().setFromMatrixColumn(cam.matrix, 1);
+          const h = Math.max(1, this.host.clientHeight);
+          const k = this.flat() ? (2 * this.orbit.r) / h : this.orbit.r * 0.0016;
+          this.orbit.target.addScaledVector(right, -dx * k).addScaledVector(up, dy * k);
           this.orbit.goal = null;
         } else {
           this.orbit.th -= dx * 0.006;
@@ -780,18 +871,33 @@ export class BrainScene {
       'wheel',
       (e) => {
         e.preventDefault();
-        this.orbit.r = clamp(this.orbit.r * Math.pow(1.0015, e.deltaY), 25, 900);
+        this.orbit.r = this.zoomLimit(this.orbit.r * Math.pow(1.0015, e.deltaY));
       },
       { passive: false },
     );
     cv.addEventListener('keydown', (e) => {
+      if (this.flat()) {
+        const step = (e.shiftKey ? 0.14 : 0.07) * this.orbit.r;
+        const right = new THREE.Vector3().setFromMatrixColumn(this.ortho.matrix, 0),
+          up = new THREE.Vector3().setFromMatrixColumn(this.ortho.matrix, 1);
+        if (e.key === 'ArrowLeft') this.orbit.target.addScaledVector(right, -step);
+        else if (e.key === 'ArrowRight') this.orbit.target.addScaledVector(right, step);
+        else if (e.key === 'ArrowUp') this.orbit.target.addScaledVector(up, step);
+        else if (e.key === 'ArrowDown') this.orbit.target.addScaledVector(up, -step);
+        else if (e.key === '+' || e.key === '=') this.orbit.r = this.zoomLimit(this.orbit.r * 0.9);
+        else if (e.key === '-') this.orbit.r = this.zoomLimit(this.orbit.r * 1.1);
+        else return;
+        this.orbit.goal = null;
+        e.preventDefault();
+        return;
+      }
       const step = 0.08;
       if (e.key === 'ArrowLeft') this.orbit.th += step;
       else if (e.key === 'ArrowRight') this.orbit.th -= step;
       else if (e.key === 'ArrowUp') this.orbit.ph = clamp(this.orbit.ph - step, 0.12, 3.02);
       else if (e.key === 'ArrowDown') this.orbit.ph = clamp(this.orbit.ph + step, 0.12, 3.02);
-      else if (e.key === '+' || e.key === '=') this.orbit.r = clamp(this.orbit.r * 0.9, 25, 900);
-      else if (e.key === '-') this.orbit.r = clamp(this.orbit.r * 1.1, 25, 900);
+      else if (e.key === '+' || e.key === '=') this.orbit.r = this.zoomLimit(this.orbit.r * 0.9);
+      else if (e.key === '-') this.orbit.r = this.zoomLimit(this.orbit.r * 1.1);
       else return;
       e.preventDefault();
     });
@@ -902,6 +1008,8 @@ export class BrainScene {
             { t: '↑ weight', p: [-105, 56, 0] },
             { t: 'concepts (no decay)', p: [120, 60, 0] },
           ]);
+      case 'map':
+        return this.mapNotes;
     }
   }
 
@@ -958,7 +1066,7 @@ export class BrainScene {
         d.style.display = 'none';
         return;
       }
-      it.p.project(this.camera);
+      it.p.project(this.cam());
       if (it.p.z > 1) {
         d.style.display = 'none';
         return;
@@ -977,7 +1085,9 @@ export class BrainScene {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     const p = this.p;
-    if (p?.autoRotate && !this.drag) this.orbit.th += dt * 0.08;
+    if (p?.autoRotate && p.view !== 'map' && !this.drag) this.orbit.th += dt * 0.08;
+    const fog = this.scene.fog as THREE.FogExp2 | null;
+    if (fog) fog.density = p?.view === 'map' ? 0 : 0.0022;
     if (this.orbit.goal) {
       this.orbit.target.lerp(this.orbit.goal, 0.07);
       if (this.orbit.target.distanceTo(this.orbit.goal) < 0.3) this.orbit.goal = null;
@@ -996,7 +1106,7 @@ export class BrainScene {
     for (const o of this.objs.values()) {
       o.mesh.position.copy(o.cur);
       o.glow.position.copy(o.cur);
-      if (o.node.external) o.mesh.rotation.y += dt * 0.6;
+      if (o.node.external && p?.view !== 'map') o.mesh.rotation.y += dt * 0.6;
       if (o.glow.visible) o.glow.scale.setScalar(o.gs * (1 + 0.09 * Math.sin(t * 2.6 + o.phase)));
     }
     if (this.C.size && this.p?.showConnectors) {
@@ -1007,7 +1117,7 @@ export class BrainScene {
         tgt.y += 6;
         o.cur.lerp(tgt, 0.12);
         o.mesh.position.copy(o.cur);
-        o.mesh.lookAt(this.camera.position);
+        o.mesh.lookAt(this.cam().position);
       }
       if (this.connLines) {
         const pos = (this.connLines.geometry.getAttribute('position') as THREE.BufferAttribute).array as Float32Array;
@@ -1062,7 +1172,7 @@ export class BrainScene {
       this.selRing.position.copy(sel.cur);
       this.selRing.scale.setScalar(sel.mesh.scale.x * 3.2 + 3);
     } else this.selRing.visible = false;
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.cam());
     this.updLabels();
     this.raf = requestAnimationFrame(this.frame);
   };
