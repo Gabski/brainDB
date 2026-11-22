@@ -63,6 +63,8 @@ type Config struct {
 	} `json:"embedding"`
 	Budget struct {
 		WarnTokens int `json:"warnTokens,omitempty"`
+		// ViewTokens caps what brain_view returns to an agent (rendered tokens, 0 = 3000). The lowest-activation items are dropped first.
+		ViewTokens int `json:"viewTokens,omitempty"`
 	} `json:"budget"`
 	Kinds []struct {
 		Name     string   `json:"name"`
@@ -211,7 +213,7 @@ var configSchema = sm(map[string]*schemaNode{
 	"embedding": sm(map[string]*schemaNode{"provider": sc, "model": sc, "baseUrl": sc, "apiKeyEnv": sc, "dim": sc, "batch": sc,
 		"timeout": sc, "retries": sc, "fallback": sc, "cache": sc, "title": sc, "alpha": sc, "hops": sc, "use": sc, "lambda": sc,
 		"inputType": sc, "apiVersion": sc}),
-	"budget":   sm(map[string]*schemaNode{"warnTokens": sc}),
+	"budget":   sm(map[string]*schemaNode{"warnTokens": sc, "viewTokens": sc}),
 	"kinds":    sl(sm(map[string]*schemaNode{"name": sc, "label": sc, "color": sc, "halfLife": sc, "floor": sc, "base": sc, "prefix": sc, "section": sc})),
 	"sections": ssl,
 	"concepts": sl(sm(map[string]*schemaNode{"id": sc, "label": sc, "related": ssl})),
@@ -539,6 +541,7 @@ func (b *Brain) ApplyConfig(c *Config, newDB bool) error {
 	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
+	b.WarnTokens = c.Budget.WarnTokens
 	if newDB {
 		if c.Name != "" {
 			b.Name = c.Name

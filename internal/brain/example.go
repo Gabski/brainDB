@@ -90,7 +90,7 @@ func InstallExample(dataDir, examplesDir, example, dbName string) (*Store, error
 		return nil, fmt.Errorf("data directory is required")
 	}
 	dir := filepath.Join(dataDir, dbName)
-	if _, err := os.Stat(filepath.Join(dir, "brain.xml")); err == nil {
+	if HasBrain(dir) {
 		return nil, fmt.Errorf("database %s already exists (%s)", dbName, dir)
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {

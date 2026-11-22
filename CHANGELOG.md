@@ -1,5 +1,47 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Two agents on one brain no longer lose each other's writes.** Every write loaded the file, applied a change and
+  wrote the whole brain back, with a lock that only ordered goroutines inside one process. Two `braindb mcp`
+  processes on the same file silently discarded each other's work: in a test, two agents saving 20 facts each left 22
+  of 40 in the brain while the journal reported all 40. Writes now take an advisory file lock (`brain.xml.lock`,
+  `flock` on Unix, `LockFileEx` on Windows) around reload, change and save, and the shutdown save (`Flush`) no longer
+  writes an old in-memory copy over a newer file.
+- **A directory holding only `brain.db` is found.** `--data-dir/--db`, `db ls`, `import`, `eval` and the server
+  looked for `brain.xml` by name, so a SQLite-only database was invisible, and `braindb mcp --db NAME` on it created a
+  new, empty `brain.xml` next to the real data: the agent saw an empty brain and no error. A database is now whichever
+  of `brain.db` / `brain.xml` exists (the newer one when `migrate` left both), and an unknown `--db` is an error that
+  lists the databases that do exist.
+
+### Changed
+
+- **`brain_view` is capped.** It returned the whole lit slice: 23,600 characters (about 5,900 tokens) on the
+  `sales-company` example, while the status line said `~3061 tok`, because that figure counts only the text of the lit
+  memories and not the tags, attributes and tables around them. `brain_view` now returns at most 3000 rendered tokens
+  (`max_tokens` per call, `0` = no cap, or `budget.viewTokens` in `braindb.yaml`), drops the least active memories
+  first, never the focus, and says how many it left out. The same example now costs about 2,700 tokens.
+- **`budget.warnTokens` works.** The key was accepted and documented but the status warning was hard-coded to 4000.
+- **Agents are told when search is lexical.** With the built-in `hash-256` engine the server instructions say that
+  search matches words, not meaning, and tell the agent to search with the notes' vocabulary and give every
+  `REMEMBER` 2-3 concepts. The "live view not started" message no longer blames "another process serves the UI" when
+  that process serves a different database.
+
+### Added
+
+- **Switching databases from MCP.** A session can list and change its database without a restart. `brain_use` with no
+  argument lists the databases with what each is for; `brain_use name` switches the session and answers with that
+  database's purpose. `USE name;` as the first statement of a `brain_run` script now works over MCP too (reads or
+  writes one script in another database), and `SHOW dbs` lists them. Over HTTP the token's `dbs` scope applies, and a
+  database with access control is reachable only with the admin token.
+- **Project databases.** `braindb init [NAME] [--example X] [--mcp]` creates `.braindb/NAME/` (with a `.gitignore` for
+  the journal, cache and lock files) and, with `--mcp`, a `.mcp.json` entry that needs no paths. `braindb mcp` and
+  `braindb run` find the nearest `.braindb/` from the working directory, add the shared databases from
+  `$BRAINDB_HOME` or `~/.local/share/braindb`, and start in the database named like the project directory (or
+  `default`, or `--db` / `BRAINDB_DB`). `--brain FILE` still means exactly that file.
+
 ## 0.0.2 — 2026-11-20
 
 A storage backend, four changes to defaults and one new subsystem. Three of the default changes alter behaviour on

@@ -77,7 +77,7 @@ func cmdCreate(argv []string) {
 	name := a.pos[0]
 	dir := filepath.Join(a.str("data-dir", env("BRAINDB_DATA_DIR", "./data")), name)
 	p := filepath.Join(dir, "brain.xml")
-	if _, err := os.Stat(p); err == nil {
+	if brain.HasBrain(dir) {
 		die(fmt.Errorf("database %s already exists (%s); use braindb import --db %s", name, p, name))
 	}
 	cfgText := ""
@@ -135,7 +135,7 @@ func cmdImport(argv []string) {
 	}
 	p := brainPath(a)
 	if db := a.str("db", ""); db != "" {
-		p = filepath.Join(a.str("data-dir", env("BRAINDB_DATA_DIR", "./data")), db, "brain.xml")
+		p = brain.BrainFileIn(filepath.Join(a.str("data-dir", env("BRAINDB_DATA_DIR", "./data")), db))
 	}
 	st := openExisting(p)
 	runImport(st, a.pos, a.bool("update"), a.bool("dry-run"))

@@ -281,23 +281,25 @@ type EmbConfig struct {
 type Brain struct {
 	mu sync.Mutex
 
-	Name   string
-	Goal   string
-	Dir    string // directory the brain lives in; used for the embedding cache. Not cleared by reset.
-	Step   int
-	P      Params
-	Emb    EmbConfig
-	Now    func() time.Time
-	kinds  []*Kind
-	kindM  map[string]*Kind
-	secs   []string
-	order  []string
-	nodes  map[string]*Node
-	edges  []*Edge
-	adj    map[string][]*Edge
-	seeds  []string
-	goal   []string
-	nextID int
+	Name string
+	Goal string
+	// WarnTokens is the budget.warnTokens of braindb.yaml: the status line warns above it (0 = 4000).
+	WarnTokens int
+	Dir        string // directory the brain lives in; used for the embedding cache. Not cleared by reset.
+	Step       int
+	P          Params
+	Emb        EmbConfig
+	Now        func() time.Time
+	kinds      []*Kind
+	kindM      map[string]*Kind
+	secs       []string
+	order      []string
+	nodes      map[string]*Node
+	edges      []*Edge
+	adj        map[string][]*Edge
+	seeds      []string
+	goal       []string
+	nextID     int
 
 	cur   *actResult
 	raw   map[string][]float32
@@ -602,7 +604,7 @@ func (b *Brain) recomputeNextID() {
 
 // clone makes a deep copy of the mutable state (used as an exec snapshot).
 func (b *Brain) clone() *Brain {
-	c := &Brain{Name: b.Name, Goal: b.Goal, Step: b.Step, P: b.P, Emb: b.Emb, Now: b.Now, nextID: b.nextID, Pat: b.Pat, Privacy: b.Privacy, RedactOnIngest: b.RedactOnIngest, access: b.access, purpose: b.purpose}
+	c := &Brain{Name: b.Name, Goal: b.Goal, WarnTokens: b.WarnTokens, Step: b.Step, P: b.P, Emb: b.Emb, Now: b.Now, nextID: b.nextID, Pat: b.Pat, Privacy: b.Privacy, RedactOnIngest: b.RedactOnIngest, access: b.access, purpose: b.purpose}
 	c.kinds = make([]*Kind, len(b.kinds))
 	c.kindM = map[string]*Kind{}
 	for i, k := range b.kinds {
