@@ -202,6 +202,31 @@ func (s *Store) save() error {
 func (s *Store) Save() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	unlock, err := s.lockStore()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	return s.save()
+}
+
+// Flush is the save for shutdown. Every Mutate already persisted its change, so Flush writes only when
+// nothing else touched the file since this process last read or wrote it. Writing a stale in-memory copy
+// over a newer file is exactly how another agent's work used to disappear.
+func (s *Store) Flush() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.Path == "" || s.ReadOnly {
+		return nil
+	}
+	unlock, err := s.lockStore()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	if st, err := os.Stat(s.Path); err == nil && (!st.ModTime().Equal(s.lastMod) || st.Size() != s.lastSize) {
+		return nil
+	}
 	return s.save()
 }
 
@@ -270,13 +295,20 @@ func (s *Store) Mutate(by, tool string, fn func(b *Brain) (string, []string, err
 		s.mu.Unlock()
 		return ErrReadOnly
 	}
-	s.syncLocked()
-	summary, ids, err := fn(s.B)
+	unlock, err := s.lockStore()
 	if err != nil {
 		s.mu.Unlock()
 		return err
 	}
+	s.syncLocked()
+	summary, ids, err := fn(s.B)
+	if err != nil {
+		unlock()
+		s.mu.Unlock()
+		return err
+	}
 	err = s.save()
+	unlock()
 	s.mu.Unlock()
 	if err != nil {
 		return err

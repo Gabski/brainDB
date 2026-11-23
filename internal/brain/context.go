@@ -401,8 +401,12 @@ func (b *Brain) status(extra string) string {
 	}
 	s := fmt.Sprintf("[ok] step %d · lit %d/%d memories + %d concepts · ~%d tok · depth %d/%d thr %s · focus %s",
 		b.Step, st.Mem, N, st.Abs, st.Tok, b.cur.maxDepth(), b.P.Depth, fmtNum(b.P.Threshold), focus)
-	if st.Tok > 4000 {
-		s += " · warn: context > 4k tokens: narrow the focus, lower depth or raise threshold"
+	if lim := b.warnTokens(); st.Tok > lim {
+		if lim == 4000 {
+			s += " · warn: context > 4k tokens: narrow the focus, lower depth or raise threshold"
+		} else {
+			s += fmt.Sprintf(" · warn: context > %d tokens: narrow the focus, lower depth or raise threshold", lim)
+		}
 	}
 	for _, w := range b.fedWarnings() {
 		s += " · warn: " + w
@@ -428,4 +432,96 @@ func oneLine(s string) string {
 		return s[:i+1]
 	}
 	return short(s, 200)
+}
+
+func (b *Brain) warnTokens() int {
+	if b.WarnTokens > 0 {
+		return b.WarnTokens
+	}
+	return 4000
+}
+
+// RenderedTokens estimates the tokens an agent pays to read s. Unlike the ~tok figure in the status line, which
+// counts only the text of the lit memories, this counts what is actually sent: tags, attributes, headings, tables.
+func RenderedTokens(s string) int { return int(math.Ceil(float64(jsLen(s)) / 3.6)) }
+
+// ContextFit says how a budgeted context was cut.
+type ContextFit struct {
+	Tokens  int // rendered tokens of the result
+	Shown   int // memories in the result
+	Lit     int // memories lit before cutting
+	Trimmed bool
+}
+
+// ContextBudget renders the lit slice (format "xml" or "md") so that it fits maxTokens rendered tokens
+// (<= 0: no limit). When it does not fit, the lowest-activation memories are dropped, never the focus, and the
+// result says so, so an agent knows to SEARCH instead of assuming it saw everything.
+func (b *Brain) ContextBudget(format string, maxTokens int) (string, ContextFit) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	render := func(L lit) string {
+		if format == "md" {
+			return b.maskText(b.contextMD(L))
+		}
+		return b.maskText(b.contextXML(L))
+	}
+	L := b.curLit()
+	mem := []string{}
+	for _, id := range L.r.order {
+		if n := b.nodes[id]; n != nil && n.Kind != Concept && n.Conn == nil {
+			mem = append(mem, id)
+		}
+	}
+	full := render(L)
+	fit := ContextFit{Tokens: RenderedTokens(full), Shown: len(mem), Lit: len(mem)}
+	if maxTokens <= 0 || fit.Tokens <= maxTokens {
+		return full, fit
+	}
+	seed := map[string]bool{}
+	for _, id := range L.seeds {
+		seed[id] = true
+	}
+	cand := []string{} // droppable, most active first
+	for _, id := range mem {
+		if !seed[id] {
+			cand = append(cand, id)
+		}
+	}
+	stableSortDesc(cand, func(id string) float64 { return L.r.act[id] })
+	cut := func(keep int) lit {
+		drop := map[string]bool{}
+		for _, id := range cand[keep:] {
+			drop[id] = true
+		}
+		r := newAct()
+		for _, id := range L.r.order {
+			if drop[id] {
+				continue
+			}
+			r.order = append(r.order, id)
+			r.act[id], r.depth[id], r.parent[id] = L.r.act[id], L.r.depth[id], L.r.parent[id]
+			if rt := L.r.route[id]; len(rt) > 0 {
+				r.route[id] = rt
+			}
+		}
+		return lit{seeds: L.seeds, P: L.P, r: r, warn: L.warn}
+	}
+	lo, hi := 0, len(cand) // largest keep whose rendering fits; keep=0 is the floor even if it does not
+	for lo < hi {
+		mid := (lo + hi + 1) / 2
+		if RenderedTokens(render(cut(mid))) <= maxTokens {
+			lo = mid
+		} else {
+			hi = mid - 1
+		}
+	}
+	out := render(cut(lo))
+	shown := len(mem) - (len(cand) - lo)
+	note := fmt.Sprintf("trimmed to fit max_tokens=%d: %d of %d lit memories shown, the least active were omitted; SEARCH or raise max_tokens for the rest", maxTokens, shown, len(mem))
+	if format == "md" {
+		out = strings.TrimRight(out, "\n") + "\n\n> " + note + "\n"
+	} else if i := strings.LastIndex(out, "</context>"); i >= 0 {
+		out = out[:i] + `<trimmed shown="` + strconv.Itoa(shown) + `" of="` + strconv.Itoa(len(mem)) + `" note="` + esc(note) + `"/>` + "\n" + out[i:]
+	}
+	return out, ContextFit{Tokens: RenderedTokens(out), Shown: shown, Lit: len(mem), Trimmed: true}
 }

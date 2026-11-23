@@ -147,8 +147,8 @@ func (s *Server) LoadDataDir() error {
 		if !e.IsDir() {
 			continue
 		}
-		p := filepath.Join(s.DataDir, e.Name(), "brain.xml")
-		if _, err := os.Stat(p); err != nil {
+		p, ok := brain.FindBrainFile(filepath.Join(s.DataDir, e.Name()))
+		if !ok {
 			continue
 		}
 		st, err := brain.OpenStore(p, "")
@@ -1312,6 +1312,9 @@ func (s *Server) CreateDB(name, configYAML string) (*brain.Store, error) {
 		return nil, fmt.Errorf("database %s already exists", name)
 	}
 	dir := filepath.Join(s.DataDir, name)
+	if brain.HasBrain(dir) {
+		return nil, fmt.Errorf("database %s already exists on disk (%s)", name, dir)
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}
@@ -1451,6 +1454,59 @@ func (s *Server) dbsHandler(w http.ResponseWriter, r *http.Request) {
 
 // ---------------------------------------------------------------- MCP over Streamable HTTP
 
+// serverCatalog lets an MCP session on a multi-database server list and switch databases. It never widens what the
+// session's token allows: the token's database scope applies, and a database with access control is reachable only
+// by the admin token, because a user principal (and its labels) belongs to the database it logged in to.
+type serverCatalog struct {
+	s   *Server
+	tok *Token
+}
+
+func (c *serverCatalog) allowed(name string) bool {
+	st := c.s.Store(name)
+	if st == nil {
+		return false
+	}
+	if c.tok != nil && len(c.tok.DBs) > 0 && !contains(c.tok.DBs, name) && !contains(c.tok.DBs, "*") {
+		return false
+	}
+	adminToken := c.tok == nil || c.tok.Name == "local" || c.tok.Name == "default"
+	return adminToken || !st.B.AccessEnabled()
+}
+
+func contains(l []string, s string) bool {
+	for _, x := range l {
+		if x == s {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *serverCatalog) List() []mcp.DBInfo {
+	out := []mcp.DBInfo{}
+	for _, n := range c.s.DBs() {
+		if !c.allowed(n) {
+			continue
+		}
+		st := c.s.Store(n)
+		nodes, edges := st.B.Counts()
+		d := mcp.DBInfo{Name: n, Path: st.Path, Backend: st.BackendName(), Nodes: nodes, Edges: edges, Description: st.B.GoalText()}
+		if p := st.B.Purpose(); p != nil && p.Description != "" {
+			d.Description = p.Description
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+func (c *serverCatalog) Open(name string) (*brain.Store, error) {
+	if c.allowed(name) {
+		return c.s.Store(name), nil
+	}
+	return nil, fmt.Errorf("no database %q", name)
+}
+
 type mcpSession struct {
 	srv  *mcp.Server
 	last time.Time
@@ -1554,6 +1610,9 @@ func (s *Server) mcpHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		ms := &mcp.Server{Store: st, Actor: actorOf(r, "agent"), Name: s.MCPName, Title: s.MCPTitle, Version: s.Version, Tools: s.MCPTools,
 			ReadOnly: s.ReadOnly || !canWrite(r), Log: s.Log, Principal: p}
+		if cat := (&serverCatalog{s: s, tok: tokenOf(r)}); p.Admin && len(cat.List()) > 1 {
+			ms.Catalog = cat
+		}
 		sess = &mcpSession{srv: ms}
 		if isInit {
 			sid = newSessionID()
@@ -1642,7 +1701,7 @@ func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
 	_ = hs.Shutdown(sctx)
 	for _, n := range s.DBs() {
 		if st := s.Store(n); st != nil && !st.ReadOnly {
-			_ = st.Save()
+			_ = st.Flush()
 		}
 	}
 	return nil

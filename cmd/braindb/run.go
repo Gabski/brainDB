@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/Gabski/brainDB/internal/bdql"
-	"github.com/Gabski/brainDB/internal/brain"
 )
 
 func init() {
@@ -47,35 +46,14 @@ func cmdRun(argv []string) {
 		}
 		script = string(d)
 	}
-	p := brainPath(a)
-	if dd := a.str("data-dir", ""); dd != "" && a.has("db") {
-		p = filepath.Join(dd, a.str("db", ""), "brain.xml")
-	}
-	st := openExisting(p)
-	if a.has("db") {
-		st.Name = a.str("db", "")
-	} else if filepath.Base(p) == "brain.xml" {
-		st.Name = filepath.Base(filepath.Dir(p))
-	}
+	st, cat := resolveStore(a, false)
 	r := &bdql.Runner{Store: st, ReadOnly: a.bool("read-only"), Actor: a.str("actor", "cli"), DryRun: a.bool("dry-run")}
 	if bdql.NewRunner != nil {
 		bdql.NewRunner(r)
 	}
-	dataDir := a.str("data-dir", env("BRAINDB_DATA_DIR", ""))
-	r.Use = func(name string) (*brain.Store, error) {
-		if name == st.Name {
-			return st, nil
-		}
-		if dataDir == "" {
-			return nil, fmt.Errorf("no database %s (this run is bound to %s; pass --data-dir to switch)", name, st.Name)
-		}
-		q := filepath.Join(dataDir, name, "brain.xml")
-		if !fileExists(q) {
-			return nil, fmt.Errorf("no database %s in %s", name, dataDir)
-		}
-		s2 := openStore(q, "")
-		s2.Name = name
-		return s2, nil
+	if cat != nil {
+		r.Use = cat.Open
+		r.ShowDBs = func() any { return bdql.CatalogRows(cat, st.Name) }
 	}
 	if u := a.str("user", ""); u != "" {
 		pr, err := st.B.PrincipalFor(u)

@@ -258,7 +258,8 @@ const usage = `usage: braindb <command> [flags]
 
 commands:
   serve    --brain brain.xml | --data-dir DIR [--seed seed.json] [--addr 127.0.0.1:7791] [--port N] [--allow-no-token]
-  mcp      --brain brain.xml [--actor claude] [--addr …|--port N] [--no-http] [--tools view,run|all] [--read-only]
+  mcp      [--brain brain.xml | --data-dir DIR] [--db NAME] [--actor claude] [--addr …|--port N] [--no-http] [--tools view,run,use|all] [--read-only]
+           (no flags inside a project with .braindb/: starts in its database; the agent switches with brain_use)
   seed     SEED.json -o brain.xml [--ingest DIR]
   migrate  --brain brain.xml --to sqlite|file...
   state    --brain brain.xml
@@ -418,14 +419,19 @@ func cmdMCP(argv []string) {
 		die(err)
 	}
 	var st *brain.Store
+	var cat *projectCatalog
 	if snap := a.str("snapshot", ""); snap != "" {
 		st = openSnapshot(snap)
-	} else if dd := a.str("data-dir", ""); dd != "" && a.has("db") {
-		st = openStore(filepath.Join(dd, a.str("db", ""), "brain.xml"), "")
+		configure(st)
+	} else if seed := a.str("seed", ""); seed != "" {
+		st = openStore(brainPath(a), seed)
+		configure(st)
 	} else {
-		st = openStore(brainPath(a), a.str("seed", ""))
+		st, cat = resolveStore(a, true)
+		if cat == nil && !a.has("brain") && env("BRAINDB_BRAIN", "") == "" && !fileExists(st.Path) {
+			logf("no .braindb/ found: using %s (run `braindb init` to give this project its own database)", st.Path)
+		}
 	}
-	configure(st)
 	ms := &mcp.Server{Store: st, Actor: a.str("actor", env("BRAINDB_ACTOR", "agent")), Name: "braindb", Title: title, Version: version, Log: logf,
 		ReadOnly: a.bool("read-only") || st.ReadOnly}
 	if u := a.str("user", ""); u != "" || st.B.AccessEnabled() {
@@ -437,6 +443,10 @@ func cmdMCP(argv []string) {
 		if !a.has("actor") && p.Name != "" {
 			ms.Actor = p.Name
 		}
+		cat = nil // grants belong to one database: a restricted user cannot switch to another
+	}
+	if cat != nil {
+		ms.Catalog = cat
 	}
 	if t := a.str("tools", ""); t != "" {
 		if ms.Tools, err = mcp.ResolveTools(strings.Split(t, ",")); err != nil {
@@ -455,7 +465,7 @@ func cmdMCP(argv []string) {
 		addr := listenAddr(a, st)
 		ln, err := net.Listen("tcp", addr)
 		if err != nil {
-			logf("HTTP on %s unavailable (%v): another process serves the UI; changes sync through %s", addr, err, filepath.Base(st.Path))
+			logf("live view not started: %s is taken (%v), probably by another brainDB process that shows its own database. Pass --port N for this one, or --no-http. Changes still sync through %s", addr, err, filepath.Base(st.Path))
 		} else if !server.IsLoopback(addr) && len(s.Tokens) == 0 && !s.AllowNone {
 			ln.Close()
 			logf("not starting HTTP on non-loopback %s without a token", addr)
@@ -477,7 +487,7 @@ func cmdMCP(argv []string) {
 		<-ctx.Done()
 	}
 	if !st.ReadOnly && st.Path != "" {
-		_ = st.Save()
+		_ = st.Flush()
 	}
 }
 
@@ -727,7 +737,7 @@ func cmdDB(argv []string) {
 			die(fmt.Errorf("add --yes to delete database %s", a.pos[1]))
 		}
 		dir := filepath.Join(s.DataDir, a.pos[1])
-		if _, err := os.Stat(filepath.Join(dir, "brain.xml")); err != nil {
+		if !brain.HasBrain(dir) {
 			die(fmt.Errorf("no database %s in %s", a.pos[1], s.DataDir))
 		}
 		trash := filepath.Join(s.DataDir, ".deleted-"+a.pos[1]+"-"+strconv.FormatInt(time.Now().Unix(), 10))

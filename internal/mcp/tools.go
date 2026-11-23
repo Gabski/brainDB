@@ -21,6 +21,7 @@ func init() {
 "add_focus":{"type":"array","items":{"type":"string"}},"remove_focus":{"type":"array","items":{"type":"string"}},
 "depth":{"type":"integer","minimum":0,"maximum":6},"threshold":{"type":"number","minimum":0.01,"maximum":0.9},"hop":{"type":"number","minimum":0.3,"maximum":1},
 "show_superseded":{"type":"boolean"},"format":{"type":"string","enum":["xml","md"],"description":"xml (default) or md: Markdown summary with focus, sections, activation tree and stats"},
+"max_tokens":{"type":"integer","minimum":0,"maximum":50000,"description":"cap on the rendered size of the returned context (default 3000, 0 = no cap); the least active items are dropped first and the reply says so"},
 "sources":{"type":"array","items":{"type":"string"},"description":"external sources to federate (names or *)"}}}`),
 		Run: toolView})
 	Register(&Tool{Name: "brain_search", Description: "Search the WHOLE memory (not only the lit slice). mode: hybrid (default; vector seeds → graph activation, GraphRAG), vector (kNN on graph-enriched embeddings), " +
@@ -62,6 +63,65 @@ func init() {
 		Run: toolFill})
 }
 
+func init() {
+	Register(&Tool{Name: "brain_use", Description: "DATABASES. Without name: list the databases this session can use (name, size, what each is for) and mark the active one. " +
+		"With name: switch every following brain_view / brain_run / brain_* call to that database for the rest of the session. The reply states the new database's purpose; read it before writing, because each database accepts different knowledge. " +
+		"To read another database once without switching, start a brain_run script with USE <name>;",
+		InputSchema: schema(`{"type":"object","properties":{"name":{"type":"string","description":"database to switch to; omit to list"}}}`),
+		Run:         toolUse})
+}
+
+func dbTable(s *Server) string {
+	var b strings.Builder
+	b.WriteString("| | name | nodes | for |\n|---|---|---|---|\n")
+	for _, d := range s.Catalog.List() {
+		mark, nodes := "", "?"
+		if d.Name == s.Store.Name {
+			mark = "▶"
+			n, _ := s.Store.B.Counts()
+			nodes = fmt.Sprint(n)
+		} else if d.Nodes >= 0 {
+			nodes = fmt.Sprint(d.Nodes)
+		}
+		desc := strings.Join(strings.Fields(d.Description), " ")
+		if len(desc) > 140 {
+			desc = desc[:140] + "…"
+		}
+		fmt.Fprintf(&b, "| %s | %s | %s | %s |\n", mark, d.Name, nodes, desc)
+	}
+	return strings.TrimRight(b.String(), "\n")
+}
+
+func toolUse(s *Server, args json.RawMessage) (string, error) {
+	var a struct {
+		Name string `json:"name"`
+	}
+	if err := decode(args, &a); err != nil {
+		return "", err
+	}
+	if s.Catalog == nil {
+		return "", fmt.Errorf("this session is bound to one database (%s)", s.Store.Name)
+	}
+	name := strings.TrimSpace(a.Name)
+	if name == "" {
+		return dbTable(s), nil
+	}
+	if name == s.Store.Name {
+		return "already using " + name + "\n" + strings.TrimSpace(s.purposeText()), nil
+	}
+	st, err := s.Catalog.Open(name)
+	if err != nil {
+		return "", fmt.Errorf("%v\n%s", err, dbTable(s))
+	}
+	s.Store = st
+	s.Store.Sync()
+	out := "now using " + name
+	if p := strings.TrimSpace(s.purposeText()); p != "" {
+		out += "\n" + p
+	}
+	return out, nil
+}
+
 func toolView(s *Server, args json.RawMessage) (string, error) {
 	var a struct {
 		Focus          json.RawMessage `json:"focus"`
@@ -72,6 +132,7 @@ func toolView(s *Server, args json.RawMessage) (string, error) {
 		Hop            *float64        `json:"hop"`
 		ShowSuperseded *bool           `json:"show_superseded"`
 		Format         string          `json:"format"`
+		MaxTokens      *int            `json:"max_tokens"`
 	}
 	if err := decode(args, &a); err != nil {
 		return "", err
@@ -117,7 +178,7 @@ func toolView(s *Server, args json.RawMessage) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return r.Output, nil
+		return capText(r.Output, s.viewBudget(a.MaxTokens)), nil
 	}
 	if changed {
 		err := s.Store.Mutate(s.Actor, "brain_view", func(b *brain.Brain) (string, []string, error) {
@@ -134,10 +195,39 @@ func toolView(s *Server, args json.RawMessage) (string, error) {
 		s.Store.Sync()
 		b = s.brain()
 	}
-	if format == "md" {
-		return b.ContextMD(), nil
+	out, _ := b.ContextBudget(format, s.viewBudget(a.MaxTokens))
+	return out, nil
+}
+
+// defaultViewTokens is how much of the lit slice brain_view returns unless braindb.yaml (budget.viewTokens) or the
+// call (max_tokens) says otherwise. An agent pays for this on every task, so the default is a working set, not the
+// whole slice.
+const defaultViewTokens = 3000
+
+func (s *Server) viewBudget(arg *int) int {
+	if arg != nil {
+		return *arg
 	}
-	return b.ContextXML(), nil
+	if c := s.Store.Conf; c != nil && c.Budget.ViewTokens > 0 {
+		return c.Budget.ViewTokens
+	}
+	return defaultViewTokens
+}
+
+// capText cuts text that has no structure to trim (an ad-hoc context query) at a line boundary.
+func capText(s string, maxTokens int) string {
+	if maxTokens <= 0 || brain.RenderedTokens(s) <= maxTokens {
+		return s
+	}
+	lines := strings.Split(s, "\n")
+	var b strings.Builder
+	for _, l := range lines {
+		if brain.RenderedTokens(b.String()+l) > maxTokens {
+			break
+		}
+		b.WriteString(l + "\n")
+	}
+	return b.String() + fmt.Sprintf("[trimmed to max_tokens=%d; raise it or narrow the focus]\n", maxTokens)
 }
 
 func toolSearch(s *Server, args json.RawMessage) (string, error) {

@@ -12,6 +12,9 @@ Then teach the agent how to use them:
 1. install the [`braindb-bdql` skill](../skills/braindb-bdql/SKILL.md) where the agent supports skills;
 2. otherwise paste the rules block from [AGENTS.md §4](AGENTS.md#4-rules-for-agents-paste-into-claudemd--agentsmd--the-system-prompt) into the agent's instructions.
 
+Inside a project, `braindb init --mcp` writes the `.mcp.json` entry for you (no paths, and the agent can switch between the
+project's databases with `brain_use`; see [AGENTS.md](AGENTS.md#one-project-several-databases)).
+
 Paths below use `/opt/braindb/bin/braindb` and `/srv/brains/sales.xml`. Replace them with yours.
 Agent CLIs change quickly, so the exact flags of third-party tools are worth checking with their `--help` (see "Verify" in each section).
 

@@ -53,6 +53,10 @@ func init() {
 			if NewRunner != nil {
 				NewRunner(r)
 			}
+			if cat := s.Catalog; cat != nil {
+				r.Use = cat.Open
+				r.ShowDBs = func() any { return CatalogRows(cat, s.Store.Name) }
+			}
 			res, err := r.Run(a.Script)
 			txt := res.Render(a.Format)
 			if err != nil {
@@ -60,6 +64,30 @@ func init() {
 			}
 			return strings.TrimSuffix(strings.TrimSuffix(txt, res.Status), "\n"), nil
 		}})
+}
+
+// dbRow is one line of SHOW dbs for a session that can switch databases (field order = column order).
+type dbRow struct {
+	Name    string `json:"name"`
+	Active  bool   `json:"active"`
+	Nodes   *int   `json:"nodes"`
+	Edges   *int   `json:"edges"`
+	Backend string `json:"backend"`
+	For     string `json:"for"`
+}
+
+// CatalogRows is the SHOW dbs result for a session that can switch databases.
+func CatalogRows(cat mcp.Catalog, current string) any {
+	rows := []dbRow{}
+	for _, d := range cat.List() {
+		r := dbRow{Name: d.Name, Active: d.Name == current, Backend: d.Backend, For: strings.Join(strings.Fields(d.Description), " ")}
+		if d.Nodes >= 0 {
+			n, e := d.Nodes, d.Edges
+			r.Nodes, r.Edges = &n, &e
+		}
+		rows = append(rows, r)
+	}
+	return rows
 }
 
 // NewRunner, when set, configures runners created by the MCP tool and HTTP hook (USE, SHOW dbs, IMPORT, …).

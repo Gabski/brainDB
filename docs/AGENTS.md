@@ -41,6 +41,28 @@ mkdir -p .claude/skills && cp -r /abs/path/braindb/skills/braindb-bdql .claude/s
 # or: cp -r /abs/path/braindb/skills/braindb-bdql ~/.claude/skills/
 ```
 
+### One project, several databases
+
+```bash
+cd /path/to/project
+braindb init                  # .braindb/<project>/ with its own braindb.yaml
+braindb init docs             # a second database for this project
+braindb init --mcp            # writes .mcp.json: { "command": "braindb", "args": ["mcp", "--no-http"] }
+# or: claude mcp add braindb -- braindb mcp --no-http
+```
+
+`braindb mcp` started anywhere inside the project finds `.braindb/` by itself and adds the shared databases from
+`~/.local/share/braindb` (or `$BRAINDB_HOME`). The agent works in the project database and switches with one call:
+
+```
+brain_use                      list: name, nodes, what each database is for (▶ marks the active one)
+brain_use {"name": "docs"}     every following call now runs against "docs"; the reply states its purpose
+brain_run  USE docs; SELECT …  read or write one script in another database, session stays where it is
+```
+
+Put what each database is for in its `braindb.yaml` (`description:` or a `purpose:` block): that line is what the agent
+sees when it chooses. Start in a different database with `--db NAME` or `BRAINDB_DB`.
+
 ### Cursor / any MCP client
 
 ```json
@@ -106,7 +128,11 @@ Every reply ends with a status line. Read it every turn:
 [ok] step 12 · lit 18/240 memories + 6 concepts · ~610 tok · depth 2/2 thr 0.16 · focus d121,d140 · routes 3
 ```
 
-- `~tok` over 4000 (a warning appears): narrow the focus, lower the depth, or raise the threshold.
+- `~tok` over 4000 (a warning appears; `budget.warnTokens` in `braindb.yaml` changes the limit): narrow the focus, lower the depth, or raise the threshold. `~tok` counts the text of the lit memories only.
+- `brain_view` returns at most 3000 **rendered** tokens by default (tags, attributes and tables included, so it is
+  about twice the `~tok` figure). The least active memories are dropped first, the focus never, and the reply says
+  `trimmed … N of M lit memories shown`; `SEARCH` for the rest. Set the cap per call with `max_tokens` (`0` = no cap)
+  or per brain with `budget: {viewTokens: 2000}`.
 - `lit` is tiny or 0: the focus is wrong or empty. Use `CONTEXT FOR "<task>" SET`.
 
 ## 4. Rules for agents (paste into CLAUDE.md / AGENTS.md / the system prompt)
@@ -197,7 +223,7 @@ FORGET WHERE kind = note AND age > 90 AND NOT pinned DRY RUN;                   
 ### Several agents on one brain
 
 - Give each agent its own `--actor` name. The journal and the UI Activity feed show who did what.
-- They share the brain through file sync: atomic writes and reload-on-change. Write scripts are atomic and serialised by a lock.
+- They share the brain through file sync: atomic writes and reload-on-change. Write scripts are atomic and serialised across processes by a file lock (`brain.xml.lock`), so two agents never overwrite each other.
 - Give each agent a **hub** for its workstream, `CONNECTOR hub "Pricing review" CONNECT … AS H`, and focus on it. Agents then stay out of each other's context.
 - A reviewer agent can run read-only (`--tools view,run` with a read-only token, or a published `readonly` binary).
 

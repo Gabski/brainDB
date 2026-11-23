@@ -237,6 +237,17 @@ The compose file publishes ports on `127.0.0.1` only. Set `BRAINDB_TOKEN` before
 > Full guide: [docs/AGENTS.md](docs/AGENTS.md): setup for Claude Code, Cursor, CLI/HTTP agents, the working loop, rules to paste into CLAUDE.md / AGENTS.md, patterns, token budget, safety and troubleshooting.
 > Skill for writing efficient BDQL: [skills/braindb-bdql](skills/braindb-bdql/SKILL.md). Install it with `cp -r skills/braindb-bdql .claude/skills/` or `make install-skill`.
 
+Inside a project, no paths are needed:
+
+```bash
+cd /path/to/project
+braindb init --mcp       # .braindb/<project>/ + a .mcp.json entry (braindb init NAME adds more databases)
+```
+
+`braindb mcp` finds the nearest `.braindb/`, adds the shared databases from `~/.local/share/braindb`, and the agent
+lists and switches between them with `brain_use` (details: [docs/AGENTS.md](docs/AGENTS.md#one-project-several-databases)).
+To pin one file instead:
+
 ```bash
 # Claude Code
 claude mcp add braindb -- /abs/path/bin/braindb mcp --brain /abs/path/brain.xml --actor claude
@@ -253,14 +264,16 @@ Cursor / generic `mcp.json`:
 ```
 
 `braindb mcp` also serves the live UI on port 7791, so you can watch the agent work.
-Several processes can share one `brain.xml`. They sync through the file: atomic writes, reload on change.
+Several processes can share one `brain.xml`. They sync through the file: atomic writes, reload on change, and writers
+are serialised across processes by a file lock (`brain.xml.lock`), so two agents never overwrite each other.
 
-By default an agent gets **two tools**:
+By default an agent gets **three tools** (`brain_use` appears when more than one database is available):
 
 | tool | purpose |
 |---|---|
 | `brain_view` | input: the lit context as XML or Markdown |
-| `brain_run` | one [BDQL](#bdql-the-braindb-query-language) script: reads, searches, writes, templates, imports and sources, atomic per script |
+| `brain_run` | one [BDQL](#bdql-the-braindb-query-language) script: reads, searches, writes, templates, imports and sources, atomic per script. `USE name;` as the first statement runs it against another database |
+| `brain_use` | no argument: list the databases and what each is for; `name`: switch the session to that database |
 
 A typical turn takes one call:
 

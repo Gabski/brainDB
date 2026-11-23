@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Gabski/brainDB/internal/brain"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +37,7 @@ func cmdEval(argv []string) {
 	}
 	p := brainPath(a)
 	if dd := a.str("data-dir", ""); dd != "" && a.has("db") {
-		p = filepath.Join(dd, a.str("db", ""), "brain.xml")
+		p = brain.BrainFileIn(filepath.Join(dd, a.str("db", "")))
 	}
 	st := openExisting(p)
 	configure(st)

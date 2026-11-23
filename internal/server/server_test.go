@@ -490,3 +490,52 @@ func TestWhoamiListsAreNeverNull(t *testing.T) {
 		}
 	}
 }
+
+func mcpSession(t *testing.T, url string, hdr ...string) string {
+	t.Helper()
+	h := append([]string{"Accept", "application/json"}, hdr...)
+	c, b, rh := do(t, "POST", url+"/mcp", `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}`, h...)
+	if c != 200 {
+		t.Fatalf("initialize: %d %s", c, b)
+	}
+	return rh.Get("Mcp-Session-Id")
+}
+
+func mcpCall(t *testing.T, url, sid, tool, args string, hdr ...string) string {
+	t.Helper()
+	h := append([]string{"Mcp-Session-Id", sid, "Accept", "application/json"}, hdr...)
+	_, b, _ := do(t, "POST", url+"/mcp", `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"`+tool+`","arguments":`+args+`}}`, h...)
+	return b
+}
+
+func TestMCPBrainUseOverHTTPRespectsTokenScope(t *testing.T) {
+	s := server.New("test")
+	s.DataDir = t.TempDir()
+	s.Hooks.Run = bdql.HTTPRun
+	for _, n := range []string{"alpha", "beta"} {
+		if _, err := s.CreateDB(n, ""); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s.Tokens = []server.Token{
+		{Name: "default", Value: "adm", Scope: "admin"},
+		{Name: "bot", Value: "bot", Scope: "write", DBs: []string{"alpha"}},
+	}
+	ts := httptest.NewServer(s.Handler())
+	defer ts.Close()
+	defer s.Close()
+
+	sid := mcpSession(t, ts.URL, "Authorization", "Bearer adm", "X-BrainDB-Database", "alpha")
+	if out := mcpCall(t, ts.URL, sid, "brain_use", `{"name":"beta"}`, "Authorization", "Bearer adm", "X-BrainDB-Database", "alpha"); !strings.Contains(out, "now using beta") {
+		t.Fatalf("admin switches: %s", out)
+	}
+
+	sid = mcpSession(t, ts.URL, "Authorization", "Bearer bot", "X-BrainDB-Database", "alpha")
+	out := mcpCall(t, ts.URL, sid, "brain_use", `{"name":"beta"}`, "Authorization", "Bearer bot", "X-BrainDB-Database", "alpha")
+	if strings.Contains(out, "now using beta") || !strings.Contains(out, "unknown tool") {
+		t.Fatalf("a token scoped to one database sees only that database, so there is nothing to switch: %s", out)
+	}
+	if out := mcpCall(t, ts.URL, sid, "brain_run", `{"script":"USE beta; SELECT COUNT(*) FROM memory;"}`, "Authorization", "Bearer bot", "X-BrainDB-Database", "alpha"); !strings.Contains(out, "bound to one database") {
+		t.Fatalf("USE must stay refused for a scoped token: %s", out)
+	}
+}
